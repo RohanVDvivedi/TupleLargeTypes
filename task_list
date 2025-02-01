@@ -1,0 +1,26 @@
+* manage larger than page data types like LARGE_TEXT, LARGE_BLOB, LARGE_JSON and LARGE_NUMBER, storing them in worm
+ * and tuple types for their inline storage prefixes, such that they are easy for comparison
+
+* LARGE_BLOB/LARGE_TEST
+  * get_prefix
+  * compare
+  * generate prefix type, with size
+
+* LARGE_JSONB
+  * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
+  * create_worm
+  * uses JSONparser as input object
+
+* LARGE_NUMBER * you might think a large number akin to numeric can not be compare with prefixes
+ * for instance 645780623465123456.6876458076456345655946595
+ * if so why not store it as
+   sign_bits - 2, exponent - 64 bit signed atmost, mantissa variable number of decimal bytes at most 32
+   sign bits 00 = -infinity, 01 - negative, 10 - positive, 11 - +infinity
+   so this becomes
+   sign bits = 0b10, exponent 17, mantissa = 6.457806234651234566876458076456345655946595
+   now you can easily truncate byte, giving us approximation, to upto some number of significant digits
+   sign bits = 0b10, exponent 17, mantissa = 6.45780623
+   comparison goes like first compare sign bits in binary unsigned, then exponent in signed, and then mantissa
+ * get_prefix
+ * compare
+ * generate prefix type with size
