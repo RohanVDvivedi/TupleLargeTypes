@@ -22,5 +22,6 @@
 
 * LARGE_JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
+  * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
   * create_worm
   * uses JSONparser's node as input object
