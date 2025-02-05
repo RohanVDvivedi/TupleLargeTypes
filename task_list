@@ -1,10 +1,8 @@
-* manage larger than page data types like LARGE_TEXT, LARGE_BLOB, LARGE_JSON and LARGE_NUMBER, storing them in worm
- * and tuple types for their inline storage prefixes, such that they are easy for comparison
-
  * LARGE_BLOB/LARGE_TEXT
-   * generate short_blob, short_text data types, directly constructed page_size max size typed, variable sized string and blob types
-   * generate their large_* counterparts, that have uint64_t as page_id of the worm following the short_* types
    * compare function for large types
+   * generate prefix type from the large types, with specified prefix length
+   * stream read interface to read them
+   * stream write interface to generate a corresponding worm if the data exceeds certian bytes
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
@@ -25,4 +23,4 @@
 * LARGE_JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
   * create_worm
-  * uses JSONparser as input object
+  * uses JSONparser's node as input object
