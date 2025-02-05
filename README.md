@@ -19,7 +19,7 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
  * ***Once you have installed from source, you may discard the build by*** `make clean`
 
 ## Using The library
- * add `-ltuplelargetypes` linker flag, while compiling your application
+ * add `-ltuplelargetypes -ltupleindexer -ltuplestore -lcutlery` linker flag, while compiling your application
  * do not forget to include appropriate public api headers as and when needed. this includes
    * `#include<tuplelargetypes.h>`
 
