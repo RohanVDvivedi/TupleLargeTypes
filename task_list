@@ -19,6 +19,20 @@
     sign bits = 0b10, exponent 17, mantissa = 6.45780623
     comparison goes like first compare sign bits in binary unsigned, then exponent in signed, and then mantissa
     remaining mantissa bits can be found in the worm as 4651234566876458076456345655946595
+   * storing mantissa is a big problem, we need to store digit groups as unsigned integers
+   * an X byte big integer can store Y digits, then Y = log(256 ^ X) / log(10) = X * 8 * log(2) / log(10)
+   * the table goes as follows
+    X |    Y   ->  ceil(Y) |  Y/X
+    1 |  2.408 ->  2       |  2
+    2 |  4.816 ->  4       |  2
+    3 |  7.224 ->  7       |  2.333
+    4 |  9.632 ->  9       |  2.25
+    5 | 12.041 -> 12       |  2.4
+    6 | 14.449 -> 14       |  2.333
+    7 | 16.857 -> 16       |  2.285
+    8 | 19.265 -> 19       |  2.375
+    * if you analyze carefully the most value of digits per bytes is the most efficient way to go, which is using 5 byte unsinged integer to store a group of 12 decimal digits
+    * in local variables we will store the 5 byte integer in uint64_t while we will serialize deserialize 5 byte integer using SerializableInteger library's functions
 
 * LARGE_JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
