@@ -11,7 +11,7 @@
    * sign bits and the exponent are stored inline even in large types
    * you might think a large_numeric can not be compare with prefixes
    * for instance 645780623465123456.6876458076456345655946595
-   * sign_bits - 2, exponent - 64 bit signed atmost, mantissa variable number of decimal in bytes
+   * sign_bits - 2, exponent - 16 bit signed integer, mantissa variable number of decimal digits
    * sign bits 00 = -infinity, 01 - negative, 10 - positive, 11 - +infinity
     so this becomes
     sign bits = 0b10, exponent 17, mantissa = 6.457806234651234566876458076456345655946595
@@ -19,6 +19,7 @@
     sign bits = 0b10, exponent 17, mantissa = 6.45780623
     comparison goes like first compare sign bits in binary unsigned, then exponent in signed, and then mantissa
     remaining mantissa bits can be found in the worm as 4651234566876458076456345655946595
+   * the exponent is kept at 16 bit signed integer, as it is expected that no human measurable calculations from planck's constant to distance of farthest observable object in universe in centimeters will ever need anythingmore than this, (yet we will have local variables hold this number in int64_t to avoid overflow errors)
    * storing mantissa is a big problem, we need to store digit groups as unsigned integers
    * an X byte big integer can store Y digits, then Y = log(256 ^ X) / log(10) = X * 8 * log(2) / log(10)
    * the table goes as follows
