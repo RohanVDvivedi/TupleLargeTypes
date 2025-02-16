@@ -1,8 +1,8 @@
  * LARGE_BLOB/LARGE_TEXT
-   * compare function for large types
+   * write iterator, adding bytes first to the prefix, and then if it has a worm pointer type atached to it then append to the worm
+   * read iterator, to first read from the prefix first and then from worm pointer type attached to it, if the worm pointer exists
+   * compare function using the read iterator on both the inputs, read from which ever buffer whenever it gets exhausted
    * generate prefix type from the large types, with specified prefix length
-   * stream read interface to read them
-   * stream write interface to generate a corresponding worm if the data exceeds certian bytes
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
