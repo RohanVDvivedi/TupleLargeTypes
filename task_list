@@ -25,7 +25,7 @@
       * read
       * clone
    * compare function using the read iterator on both the inputs, read from which ever buffer whenever it gets exhausted
-   * generate prefix type from the large types, with specified prefix length
+   * generate prefix type from the large types, with specified prefix length, using the read iterator on one and write on the another larger one
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
