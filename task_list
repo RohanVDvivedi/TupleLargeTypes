@@ -1,6 +1,29 @@
  * LARGE_BLOB/LARGE_TEXT
    * write iterator, adding bytes first to the prefix, and then if it has a worm pointer type atached to it then append to the worm
+    * text_blob_write_iterator
+      {
+          positional_accessor inline_data_accessor;
+          int is_short;
+          positional_accessor worm_pointer_accessor; // invalid if is_short bit is set
+          worm_append_iterator* wai; // this will be set only if a worm was created and the inline prefix is full, invalid if is short is set
+      }
+    * functions
+      * get_new
+      * delete
+      * write
    * read iterator, to first read from the prefix first and then from worm pointer type attached to it, if the worm pointer exists
+    * text_blob_read_iterator
+      {
+          positional_accessor inline_data_accessor;
+          int is_short;
+          positional_accessor worm_pointer_accessor; // invalid if is_short bit is set
+          worm_read_iterator* wri; // this will be set only if a worm was fully read from the prefix, it is not_short and the next read is to be performed from the worm
+      }
+    * functions
+      * get_new
+      * delete
+      * read
+      * clone
    * compare function using the read iterator on both the inputs, read from which ever buffer whenever it gets exhausted
    * generate prefix type from the large types, with specified prefix length
 
