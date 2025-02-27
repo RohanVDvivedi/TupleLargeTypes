@@ -6,7 +6,7 @@
           tuple_def* tpl_d;
           positional_accessor inline_data_accessor;
 
-          uint32_t bytes_to_be_written_to_prefix = min(max_size - min_size, input value passed);
+          uint32_t bytes_to_be_written_to_prefix = min(get_max_size_increment_allowed_for_element_in_tuple(tpl_d, inline_data_accessor + [0], tupl), input value passed);
           uint32_t bytes_written_to_prefix;
           // no more appending to prefix if the above 2 attributes become equal
 
