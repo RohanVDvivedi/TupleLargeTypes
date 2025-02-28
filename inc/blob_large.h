@@ -4,6 +4,10 @@
 #include<data_type_info.h>
 #include<page_access_specification.h>
 
+// below two functions only check the 
+int is_blob_short_type_info(const data_type_info* blob_short_p);
+int is_blob_large_type_info(const data_type_info* blob_large_p);
+
 // returns a new type info pointing to BLOB type that is atmost max_size bytes big
 data_type_info* get_blob_short_type_info(uint32_t max_size);
 
