@@ -2,6 +2,17 @@
 
 #include<stdlib.h>
 
+data_type_info* get_text_short_type_info(uint32_t max_size)
+{
+	data_type_info* dti_p = malloc(sizeof(data_type_info));
+	if(dti_p == NULL)
+		exit(-1);
+
+	(*dti_p) = get_variable_length_string_type("text_short", max_size);
+
+	return dti_p;
+}
+
 data_type_info* get_text_large_type_info(const data_type_info* text_short_p, const page_access_specs* pas_p)
 {
 	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
