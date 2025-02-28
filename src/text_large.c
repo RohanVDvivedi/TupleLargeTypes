@@ -29,6 +29,7 @@ data_type_info* get_text_large_type_info(const data_type_info* text_short_p, con
 	if(dti_p == NULL)
 		exit(-1);
 
+	// the text_short controls the total size so we allow the text_large to be atmost page_size bytes large
 	initialize_tuple_data_type_info(dti_p, "text_large", 1, pas_p->page_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "text_prefix");

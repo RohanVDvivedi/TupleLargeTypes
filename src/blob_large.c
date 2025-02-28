@@ -29,6 +29,7 @@ data_type_info* get_blob_large_type_info(const data_type_info* blob_short_p, con
 	if(dti_p == NULL)
 		exit(-1);
 
+	// the blob_short controls the total size so we allow the blob_large to be atmost page_size bytes large
 	initialize_tuple_data_type_info(dti_p, "blob_large", 1, pas_p->page_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "blob_prefix");
