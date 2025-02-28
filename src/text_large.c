@@ -2,6 +2,16 @@
 
 #include<stdlib.h>
 
+int is_text_short_type_info(const data_type_info* text_short_p)
+{
+	return strcmp(text_short_p->type_name, "text_short") == 0;
+}
+
+int is_text_large_type_info(const data_type_info* text_large_p)
+{
+	return strcmp(text_large_p->type_name, "text_large") == 0;
+}
+
 data_type_info* get_text_short_type_info(uint32_t max_size)
 {
 	data_type_info* dti_p = malloc(sizeof(data_type_info));

@@ -4,6 +4,10 @@
 #include<data_type_info.h>
 #include<page_access_specification.h>
 
+// below two functions only check the type_name of the dti passed
+int is_text_short_type_info(const data_type_info* text_short_p);
+int is_text_large_type_info(const data_type_info* text_large_p);
+
 // returns a new type info pointing to STRING type that is atmost max_size bytes big
 data_type_info* get_text_short_type_info(uint32_t max_size);
 
