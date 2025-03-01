@@ -1,8 +1,11 @@
  * need TupleStore utility function to create a positional_accessor to point into the attribute inside the tuple
    with api like
-   positional_accessor get_new_positional_accessor(positional_accessor base, positional_accessor attr);
-   int initialize_positional_accessor(positional_accessor* res, positional_accessor base, positional_accessor attr);
-   if you do not have anything to pass as base or nest, then set it to SELF
+   // appends t to pa
+   static inline void append_positions(positional_accessor* pa, positional_accessor t)
+   {
+      memory_move(pa->positions + pa->positions_length, t.positions, t.positions_length * sizeof(uint32_t));
+      pa->positions_length += t.positions_length;
+   }
 
  * LARGE_BLOB/LARGE_TEXT
    * write iterator, adding bytes first to the prefix, and then if it has a worm pointer type atached to it then append to the worm
