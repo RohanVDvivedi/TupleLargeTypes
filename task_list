@@ -1,8 +1,8 @@
  * need TupleStore utility function to create a positional_accessor to point into the attribute inside the tuple
    with api like
-   positional_accessor get_new_positional_accessor(positional_accessor base, uint32_t* nested_position, uint32_t nesting_count);
-   int initialize_positional_accessor(positional_accessor* res, positional_accessor base, uint32_t* nested_position, uint32_t nesting_count);
-   if you do not have anything to pass as base, then set it to SELF
+   positional_accessor get_new_positional_accessor(positional_accessor base, positional_accessor attr);
+   int initialize_positional_accessor(positional_accessor* res, positional_accessor base, positional_accessor attr);
+   if you do not have anything to pass as base or nest, then set it to SELF
 
  * LARGE_BLOB/LARGE_TEXT
    * write iterator, adding bytes first to the prefix, and then if it has a worm pointer type atached to it then append to the worm
