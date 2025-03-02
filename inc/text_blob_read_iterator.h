@@ -21,7 +21,7 @@ struct text_blob_read_iterator
 	// above three attributes are cached in the constructor
 
 	// unused if is_short is set
-	worm_read_iterator* wri;
+	worm_read_iterator* wri_p;
 
 	// below attributes only to be used to initialize the wri, only upon requirement
 	const worm_tuple_defs* wtd_p;

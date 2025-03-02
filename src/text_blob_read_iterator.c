@@ -35,7 +35,7 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 
 	tbri_p->bytes_read_from_prefix = 0;
 
-	tbri_p->wri = NULL;
+	tbri_p->wri_p = NULL;
 
 	tbri_p->wtd_p = wtd_p;
 	tbri_p->pam_p = pam_p;
@@ -45,11 +45,30 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 
 void delete_text_blob_read_iterator(text_blob_read_iterator* tbri_p, const void* transaction_id, int* abort_error)
 {
-	if(tbri_p->wri != NULL)
-		delete_worm_read_iterator(tbri_p->wri, transaction_id, abort_error);
+	if(tbri_p->wri_p != NULL)
+		delete_worm_read_iterator(tbri_p->wri_p, transaction_id, abort_error);
 	free(tbri_p);
 }
 
-text_blob_read_iterator* clone_text_blob_read_iterator(text_blob_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
+text_blob_read_iterator* clone_text_blob_read_iterator(text_blob_read_iterator* tbri_p, const void* transaction_id, int* abort_error)
+{
+	text_blob_read_iterator* clone_p = malloc(sizeof(text_blob_read_iterator));
+	if(clone_p == NULL)
+		exit(-1);
+
+	(*clone_p) = (*tbri_p);
+
+	if((!clone_p->is_short) && (tbri_p->wri_p != NULL)) // if is_large && wri_p != NULL then a wri_p clone is necessary
+	{
+		clone_p->wri_p = clone_worm_read_iterator(tbri_p->wri_p, transaction_id, abort_error);
+		if(*abort_error)
+		{
+			free(clone_p);
+			return NULL;
+		}
+	}
+
+	return clone_p;
+}
 
 uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, void* data, uint32_t data_size, const void* transaction_id, int* abort_error);

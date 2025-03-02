@@ -18,7 +18,7 @@ text_blob_write_iterator* get_new_text_blob_write_iterator(void* tupl, tuple_def
 	tbwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
 	tbwi_p->bytes_written_to_prefix = 0;
 
-	tbwi_p->wai = NULL;
+	tbwi_p->wai_p = NULL;
 
 	tbwi_p->wtd_p = wtd_p;
 	tbwi_p->pam_p = pam_p;
@@ -29,8 +29,8 @@ text_blob_write_iterator* get_new_text_blob_write_iterator(void* tupl, tuple_def
 
 void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const void* transaction_id, int* abort_error)
 {
-	if(tbwi_p->wai != NULL)
-		delete_worm_append_iterator(tbwi_p->wai, transaction_id, abort_error);
+	if(tbwi_p->wai_p != NULL)
+		delete_worm_append_iterator(tbwi_p->wai_p, transaction_id, abort_error);
 	free(tbwi_p);
 }
 

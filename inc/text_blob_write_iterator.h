@@ -21,7 +21,7 @@ struct text_blob_write_iterator
 	// no more appending to prefix if the above 2 attributes become equal
 
 	// unused if is_short is set
-	worm_append_iterator* wai;
+	worm_append_iterator* wai_p;
 
 	// below attributes only to be used to initialize the wai, only upon requirement
 	const worm_tuple_defs* wtd_p;
