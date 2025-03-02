@@ -34,4 +34,14 @@ void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const voi
 	free(tbwi_p);
 }
 
-uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
+uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
+{
+	if(data_size == 0)
+		return 0;
+
+	// initialization
+	// if the attribute is NULL, set it to EMPTY_USER_VALUE
+	// if the prefix is NULL, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
+
+	// TODO
+}
