@@ -1,6 +1,9 @@
 #ifndef TEXT_BLOB_READ_ITERATOR_H
 #define TEXT_BLOB_READ_ITERATOR_H
 
+#include<tuple.h>
+#include<worm.h>
+
 typedef struct text_blob_read_iterator text_blob_read_iterator;
 struct text_blob_read_iterator
 {

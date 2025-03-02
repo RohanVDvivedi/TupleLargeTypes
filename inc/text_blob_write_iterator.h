@@ -1,6 +1,9 @@
 #ifndef TEXT_BLOB_WRITE_ITERATOR_H
 #define TEXT_BLOB_WRITE_ITERATOR_H
 
+#include<tuple.h>
+#include<worm.h>
+
 typedef struct text_blob_write_iterator text_blob_write_iterator;
 struct text_blob_write_iterator
 {
