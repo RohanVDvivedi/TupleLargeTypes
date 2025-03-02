@@ -27,6 +27,11 @@ text_blob_write_iterator* get_new_text_blob_write_iterator(void* tupl, tuple_def
 	return tbwi_p;
 }
 
-void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const void* transaction_id, int* abort_error);
+void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const void* transaction_id, int* abort_error)
+{
+	if(tbwi_p->wai != NULL)
+		delete_worm_append_iterator(tbwi_p->wai, transaction_id, abort_error);
+	free(tbwi_p);
+}
 
 uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
