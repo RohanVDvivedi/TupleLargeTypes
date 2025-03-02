@@ -3,6 +3,8 @@
 
 #include<tuple.h>
 #include<worm.h>
+#include<text_large.h>
+#include<blob_large.h>
 
 typedef struct text_blob_read_iterator text_blob_read_iterator;
 struct text_blob_read_iterator
