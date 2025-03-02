@@ -1,43 +1,11 @@
  * LARGE_BLOB/LARGE_TEXT
-   * write iterator, adding bytes first to the prefix, and then if it has a worm pointer type atached to it then append to the worm
-    * text_blob_write_iterator
-      {
-          void* tupl;
-          tuple_def* tpl_d;
-          positional_accessor inline_data_accessor;
-
-          uint32_t bytes_to_be_written_to_prefix = min(get_max_size_increment_allowed_for_element_in_tuple(tpl_d, inline_data_accessor + [0], tupl), input value passed);
-          uint32_t bytes_written_to_prefix;
-          // no more appending to prefix if the above 2 attributes become equal
-
-          int is_short; // for short_text and short_blob, making below attributes needless
-
-          worm_append_iterator* wai; // this will be set only if a worm was created and the inline prefix is full, invalid if is short is set
-      }
-    * functions
-      * get_new_text_blob_write_iterator(void* tupl, tuple_def* tpl_d, positional_accessor inline_data_accessor)
-      * delete_text_blob_write_iterator
-      * write_text_blob_write_iterator
-   * read iterator, to first read from the prefix first and then from worm pointer type attached to it, if the worm pointer exists
-    * text_blob_read_iterator
-      {
-          user_value prefix;
-          uint32_t bytes_read_from_prefix;
-          // no more reading from the prefix if the bytes_read_from_prefix == prefix.string_or_blob_size
-
-          int is_short; // for short_text and short_blob, making below attributes needless
-
-          uint64_t extension_head_page_id;
-          worm_read_iterator* wri; // this will be set only if a worm was fully read from the prefix, it is not_short and the next read is to be performed from the worm
-      }
-    * functions
-      * get_new_text_blob_read_iterator(void* tupl, tuple_def* tpl_d, positional_accessor inline_data_accessor)
-      * delete_text_blob_read_iterator
-      * read_text_blob_read_iterator
-      * clone_text_blob_read_iterator // shallow copy the object, if wri is present and valid, then clone it
-   * compare function using the read iterator on both the inputs, read from which ever buffer whenever it gets exhausted
-   * hashing function using the read iterator
-   * generate prefix type from the large types, with specified prefix length, using the read iterator on one and write on the smaller larger one
+   * implement text_blob_read_iterator
+   * implement text_blob_write_iterator
+   * build utilities using the iterators
+    * compare
+    * hash
+    * generate_prefix
+    * is_prefix
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
