@@ -151,6 +151,13 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 				// open a new wai
 
 			// append to worm
+			bytes_written_this_iteration = append_to_worm(tbwi_p->wai_p, data, data_size, transaction_id, abort_error);
+			if(*abort_error)
+			{
+				delete_worm_append_iterator(tbwi_p->wai_p, transaction_id, abort_error);
+				tbwi_p->wai_p = NULL;
+				return 0;
+			}
 		}
 
 		// skip label to goto, if nothing is written
