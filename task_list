@@ -1,6 +1,8 @@
  * LARGE_BLOB/LARGE_TEXT
-   * implement text_blob_read_iterator
-   * implement text_blob_write_iterator
+   * review code of iterators
+   * write tests
+      * to build a large and short, text and blob, with prefix of 15 bytes, append 5 and 40 bytes of chunks
+      * read the content back and make sure it matches, in chunks of 7 and 100 bytes
    * build utilities using the iterators
     * compare
     * hash
