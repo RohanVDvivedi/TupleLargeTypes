@@ -35,30 +35,73 @@ void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const voi
 	free(tbwi_p);
 }
 
+static inline positional_accessor initialize_attribute_accessor(text_blob_write_iterator* tbwi_p)
+{
+	if(tbwi_p->is_short)
+		return tbwi_p->inline_accessor;
+
+	positional_accessor pa = {.positions_length = 0, .positions = malloc(sizeof(uint32_t) * (tbwi_p->inline_accessor.positions_length + 2))};
+	if(pa.positions == NULL)
+		exit(-1);
+	append_positions(&pa, tbwi_p->inline_accessor);
+	return pa;
+}
+
+static inline void point_to_attribute(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
+{
+	if(tbwi_p->is_short)
+		return ;
+
+	pa->positions_length = tbwi_p->inline_accessor.positions_length;
+}
+
+static inline void point_to_prefix(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
+{
+	if(tbwi_p->is_short)
+		return ;
+
+	pa->positions_length = tbwi_p->inline_accessor.positions_length;
+	append_positions(pa, STATIC_POSITION(0));
+}
+
+static inline void point_to_extension_head_page_id(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
+{
+	if(tbwi_p->is_short)
+		return ;
+
+	pa->positions_length = tbwi_p->inline_accessor.positions_length;
+	append_positions(pa, STATIC_POSITION(1));
+}
+
+static inline void deinitialize_attribute_accessor(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
+{
+	if(tbwi_p->is_short)
+		return ;
+
+	free(pa->positions);
+}
+
 uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
 {
 	if(data_size == 0)
 		return 0;
 
+	positional_accessor child_inline_accessor = initialize_attribute_accessor(tbwi_p);
+
 	// initialization
 	// if the attribute is NULL, set it to EMPTY_USER_VALUE
 	{
+		point_to_attribute(tbwi_p, &child_inline_accessor);
 		user_value attr;
-		get_value_from_element_from_tuple(&attr, tbwi_p->tpl_d, tbwi_p->inline_accessor, tbwi_p->tupl);
+		get_value_from_element_from_tuple(&attr, tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl);
 		if(is_user_value_NULL(&attr))
-			set_element_in_tuple(tbwi_p->tpl_d, tbwi_p->inline_accessor, tbwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
+			set_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
 	}
 
 	// if the prefix is NULL in a large text or blob, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
-	positional_accessor child_inline_accessor = {};
 	if(!(tbwi_p->is_short))
 	{
-		child_inline_accessor = (positional_accessor){.positions_length = 0, .positions = malloc(sizeof(uint32_t) * (tbwi_p->inline_accessor.positions_length + 2))};
-		if(child_inline_accessor.positions == NULL)
-			exit(-1);
-		append_positions(&child_inline_accessor, tbwi_p->inline_accessor);
-
-		append_positions(&child_inline_accessor, STATIC_POSITION(0));
+		point_to_prefix(tbwi_p, &child_inline_accessor);
 		user_value prefix;
 		get_value_from_element_from_tuple(&prefix, tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl);
 		int reset = 0;
@@ -68,26 +111,20 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 			set_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
 		}
 		tbwi_p->bytes_to_be_written_to_prefix = min(tbwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl));
-		child_inline_accessor.positions_length = tbwi_p->inline_accessor.positions_length;
+
 		if(reset)
 		{
-			append_positions(&child_inline_accessor, STATIC_POSITION(1));
+			point_to_extension_head_page_id(tbwi_p, &child_inline_accessor);
 			set_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, &((user_value){.uint_value = tbwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
-			child_inline_accessor.positions_length = tbwi_p->inline_accessor.positions_length;
 		}
 	}
 	else
-	{
-		child_inline_accessor = tbwi_p->inline_accessor;
 		tbwi_p->bytes_to_be_written_to_prefix = min(tbwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl));
-	}
 
 	uint32_t bytes_written = 0;
 
 	// TODO
 
-	if(!(tbwi_p->is_short))
-		free(child_inline_accessor.positions);
-
+	deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
 	return bytes_written;
 }
