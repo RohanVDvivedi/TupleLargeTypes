@@ -73,7 +73,7 @@ text_blob_read_iterator* clone_text_blob_read_iterator(text_blob_read_iterator* 
 	return clone_p;
 }
 
-uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, void* data, uint32_t data_size, const void* transaction_id, int* abort_error)
+uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
 {
 	if(data_size == 0)
 		return 0;

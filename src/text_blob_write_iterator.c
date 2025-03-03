@@ -64,6 +64,15 @@ static inline void point_to_prefix(text_blob_write_iterator* tbwi_p, positional_
 	append_positions(pa, STATIC_POSITION(0));
 }
 
+static inline void point_to_prefix_character(text_blob_write_iterator* tbwi_p, positional_accessor* pa, uint32_t index)
+{
+	if(tbwi_p->is_short)
+		return ;
+
+	pa->positions_length = tbwi_p->inline_accessor.positions_length;
+	append_positions(pa, STATIC_POSITION(0, index));
+}
+
 static inline void point_to_extension_head_page_id(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
 {
 	if(tbwi_p->is_short)
@@ -133,12 +142,19 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 		if(tbwi_p->bytes_to_be_written_to_prefix > tbwi_p->bytes_written_to_prefix)
 		{
 			bytes_written_this_iteration = min(data_size, tbwi_p->bytes_to_be_written_to_prefix - tbwi_p->bytes_written_to_prefix);
+
+			// grab old_element_count and expand the container
+			point_to_prefix(tbwi_p, &child_inline_accessor);
+			uint32_t old_element_count = get_element_count_for_element_from_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl);
+			expand_element_count_for_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
 			
-			// TODO
-			// get current element count
-			// expand the prefix container by bytes_written_this_iteration
-			// copy all bytes one by one from element_count onwards
-			
+			// copy data into it byte by byte
+			for(uint32_t i = 0; i < bytes_written_this_iteration; i++)
+			{
+				point_to_prefix_character(tbwi_p, &child_inline_accessor, old_element_count + i);
+				set_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, &((user_value){.uint_value = data[i]}), UINT32_MAX);
+			}
+
 			tbwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
 		}
 		else if(!(tbwi_p->is_short))
