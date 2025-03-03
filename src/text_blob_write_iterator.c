@@ -159,12 +159,37 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 		}
 		else if(!(tbwi_p->is_short))
 		{
-			// TODO
-			// if wai == NULL
+			if(tbwi_p->wai_p == NULL)
+			{
 				// read extension_head_page_id
-				// if extension_head_page_id == NULL_PAGE_ID
-					// create a new worm and install its head_page_id
+				uint64_t extension_head_page_id;
+				{
+					point_to_extension_head_page_id(tbwi_p, &child_inline_accessor);
+					user_value extension_head;
+					get_value_from_element_from_tuple(&extension_head, tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl);
+					extension_head_page_id = extension_head.uint_value;
+				}
+
+				if(extension_head_page_id == tbwi_p->pam_p->pas.NULL_PAGE_ID)
+				{
+					extension_head_page_id = get_new_worm(1, tbwi_p->pam_p->pas.NULL_PAGE_ID, tbwi_p->wtd_p, tbwi_p->pam_p, tbwi_p->pmm_p, transaction_id, abort_error);
+					if(*abort_error)
+					{
+						deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
+						return 0;
+					}
+					set_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl, &((user_value){.uint_value = extension_head_page_id}), UINT32_MAX);
+				}
+
 				// open a new wai
+				tbwi_p->wai_p = get_new_worm_append_iterator(extension_head_page_id, tbwi_p->wtd_p, tbwi_p->pam_p, tbwi_p->pmm_p, transaction_id, abort_error);
+				if(*abort_error)
+				{
+					tbwi_p->wai_p = NULL;
+					deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
+					return 0;
+				}
+			}
 
 			// append to worm
 			bytes_written_this_iteration = append_to_worm(tbwi_p->wai_p, data, data_size, transaction_id, abort_error);
@@ -172,12 +197,10 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 			{
 				delete_worm_append_iterator(tbwi_p->wai_p, transaction_id, abort_error);
 				tbwi_p->wai_p = NULL;
+				deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
 				return 0;
 			}
 		}
-
-		// skip label to goto, if nothing is written
-		NOTHING_WRITTEN:;
 
 		if(bytes_written_this_iteration == 0)
 			break;
