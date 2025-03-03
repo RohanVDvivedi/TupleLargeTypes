@@ -119,11 +119,50 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 		}
 	}
 	else
+	{
+		point_to_attribute(tbwi_p, &child_inline_accessor);
 		tbwi_p->bytes_to_be_written_to_prefix = min(tbwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl));
+	}
 
 	uint32_t bytes_written = 0;
 
-	// TODO
+	while(data_size > 0)
+	{
+		uint32_t bytes_written_this_iteration = 0;
+
+		if(tbwi_p->bytes_to_be_written_to_prefix > tbwi_p->bytes_written_to_prefix)
+		{
+			bytes_written_this_iteration = min(data_size, tbwi_p->bytes_to_be_written_to_prefix - tbwi_p->bytes_written_to_prefix);
+			
+			// TODO
+			// get current element count
+			// expand the prefix container by bytes_written_this_iteration
+			// copy all bytes one by one from element_count onwards
+			
+			tbwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
+		}
+		else if(!(tbwi_p->is_short))
+		{
+			// TODO
+			// if wai == NULL
+				// read extension_head_page_id
+				// if extension_head_page_id == NULL_PAGE_ID
+					// create a new worm and install its head_page_id
+				// open a new wai
+
+			// write to worm
+		}
+
+		// skip label to goto, if nothing is written
+		NOTHING_WRITTEN:;
+
+		if(bytes_written_this_iteration == 0)
+			break;
+
+		data += bytes_written_this_iteration;
+		data_size -= bytes_written_this_iteration;
+		bytes_written += bytes_written_this_iteration;
+	}
 
 	deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
 	return bytes_written;
