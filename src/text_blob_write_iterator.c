@@ -170,6 +170,7 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 					extension_head_page_id = extension_head.uint_value;
 				}
 
+				// if it is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
 				if(extension_head_page_id == tbwi_p->pam_p->pas.NULL_PAGE_ID)
 				{
 					extension_head_page_id = get_new_worm(1, tbwi_p->pam_p->pas.NULL_PAGE_ID, tbwi_p->wtd_p, tbwi_p->pam_p, tbwi_p->pmm_p, transaction_id, abort_error);
