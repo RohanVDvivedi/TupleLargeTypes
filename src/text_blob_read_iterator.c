@@ -84,7 +84,7 @@ uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, void* data, uint32
 	{
 		uint32_t bytes_read_this_iteration = 0;
 
-		if(tbri_p->bytes_read_from_prefix < tbri_p->prefix.string_or_blob_size)
+		if(tbri_p->bytes_read_from_prefix < tbri_p->prefix.string_or_blob_size) // read from prefix until it is not completely read
 		{
 			bytes_read_this_iteration = min(data_size, tbri_p->prefix.string_or_blob_size - tbri_p->bytes_read_from_prefix);
 			if(data != NULL)
