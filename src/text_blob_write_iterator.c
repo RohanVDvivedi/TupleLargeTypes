@@ -150,7 +150,7 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 					// create a new worm and install its head_page_id
 				// open a new wai
 
-			// write to worm
+			// append to worm
 		}
 
 		// skip label to goto, if nothing is written
