@@ -87,6 +87,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 	char* bytes = test_data;
 	uint32_t bytes_to_write = strlen(test_data);
+	uint32_t bytes_written = 0;
 	while(bytes_to_write > 0)
 	{
 		uint32_t bytes_to_write_this_iteration = min(bytes_to_write, WRITE_CHUNK_SIZE);
@@ -98,9 +99,10 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 		bytes += bytes_to_write_this_iteration;
 		bytes_to_write -= bytes_to_write_this_iteration;
+		bytes_written += bytes_to_write_this_iteration;
 	}
 
-	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_to_write, (uint32_t)strlen(test_data));
+	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_written, (uint32_t)strlen(test_data));
 
 	delete_text_blob_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
