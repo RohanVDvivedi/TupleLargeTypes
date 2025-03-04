@@ -85,8 +85,10 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 {
 	text_blob_write_iterator* tbwi_p = get_new_text_blob_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
+	const uint32_t TEST_DATA_SIZE = strlen(test_data);
+
 	char* bytes = test_data;
-	uint32_t bytes_to_write = strlen(test_data);
+	uint32_t bytes_to_write = TEST_DATA_SIZE;
 	uint32_t bytes_written = 0;
 	while(bytes_to_write > 0)
 	{
@@ -102,7 +104,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 		bytes_written += bytes_to_write_this_iteration;
 	}
 
-	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_written, (uint32_t)strlen(test_data));
+	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_written, TEST_DATA_SIZE);
 
 	delete_text_blob_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
@@ -110,6 +112,8 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
 	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+
+	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
 	char read_buffer[READ_CHUNK_SIZE];
 	uint32_t bytes_read = 0;
@@ -119,12 +123,16 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 		if(bytes_read_this_iteration == 0)
 			break;
 
-		printf(" ->\"%.*s\"\n", bytes_read_this_iteration, read_buffer);
+		int matches = 1;
+		for(uint32_t i = 0; i < bytes_read_this_iteration && matches == 1; i++)
+			matches = (read_buffer[i] == test_data[(bytes_read + i) % TEST_DATA_SIZE]);
+
+		printf(" ->\"%.*s\" matches => %d\n", bytes_read_this_iteration, read_buffer, matches);
 
 		bytes_read += bytes_read_this_iteration;
 	}
 
-	printf("bytes_read = %"PRIu32"/%"PRIu32"\n", bytes_read, (uint32_t)strlen(test_data));
+	printf("bytes_read = %"PRIu32"/%"PRIu32"\n", bytes_read, TEST_DATA_SIZE);
 
 	delete_text_blob_read_iterator(tbri_p, transaction_id, &abort_error);
 }
