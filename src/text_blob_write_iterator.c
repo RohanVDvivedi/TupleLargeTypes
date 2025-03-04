@@ -78,7 +78,7 @@ text_blob_write_iterator* get_new_text_blob_write_iterator(void* tupl, tuple_def
 
 		user_value extension_head_page;
 		int valid = get_value_from_element_from_tuple(&extension_head_page, tbwi_p->tpl_d, child_inline_accessor, tbwi_p->tupl);
-		if(valid && !is_user_value_NULL(&extension_head_page) && extension_head_page.uint_value != tbwi_p->pam_p->pas.NULL_PAGE_ID)
+		if(valid && !is_user_value_NULL(&extension_head_page) && extension_head_page.uint_value != pam_p->pas.NULL_PAGE_ID)
 			bytes_to_be_written_to_prefix = 0;
 
 		deinitialize_attribute_accessor(tbwi_p, &child_inline_accessor);
