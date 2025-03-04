@@ -83,7 +83,26 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 
 void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
+	text_blob_write_iterator* tbwi_p = get_new_text_blob_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
+	char* bytes = test_data;
+	uint32_t bytes_to_write = strlen(test_data);
+	while(bytes_to_write > 0)
+	{
+		uint32_t bytes_to_write_this_iteration = min(bytes_to_write, WRITE_CHUNK_SIZE);
+
+		bytes_to_write_this_iteration = append_to_text_blob(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+
+		if(bytes_to_write_this_iteration == 0)
+			break;
+
+		bytes += bytes_to_write_this_iteration;
+		bytes_to_write -= bytes_to_write_this_iteration;
+	}
+
+	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_to_write, (uint32_t)strlen(test_data));
+
+	delete_text_blob_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
 
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
