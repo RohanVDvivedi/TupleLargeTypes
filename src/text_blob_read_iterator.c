@@ -101,7 +101,10 @@ uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, char* data, uint32
 
 				tbri_p->wri_p = get_new_worm_read_iterator(tbri_p->extension_head_page_id, tbri_p->wtd_p, tbri_p->pam_p, transaction_id, abort_error);
 				if(*abort_error) // on abort error, do nothing
+				{
+					tbri_p->wri_p = NULL;
 					return 0;
+				}
 			}
 
 			bytes_read_this_iteration = read_from_worm(tbri_p->wri_p, data, data_size, transaction_id, abort_error);
