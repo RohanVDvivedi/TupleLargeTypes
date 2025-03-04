@@ -111,6 +111,10 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
 	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
