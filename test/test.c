@@ -3,8 +3,6 @@
 
 #include<blob_large.h>
 #include<text_large.h>
-#include<text_blob_read_iterator.h>
-#include<text_blob_write_iterator.h>
 
 #define USE_TEXT
 //#define USE_BLOB

@@ -7,7 +7,7 @@ DOWNLOAD_DIR:=/usr/local
 # we may download all the public headers
 
 # list of public api headers (only these headers will be installed)
-PUBLIC_HEADERS:=tuplelargetypes.h
+PUBLIC_HEADERS:=blob_large.h text_large.h text_blob_read_iterator.h text_blob_write_iterator.h
 # the library, which we will create
 LIBRARY:=lib${PROJECT_NAME}.a
 # the binary, which will use the created library
