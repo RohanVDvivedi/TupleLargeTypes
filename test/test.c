@@ -10,8 +10,8 @@
 #include<blob_large.h>
 #include<text_large.h>
 
-#define USE_SHORT
-//#define USE_LARGE
+//#define USE_SHORT
+#define USE_LARGE
 
 #define USE_BASE
 //#define USE_NESTED
@@ -107,7 +107,24 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
+	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
+	char read_buffer[READ_CHUNK_SIZE];
+	uint32_t bytes_read = 0;
+	while(1)
+	{
+		uint32_t bytes_read_this_iteration = read_from_text_blob(tbri_p, read_buffer, READ_CHUNK_SIZE, transaction_id, &abort_error);
+		if(bytes_read_this_iteration == 0)
+			break;
+
+		printf(" ->\"%.*s\"\n", bytes_read_this_iteration, read_buffer);
+
+		bytes_read += bytes_read_this_iteration;
+	}
+
+	printf("bytes_read = %"PRIu32"/%"PRIu32"\n", bytes_read, (uint32_t)strlen(test_data));
+
+	delete_text_blob_read_iterator(tbri_p, transaction_id, &abort_error);
 }
 
 int main()
