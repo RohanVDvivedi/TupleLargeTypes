@@ -1,6 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#include<tuple.h>
+#include<tuple_def.h>
+
+#include<unWALed_in_memory_data_store.h>
+#include<unWALed_page_modification_methods.h>
+
 #include<blob_large.h>
 #include<text_large.h>
 
@@ -46,7 +52,7 @@ tuple_def tpl_d;
 data_type_info* short_dti = NULL;
 data_type_info* large_dti = NULL;
 char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
-data_type_info* tuple_dti = tuple_type_info_memory;
+data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
 	short_dti = get_text_short_type_info(PREFIX_SIZE + 10);
@@ -100,29 +106,24 @@ int main()
 	init_worm_tuple_definitions(&wtd, &(pam_p->pas));
 
 	// allocate record tuple definition and initialize it
-	tuple_def* tpl_d = get_tuple_definition();
+	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
 
 	/* TESTS STARTED */
 
 	char inline_tuple[PAGE_SIZE];
 
-	insert_all_test_data(tpl_d, inline_tuple, wtd_p, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, wtd_p, pam_p);
+	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
+	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
-	insert_all_test_data(tpl_d, inline_tuple, wtd_p, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, wtd_p, pam_p);
+	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
+	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
 	/* TESTS ENDED */
 
 	/* CLEANUP */
 
-	// destroy page_table
-	destroy_array_table(root_page_id, &attd, pam_p, transaction_id, &abort_error);
-	if(abort_error)
-	{
-		printf("ABORTED\n");
-		exit(-1);
-	}
+	// destroy worm
+	// TODO
 
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);

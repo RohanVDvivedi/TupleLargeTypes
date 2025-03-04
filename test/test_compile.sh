@@ -1,1 +1,1 @@
-gcc ./test.c -o test.out -ltuplelargetypes -ltupleindexer -ltuplestore -lcutlery
+gcc ./test.c -o test.out -ltuplelargetypes -ltupleindexer -lrwlock -ltuplestore -lcutlery
