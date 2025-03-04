@@ -27,6 +27,15 @@
 #define PAGE_SIZE 256
 #define PAGE_ID_WIDTH 3
 
+char* test_data = "Rohan is a good boy,"
+					"Rohan is probably a bad boy,"
+					"Common sense is not all that common,"
+					"Does Rohan have any?"
+					"Not if this code functions as required,"
+					"What else can I write here?"
+					"No one cares what would be written here."
+					"I will probably change it to lorem ipsum once this project goes big enough";
+
 tuple_def tpl_d;
 tuple_def* get_tuple_def()
 {
