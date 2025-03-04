@@ -10,8 +10,8 @@
 #include<blob_large.h>
 #include<text_large.h>
 
-#define USE_SHORT
-//#define USE_LARGE
+//#define USE_SHORT
+#define USE_LARGE
 
 #define USE_BASE
 //#define USE_NESTED
