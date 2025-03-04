@@ -24,7 +24,7 @@
 #define WRITE_CHUNK_SIZE 5
 //#define WRITE_CHUNK_SIZE 100
 
-#define PAGE_SIZE 256
+#define PAGE_SIZE 128
 #define PAGE_ID_WIDTH 3
 
 char* test_data = "Rohan is a good boy,"
