@@ -37,9 +37,6 @@ void delete_text_blob_write_iterator(text_blob_write_iterator* tbwi_p, const voi
 
 static inline positional_accessor initialize_attribute_accessor(text_blob_write_iterator* tbwi_p)
 {
-	if(tbwi_p->is_short)
-		return tbwi_p->inline_accessor;
-
 	positional_accessor pa = {.positions_length = 0, .positions = malloc(sizeof(uint32_t) * (tbwi_p->inline_accessor.positions_length + 2))};
 	if(pa.positions == NULL)
 		exit(-1);
@@ -49,16 +46,16 @@ static inline positional_accessor initialize_attribute_accessor(text_blob_write_
 
 static inline void point_to_attribute(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
 {
-	if(tbwi_p->is_short)
-		return ;
-
 	pa->positions_length = tbwi_p->inline_accessor.positions_length;
 }
 
 static inline void point_to_prefix(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
 {
 	if(tbwi_p->is_short)
+	{
+		pa->positions_length = tbwi_p->inline_accessor.positions_length;
 		return ;
+	}
 
 	pa->positions_length = tbwi_p->inline_accessor.positions_length;
 	append_positions(pa, STATIC_POSITION(0));
@@ -67,7 +64,11 @@ static inline void point_to_prefix(text_blob_write_iterator* tbwi_p, positional_
 static inline void point_to_prefix_character(text_blob_write_iterator* tbwi_p, positional_accessor* pa, uint32_t index)
 {
 	if(tbwi_p->is_short)
+	{
+		pa->positions_length = tbwi_p->inline_accessor.positions_length;
+		append_positions(pa, STATIC_POSITION(index));
 		return ;
+	}
 
 	pa->positions_length = tbwi_p->inline_accessor.positions_length;
 	append_positions(pa, STATIC_POSITION(0, index));
@@ -84,9 +85,6 @@ static inline void point_to_extension_head_page_id(text_blob_write_iterator* tbw
 
 static inline void deinitialize_attribute_accessor(text_blob_write_iterator* tbwi_p, positional_accessor* pa)
 {
-	if(tbwi_p->is_short)
-		return ;
-
 	free(pa->positions);
 }
 
