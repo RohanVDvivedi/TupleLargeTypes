@@ -1,5 +1,4 @@
  * LARGE_BLOB/LARGE_TEXT
-   * review code of iterators
    * write tests
       * to build a large and short, text and blob, with prefix of 15 bytes, append 5 and 40 bytes of chunks
       * read the content back and make sure it matches, in chunks of 7 and 100 bytes
