@@ -111,6 +111,7 @@ int main()
 	/* TESTS STARTED */
 
 	char inline_tuple[PAGE_SIZE];
+	init_tuple(tpl_d, inline_tuple);
 
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
