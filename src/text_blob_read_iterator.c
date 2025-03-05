@@ -14,7 +14,11 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 	tbri_p->is_short = is_text_short_type_info(dti_p) || is_blob_short_type_info(dti_p);
 
 	if(tbri_p->is_short)
-		get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, inline_accessor, tupl);
+	{
+		int valid_prefix = get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, inline_accessor, tupl);
+		if((!valid_prefix) || is_user_value_NULL(&(tbri_p->prefix))) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
+			tbri_p->prefix.string_or_blob_size = 0;
+	}
 	else
 	{
 		positional_accessor child_inline_accessor = {.positions_length = 0, .positions = malloc(sizeof(uint32_t) * (inline_accessor.positions_length + 1))};
