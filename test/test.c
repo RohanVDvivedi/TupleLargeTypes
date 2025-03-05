@@ -39,14 +39,14 @@
 const void* transaction_id = NULL;
 int abort_error = 0;
 
-char* test_data = "Rohan is a good boy,"
-					"Rohan is probably a bad boy,"
-					"Common sense is not all that common,"
-					"Does Rohan have any?"
-					"Not if this code functions as required,"
-					"What else can I write here?"
-					"No one cares what would be written here."
-					"I will probably change it to lorem ipsum once this project goes big enough";
+char* test_data = "Rohan is a good boy, "
+					"Rohan is probably a bad boy, "
+					"Common sense is not all that common, "
+					"Does Rohan have any? "
+					"Not if this code functions as required, "
+					"What else can I write here? "
+					"No one cares what would be written here. "
+					"I will probably change it to lorem ipsum once this project goes big enough.";
 
 tuple_def tpl_d;
 data_type_info* short_dti = NULL;
