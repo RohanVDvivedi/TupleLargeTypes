@@ -23,14 +23,24 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 		append_positions(&child_inline_accessor, inline_accessor);
 
 		append_positions(&child_inline_accessor, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, child_inline_accessor, tupl);
+		int valid_prefix = get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, child_inline_accessor, tupl);
 		child_inline_accessor.positions_length--;
-
-		user_value worm_head_page_id;
-		append_positions(&child_inline_accessor, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&worm_head_page_id, tpl_d, child_inline_accessor, tupl);
-		child_inline_accessor.positions_length--;
-		tbri_p->extension_head_page_id = worm_head_page_id.uint_value;
+		if((!valid_prefix) || is_user_value_NULL(&(tbri_p->prefix))) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
+		{
+			tbri_p->prefix.string_or_blob_size = 0;
+			tbri_p->extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
+		}
+		else // else you need to read the extension_head_page_id
+		{
+			user_value worm_head_page_id;
+			append_positions(&child_inline_accessor, STATIC_POSITION(1));
+			int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, tpl_d, child_inline_accessor, tupl);
+			child_inline_accessor.positions_length--;
+			if((!valid_worm_head_page_id) || is_user_value_NULL(&worm_head_page_id)) // if not valid or NULL, then NULL initialize it
+				tbri_p->extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
+			else
+				tbri_p->extension_head_page_id = worm_head_page_id.uint_value;
+		}
 
 		free(child_inline_accessor.positions);
 	}
