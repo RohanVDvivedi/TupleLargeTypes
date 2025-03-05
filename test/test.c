@@ -162,7 +162,6 @@ int main()
 
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
