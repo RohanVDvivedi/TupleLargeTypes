@@ -1,6 +1,5 @@
  * LARGE_BLOB/LARGE_TEXT
-   * add logic to delete the large attribute, setting it to NULL, and decrementing reference counter to the worm if any
-   * build utilities using the iterators
+   * add logic to get the worm_page_id for all large types, it must be the second attribute in all the large types, this logic is essential to separately work on decrementing the worm reference counter to delete it
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
