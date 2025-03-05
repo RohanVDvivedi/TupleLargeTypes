@@ -1,10 +1,6 @@
  * LARGE_BLOB/LARGE_TEXT
    * add logic to delete the large attribute, setting it to NULL, and decrementing reference counter to the worm if any
    * build utilities using the iterators
-    * compare
-    * hash
-    * generate_prefix
-    * is_prefix
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
@@ -45,3 +41,9 @@
   * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
   * create_worm
   * uses JSONparser's node as input object
+
+Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
+  * compare
+  * hash
+  * generate_prefix
+  * is_prefix
