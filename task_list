@@ -10,37 +10,6 @@
     * is_prefix -> read on both on them, until the shorter one is completely read -> checking for indexes
 
  * LARGE_NUMERIC
-   * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
-   * generate their large_numeric counterpart, that have uint64_t as page_id of the worm following the short_numeric type, which contains the rest of the digits
-   * sign bits and the exponent are stored inline even in large types
-   * you might think a large_numeric can not be compare with prefixes
-   * for instance 645780623465123456.6876458076456345655946595
-   * sign_bits - 2, exponent - 16 bit signed integer, mantissa variable number of decimal digits
-   * sign bits 00 = -infinity, 01 - negative, 10 - positive, 11 - +infinity
-    so this becomes
-    sign bits = 0b10, exponent 17, mantissa = 6.457806234651234566876458076456345655946595
-    now you can easily truncate byte, giving us approximation, to upto some number of significant digits
-    sign bits = 0b10, exponent 17, mantissa = 6.45780623
-    comparison goes like first compare sign bits in binary unsigned, then exponent in signed, and then mantissa
-    remaining mantissa bits can be found in the worm as 4651234566876458076456345655946595
-   * the exponent is kept at 16 bit signed integer, as it is expected that no human measurable calculations from planck's constant to distance of farthest observable object in universe in centimeters will ever need anythingmore than this, (yet we will have local variables hold this number in int64_t to avoid overflow errors)
-   * storing mantissa is a big problem, we need to store digit groups as unsigned integers
-   * an X byte big integer can store Y digits, then Y = log(256 ^ X) / log(10) = X * 8 * log(2) / log(10)
-   * the table goes as follows
-    X |    Y   ->  ceil(Y) |  Y/X
-    1 |  2.408 ->  2       |  2
-    2 |  4.816 ->  4       |  2
-    3 |  7.224 ->  7       |  2.333
-    4 |  9.632 ->  9       |  2.25
-    5 | 12.041 -> 12       |  2.4
-    6 | 14.449 -> 14       |  2.333
-    7 | 16.857 -> 16       |  2.285
-    8 | 19.265 -> 19       |  2.375
-    * if you analyze carefully the most value of digits per bytes is the most efficient way to go, which is using 5 byte unsinged integer to store a group of 12 decimal digits
-    * in local variables we will store the 5 byte integer in uint64_t while we will serialize deserialize 5 byte integer using SerializableInteger library's functions
-    * first task is to build a function to set one of the 12 digits in a uint64_t
-    * now since we are storing digits in base 10^12 in a 5 byte integer, why not store exponent represented as a (10^12) ^ exponent
-    * now everything becomes radix 10^12 instead of radix of 10, and with 2 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
   * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
