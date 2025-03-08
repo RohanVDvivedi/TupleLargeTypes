@@ -1,7 +1,3 @@
- * LARGE_BLOB/LARGE_TEXT
-   * add logic to get the worm_page_id for all large types, it must be the second attribute in all the large types, this logic is essential to separately work on decrementing/incrementing the worm reference counter to delete it
-   * get the 1st attribute from the corresponding large type, 0th would be prefix
-
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
   * hash -> first hash the prefix as is, then hash all the bytes from the following worm
   * using the corresponding read write iterators
