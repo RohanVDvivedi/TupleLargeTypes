@@ -23,6 +23,7 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
  * do not forget to include appropriate public api headers as and when needed. this includes
    * `#include<blob_large.h>`
    * `#include<text_large.h>`
+   * `#include<numeric_large.h>`
 
 ## Instructions for uninstalling library
 
