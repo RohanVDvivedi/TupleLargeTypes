@@ -1,10 +1,17 @@
  * LARGE_BLOB/LARGE_TEXT
-   * add logic to get the worm_page_id for all large types, it must be the second attribute in all the large types, this logic is essential to separately work on decrementing the worm reference counter to delete it
+   * add logic to get the worm_page_id for all large types, it must be the second attribute in all the large types, this logic is essential to separately work on decrementing/incrementing the worm reference counter to delete it
+   * get the 1st attribute from the corresponding large type, 0th would be prefix
+
+ * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
+  * hash -> first hash the prefix as is, then hash all the bytes from the following worm
+  * using the corresponding read write iterators
+    * compare -> read iterators on both a and b -> compare until the 1st one vanishes -> return a - b -> for heap table
+    * generate_prefix -> read iterator on the larger one and write on the shorter one -> to be used for indexes -> 1 if a is prefix of b, 2 if they are equal, 0 otherwise
+    * is_prefix -> read on both on them, until the shorter one is completely read -> checking for indexes
 
  * LARGE_NUMERIC
    * generate short_numeric data type, consisting of sign bits 2, fixed sized signed integer, and variable sized blob type to store significant digits
    * generate their large_numeric counterpart, that have uint64_t as page_id of the worm following the short_numeric type, which contains the rest of the digits
-   * compare function for large types
    * sign bits and the exponent are stored inline even in large types
    * you might think a large_numeric can not be compare with prefixes
    * for instance 645780623465123456.6876458076456345655946595
@@ -35,14 +42,13 @@
     * now since we are storing digits in base 10^12 in a 5 byte integer, why not store exponent represented as a (10^12) ^ exponent
     * now everything becomes radix 10^12 instead of radix of 10, and with 2 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
+  * need a read/write iterator to read/write digits in order first from prefix then from the worm
+
+  * we also need a materialized struct to store all the digits (base 10^12)
+    *  write a complete briefcase of functions to perform add, sub, multiplication and division, compare and min, max functions
+
 * LARGE_JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
   * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
   * create_worm
   * uses JSONparser's node as input object
-
-Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
-  * compare
-  * hash
-  * generate_prefix
-  * is_prefix
