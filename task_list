@@ -43,6 +43,7 @@
     * now everything becomes radix 10^12 instead of radix of 10, and with 2 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
+  * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
 
   * we also need a materialized struct to store all the digits (base 10^12)
     *  write a complete briefcase of functions to perform add, sub, multiplication and division, compare and min, max functions
