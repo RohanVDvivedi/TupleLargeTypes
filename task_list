@@ -10,7 +10,8 @@
     * is_prefix -> read on both on them, until the shorter one is completely read -> checking for indexes
 
  * LARGE_NUMERIC
-  * add logic to 
+  * add logic to get sign bits and exponent for both of short and large types
+  * also make functions to check for +/-infinity, positive, negative, zero number checks
 
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
   * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
