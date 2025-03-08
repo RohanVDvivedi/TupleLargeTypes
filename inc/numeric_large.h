@@ -23,7 +23,7 @@ data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_
 	numeric type here is represented as a base 10^12 number, with each digit being a 5 byte unsigned number between [0, 10^12), in-memory representation of each digit will be a uint64_t
 	each shot numeric type is composed of
 		* 2 sign bits ==> 00 -> -infinity, 01 -> negative number, 10 -> positive number and 11 -> +infinity
-		* 2 byte exponent
+		* 2 byte signed exponent
 		* some N number of digits as an array of 5 byte unsigned integers
 
 	Explanation of choosing a 5 byte integer to store 12 decimal digits of information comes from the following
