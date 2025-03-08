@@ -157,6 +157,10 @@ int main()
 
 	// allocate record tuple definition and initialize it
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
+	{
+		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+		printf("is_short = %d, is_large = %d\n", is_short_type_info(dti_p), is_large_type_info(dti_p));
+	}
 
 	/* TESTS STARTED */
 
