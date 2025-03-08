@@ -16,6 +16,8 @@ data_type_info* get_numeric_short_type_info(uint32_t max_size);
 // returns a new type info pointing to a tuple, of 2 elements the numeric_short_p, and a page_id type from pas_p
 data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_p, const page_access_specs* pas_p);
 
+#include<common_large.h>
+
 #endif
 
 /*
