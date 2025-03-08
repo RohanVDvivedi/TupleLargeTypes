@@ -104,7 +104,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 		bytes_written += bytes_to_write_this_iteration;
 	}
 
-	printf("bytes_written = %"PRIu32"/%"PRIu32"\n", bytes_written, TEST_DATA_SIZE);
+	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", bytes_written, TEST_DATA_SIZE);
 
 	delete_text_blob_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
@@ -113,7 +113,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 {
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf("\n");
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_large_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 
 	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
@@ -136,7 +136,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 		bytes_read += bytes_read_this_iteration;
 	}
 
-	printf("bytes_read = %"PRIu32"/%"PRIu32"\n", bytes_read, TEST_DATA_SIZE);
+	printf("bytes_read = %"PRIu32"/%"PRIu32"\n\n", bytes_read, TEST_DATA_SIZE);
 
 	delete_text_blob_read_iterator(tbri_p, transaction_id, &abort_error);
 }
