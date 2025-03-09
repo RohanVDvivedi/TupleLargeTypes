@@ -4,6 +4,8 @@
 
 #include<stdlib.h>
 
+#include<relative_positional_accessor.h>
+
 text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
 {
 	text_blob_read_iterator* tbri_p = malloc(sizeof(text_blob_read_iterator));
@@ -21,14 +23,11 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 	}
 	else
 	{
-		positional_accessor child_inline_accessor = {.positions_length = 0, .positions = malloc(sizeof(uint32_t) * (inline_accessor.positions_length + 1))};
-		if(child_inline_accessor.positions == NULL)
-			exit(-1);
-		append_positions(&child_inline_accessor, inline_accessor);
+		relative_positional_accessor child_relative_accessor;
+		initialize_relative_positional_accessor(&child_relative_accessor, &inline_accessor, 1);
 
-		append_positions(&child_inline_accessor, STATIC_POSITION(0));
-		int valid_prefix = get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, child_inline_accessor, tupl);
-		child_inline_accessor.positions_length--;
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, STATIC_POSITION(0));
+		int valid_prefix = get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, child_relative_accessor.exact, tupl);
 		if((!valid_prefix) || is_user_value_NULL(&(tbri_p->prefix))) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
 		{
 			tbri_p->prefix.string_or_blob_size = 0;
@@ -37,16 +36,15 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(void* tupl, tuple_def* 
 		else // else you need to read the extension_head_page_id
 		{
 			user_value worm_head_page_id;
-			append_positions(&child_inline_accessor, STATIC_POSITION(1));
-			int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, tpl_d, child_inline_accessor, tupl);
-			child_inline_accessor.positions_length--;
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, STATIC_POSITION(1));
+			int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, tpl_d, child_relative_accessor.exact, tupl);
 			if((!valid_worm_head_page_id) || is_user_value_NULL(&worm_head_page_id)) // if not valid or NULL, then NULL initialize it
 				tbri_p->extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
 			else
 				tbri_p->extension_head_page_id = worm_head_page_id.uint_value;
 		}
 
-		free(child_inline_accessor.positions);
+		deinitialize_relative_positional_accessor(&child_relative_accessor);
 	}
 
 	tbri_p->bytes_read_from_prefix = 0;

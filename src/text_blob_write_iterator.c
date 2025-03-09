@@ -1,7 +1,8 @@
 #include<text_blob_write_iterator.h>
 
-#include<stdlib.h>
 #include<page_access_methods.h>
+
+#include<stdlib.h>
 
 #include<relative_positional_accessor.h>
 
