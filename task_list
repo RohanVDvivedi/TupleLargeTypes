@@ -1,13 +1,4 @@
- * construct a relative_positional_accessor
-   struct relative_positional_accessor
-   {
-      const positional_accessor* base;
-      positional_accessor exact;
-   }
-   relative_positional_accessor get_new_relative_positonal_accessor(relative_positional_accessor* rpa, const positional_accessor* base, uint32_t max_relative_depth);
-   relative_positonal_accessor_set_relative(relative_positional_accessor* rpa, positional_accessor rel);
-   delete_relative_positonal_accessor(relative_positional_accessor* rpa);
- * refactor code base to use this instead
+ * refactor code base to use relative_positional_accessor instead
 
 
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
