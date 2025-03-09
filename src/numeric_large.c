@@ -2,6 +2,8 @@
 
 #include<stdlib.h>
 
+#include<relative_positional_accessor.h>
+
 int is_numeric_short_type_info(const data_type_info* numeric_short_p)
 {
 	return strcmp(numeric_short_p->type_name, "numeric_short") == 0;
@@ -54,4 +56,61 @@ data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_
 	dti_p->containees[1].al.type_info = (data_type_info*)(&(pas_p->page_id_type_info));
 
 	return dti_p;
+}
+
+int extract_sign_bits_and_exponent_from_numeric(uint8_t* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor)
+{
+	int is_large = 0;
+	{
+		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
+		if(is_numeric_large_type_info(dti_p))
+			is_large = 1;
+		else if(is_numeric_short_type_info(dti_p))
+			is_large = 0;
+		else
+			return 0;
+	}
+
+	// why call this function if you do not need any thing
+	if(sign_bits == NULL && exponent == NULL)
+		return 1;
+
+	relative_positional_accessor rpa;
+	initialize_relative_positional_accessor(&rpa, &inline_accessor, 2);
+
+	int result = 1;
+
+	// extract sign_bits
+	if(sign_bits != NULL && result == 1)
+	{
+		if(is_large)
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
+		else
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+		user_value sign_bits_uv;
+		int valid = get_value_from_element_from_tuple(&sign_bits_uv, tpl_d, rpa.exact, tupl);
+		if(valid && !is_user_value_NULL(&sign_bits_uv))
+			(*sign_bits) = sign_bits_uv.bit_field_value;
+		else
+			result = 0;
+	}
+
+	// extract exponent
+	if(exponent != NULL && result == 1)
+	{
+		if(is_large)
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
+		else
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
+		user_value exponent_uv;
+		int valid = get_value_from_element_from_tuple(&exponent_uv, tpl_d, rpa.exact, tupl);
+		if(valid && !is_user_value_NULL(&exponent_uv))
+			(*exponent) = exponent_uv.int_value;
+		else
+			result = 0;
+	}
+
+	deinitialize_relative_positional_accessor(&rpa);
+
+	return result;
 }
