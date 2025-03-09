@@ -1,5 +1,3 @@
- * refactor code base to use relative_positional_accessor instead
-
 
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
   * hash -> first hash the prefix as is, then hash all the bytes from the following worm
