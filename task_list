@@ -7,7 +7,6 @@
     * is_prefix -> read on both on them, until the shorter one is completely read -> checking for indexes
 
  * LARGE_NUMERIC
-  * add logic to get sign bits and exponent for both of short and large types
   * also make function to compare only using sign bits and exponent first
 
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
