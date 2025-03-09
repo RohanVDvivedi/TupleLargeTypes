@@ -1,6 +1,7 @@
 #ifndef NUMERIC_LARGE_H
 #define NUMERIC_LARGE_H
 
+#include<tuple.h>
 #include<data_type_info.h>
 #include<page_access_specification.h>
 
@@ -15,6 +16,9 @@ data_type_info* get_numeric_short_type_info(uint32_t max_size);
 
 // returns a new type info pointing to a tuple, of 2 elements the numeric_short_p, and a page_id type from pas_p
 data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_p, const page_access_specs* pas_p);
+
+// pass in/out parameter sign_bits and exponent based on what ever you need
+int extract_sign_bits_and_exponent_from_numeric(uint8_t* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);
 
 #include<common_large.h>
 
