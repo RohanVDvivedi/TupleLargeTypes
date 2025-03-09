@@ -8,7 +8,7 @@ struct relative_positional_accessor
 {
 	const positional_accessor* base; // base always remains the same
 
-	positional_accessor exact_position; // exact position this relative_positonal_accessor points to
+	positional_accessor exact; // exact position this relative_positonal_accessor points to
 };
 
 static inline void initialize_relative_positional_accessor(relative_positional_accessor* rpa, const positional_accessor* base, uint32_t max_relative_depth)
