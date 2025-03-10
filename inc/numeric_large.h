@@ -10,7 +10,7 @@ int is_numeric_short_type_info(const data_type_info* numeric_short_p);
 int is_numeric_large_type_info(const data_type_info* numeric_large_p);
 
 // returns a new type info pointing to short type that is atmost max_size bytes big
-// max_size = 2 * ceil(log(page_size) base 256) + 1 (bytes for bit field) + 2 (bytes for exponent) + 5 * ceil(digits / 12)
+// max_size = 2 * ceil(log(page_size) base 256) + 1 (bytes for sign bit field) + 2 (bytes for exponent) + 5 * ceil(digits / 12)
 // for 8 KB page and storing 36 digits, max_size = 2 * 2 + 1 + 2 + 5 * 3 = 22 bytes of max size
 data_type_info* get_numeric_short_type_info(uint32_t max_size);
 
@@ -24,12 +24,14 @@ enum numeric_sign_bits
 {
 	NEGATIVE_INFINITY_NUMERIC = 0,
 	NEGATIVE_NUMERIC = 1,
-	POSITIVE_NUMERIC = 2,
-	POSITIVE_INFINITY_NUMERIC = 3,
+	ZERO_NUMERIC = 2,
+	POSITIVE_NUMERIC = 3,
+	POSITIVE_INFINITY_NUMERIC = 4,
 };
-#define IF_INFINITY_NUMERIC_SIGN_BIT(s) (((s) == NEGATIVE_INFINITY_NUMERIC) || ((s) == POSITIVE_INFINITY_NUMERIC))
-#define IF_NEGATIVE_NUMERIC_SIGN_BIT(s) (((s) <= NEGATIVE_NUMERIC))
-#define IF_POSITIVE_NUMERIC_SIGN_BIT(s) (((s) >= POSITIVE_NUMERIC))
+#define IS_INFINITY_NUMERIC_SIGN_BIT(s) (((s) == NEGATIVE_INFINITY_NUMERIC) || ((s) == POSITIVE_INFINITY_NUMERIC))
+#define IS_NEGATIVE_NUMERIC_SIGN_BIT(s) (((s) <= NEGATIVE_NUMERIC))
+#define IS_POSITIVE_NUMERIC_SIGN_BIT(s) (((s) >= POSITIVE_NUMERIC))
+#define IS_ZERO_NUMERIC_SIGN_BIT(s)     (((s) == ZERO_NUMERIC))
 
 // pass in/out parameter sign_bits and exponent based on what ever you need
 int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);
@@ -37,7 +39,6 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 // below functions can be used to compare numeric prefix using just sign_bits (s1 and s2) and exponent (e1 and e2), without consulting the digits
 // a flag digits_required will be set if the further comparison of digits will be necessary
 // NOTE: this functions assumes that the numeric is stored in correct scientific notation of base 10^12, as explained in the large comment at the end of this file
-// NOTE: this functions assumes that 0 numeric is always encoded as POSITIVE_NUMERIC, exp = 0, digits = 0
 // if digits_required is 1 after the call to this function, then you need to complete the comparison with comparison of digits
 int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_required);
 
@@ -48,8 +49,8 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 /*
 	SHORT NUMERIC TYPE
 	numeric type here is represented as a base 10^12 number, with each digit being a 5 byte unsigned number between [0, 10^12), in-memory representation of each digit will be a uint64_t
-	each shot numeric type is composed of
-		* 2 sign bits ==> 00 -> -infinity, 01 -> negative number, 10 -> positive number and 11 -> +infinity
+	each short numeric type is composed of
+		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are not +/- zeros just a zero), 3 -> positive number and 4 -> +infinity
 		* 2 byte signed exponent
 		* some N number of digits as an array of 5 byte unsigned integers
 
@@ -69,7 +70,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 		* if you analyze carefully the most value of digits per bytes is the most efficient way to go, which is using 5 byte unsigned integer to store a group of 12 decimal digits
 		* first task is to build a function to set one of the 12 digits in a uint64_t
 		* now since we are storing digits in base 10^12 in a 5 byte integer, why not store exponent represented as a (10^12) ^ exponent
-		* now everything becomes radix 10^12 instead of radix of 10, and with 2 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
+		* now everything becomes radix 10^12 instead of radix of 10, and with 3 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
 	LARGE NUMERIC TYPE
 	will just be a tuple of a short numeric type and a page_id to point to a worm

@@ -16,14 +16,14 @@ int is_numeric_large_type_info(const data_type_info* numeric_large_p)
 
 data_type_info* get_numeric_short_type_info(uint32_t max_size)
 {
-	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
+	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(3));
 	if(dti_p == NULL)
 		exit(-1);
 
 	initialize_tuple_data_type_info(dti_p, "numeric_short", 1, max_size, 3);
 
 	strcpy(dti_p->containees[0].field_name, "sign_bits");
-	dti_p->containees[0].al.type_info = BIT_FIELD_NON_NULLABLE[2];
+	dti_p->containees[0].al.type_info = BIT_FIELD_NON_NULLABLE[3];
 
 	strcpy(dti_p->containees[1].field_name, "exponent");
 	dti_p->containees[1].al.type_info = INT_NON_NULLABLE[2];
