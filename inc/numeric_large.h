@@ -17,8 +17,19 @@ data_type_info* get_numeric_short_type_info(uint32_t max_size);
 // returns a new type info pointing to a tuple, of 2 elements the numeric_short_p, and a page_id type from pas_p
 data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_p, const page_access_specs* pas_p);
 
+// for reason to easy comparison of the short numeric directly using the TupleStore functions
+// the information about the numeric being infinity has been coded directly into the sign bits and that too in order that results in correct default comparison
+typedef enum numeric_sign_bits numeric_sign_bits;
+enum numeric_sign_bits
+{
+	NEGATIVE_INFINITY_NUMERIC = 0,
+	NEGATIVE_NUMERIC = 1,
+	POSITIVE_NUMERIC = 2,
+	POSITIVE_INFINITY_NUMERIC = 3,
+};
+
 // pass in/out parameter sign_bits and exponent based on what ever you need
-int extract_sign_bits_and_exponent_from_numeric(uint8_t* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);
+int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);
 
 #include<common_large.h>
 

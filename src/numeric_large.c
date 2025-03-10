@@ -58,7 +58,7 @@ data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_
 	return dti_p;
 }
 
-int extract_sign_bits_and_exponent_from_numeric(uint8_t* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor)
+int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor)
 {
 	int is_large = 0;
 	{
