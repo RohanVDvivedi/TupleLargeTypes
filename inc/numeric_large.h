@@ -39,7 +39,7 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 // below functions can be used to compare numeric prefix using just sign_bits (s1 and s2) and exponent (e1 and e2), without consulting the digits
 // a flag digits_requirement will be set if the further comparison of digits will be necessary
 // NOTE: this functions assumes that the numeric is stored in correct scientific notation of base 10^12, as explained in the large comment at the end of this file
-// digits_requirement -> 0, nothing needs to be done, return value is the result
+// digits_requirement -> 0, nothing needs to be done, return value is the result of comparison
 //                    -> else, multiply the sign of this variable in what we get from comparing the digits (this will be 1, if they are both positive, and, -1, if they are both negative)
 int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_requirement);
 
