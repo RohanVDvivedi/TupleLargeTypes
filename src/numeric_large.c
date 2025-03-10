@@ -114,3 +114,40 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 
 	return result;
 }
+
+int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_requirement)
+{
+	// start with comparing the sign bits
+	int compare = compare_numbers(s1, s2);
+
+	// if any of the number is a sign_bit only number, i.e +/-infinity or a zero, then comparison ends here
+	if(IS_INFINITY_NUMERIC_SIGN_BIT(s1) || IS_ZERO_NUMERIC_SIGN_BIT(s1) || IS_INFINITY_NUMERIC_SIGN_BIT(s2) || IS_ZERO_NUMERIC_SIGN_BIT(s2))
+	{
+		(*digits_requirement) = 0;
+		return compare;
+	}
+
+	// if the comparison result was already established then nothing else is needed
+	if(compare != 0)
+	{
+		(*digits_requirement) = 0;
+		return compare;
+	}
+
+	// now we have 2 positive numbers OR 2 negative numbers at hand
+	compare = compare_numbers(e1, e2);
+	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the sign bit has to be inverted at every further comparison
+		compare = -compare;
+
+	if(compare != 0) // if the exponents were unequal then we are done
+	{
+		(*digits_requirement) = 0;
+		return compare;
+	}
+
+	// if exponents were also equal then digits need to be compared
+	(*digits_requirement) = 1;
+	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the sign bit has to be inverted at every further comparison
+		(*digits_requirement) = -1;
+	return 0;
+}
