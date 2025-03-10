@@ -136,7 +136,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 
 	// now we have 2 positive numbers OR 2 negative numbers at hand
 	compare = compare_numbers(e1, e2);
-	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the sign bit has to be inverted at every further comparison
+	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the compare sign has to be inverted at every further comparison
 		compare = -compare;
 
 	if(compare != 0) // if the exponents were unequal then we are done
@@ -147,7 +147,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 
 	// if exponents were also equal then digits need to be compared
 	(*digits_requirement) = 1;
-	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the sign bit has to be inverted at every further comparison
+	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(s1)) // if they are both negative numbers then the compare sign has to be inverted at every further comparison
 		(*digits_requirement) = -1;
 	return 0;
 }
