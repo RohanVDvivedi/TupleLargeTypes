@@ -31,6 +31,13 @@ enum numeric_sign_bits
 // pass in/out parameter sign_bits and exponent based on what ever you need
 int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);
 
+// below functions can be used to compare numeric prefix using just sign_bits (s1 and s2) and exponent (e1 and e2), without consulting the digits
+// a flag digits_required will be set if the further comparison of digits will be necessary
+// NOTE: this functions assumes that the numeric is stored in correct scientific notation of base 10^12, as explained in the large comment at the end of this file
+// NOTE: this functions assumes that 0 numeric is always encoded as POSITIVE_NUMERIC, exp = 0, digits = 0...atleast 1 0
+// if digits_required is 1 after the call to this function, then you need to complete the comparison with comparison of digits
+int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_required);
+
 #include<common_large.h>
 
 #endif
