@@ -9,28 +9,17 @@
  * LARGE_NUMERIC
   * also make function to compare only using sign bits and exponent first
   s1, e1, s2, e2 -> ine compare => (std -1, 0, 1 and -2 for inconclusive)
-  switch(s1)
-    case 0 :
-      switch(s2)
-        case 0 : return 0;
-        case 1,2,3 : return -1;
-    case 1 :
-      switch(s2)
-        case 0 : return 1;
-        case 1 : if(e1 != e2) return -compare(e1, e2) else return -2
-        case 2 : return -1;
-        case 3 : return -1;
-    case 2 :
-      switch(s2)
-        case 0 : return 1;
-        case 1 : return 1;
-        case 2 : if(e1 != e2) return compare(e1, e2) else return -2
-        case 3 : return -1;
-    case 3 :
-      switch(s2)
-        case 0,1,2 : return 1;
-        case 3 : return 0;
-  * check above switch case again
+  int compare_up_until = 0;
+  compare_up_until = compare_numbers(s1, s2);
+  if(s1 == 0 || s1 == 3 || s2 == 0 || s2 == 3) // if anything is infinity we are done
+    return compare_up_until;
+  if(compare_up_until != 0)
+    return compare_up_until;
+  // you reach here only if both are non-infinity and are either both positiove or both negative
+  compare_up_until = compare_numbers(e1, e2);
+  if(compare_up_until != 0)
+    return compare_up_until;
+  return -2;
 
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
   * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
