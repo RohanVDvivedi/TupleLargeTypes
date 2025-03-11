@@ -10,8 +10,8 @@
 #include<blob_extended.h>
 #include<text_extended.h>
 
-//#define USE_INLINE
-#define USE_EXTENDED
+#define USE_INLINE
+//#define USE_EXTENDED
 
 #define USE_BASE
 //#define USE_NESTED
@@ -78,6 +78,8 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	#endif
 
 	initialize_tuple_def(&tpl_d, dti);
+	print_tuple_def(&tpl_d);
+	printf("\n");
 	return &tpl_d;
 }
 
