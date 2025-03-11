@@ -10,11 +10,11 @@
 #include<blob_extended.h>
 #include<text_extended.h>
 
-#define USE_INLINE
-//#define USE_EXTENDED
+//#define USE_INLINE
+#define USE_EXTENDED
 
-#define USE_BASE
-//#define USE_NESTED
+//#define USE_BASE
+#define USE_NESTED
 
 #ifdef USE_BASE
 	#define ACCS SELF
