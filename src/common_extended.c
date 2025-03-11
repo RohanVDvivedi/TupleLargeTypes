@@ -1,28 +1,28 @@
-#include<common_large.h>
+#include<common_extended.h>
 
 #include<stdlib.h>
 
 #include<relative_positional_accessor.h>
 
-int is_short_type_info(const data_type_info* dti_p)
+int is_inline_type_info(const data_type_info* dti_p)
 {
 	int type_name_length = strnlen(dti_p->type_name, sizeof(dti_p->type_name));
-	int _short_length = strlen("_short");
-	if(type_name_length < _short_length)
+	int _inline_length = strlen("_inline");
+	if(type_name_length < _inline_length)
 		return 0;
-	return strcmp(dti_p->type_name + type_name_length - _short_length, "_short") == 0;
+	return strcmp(dti_p->type_name + type_name_length - _inline_length, "_inline") == 0;
 }
 
-int is_large_type_info(const data_type_info* dti_p)
+int is_extended_type_info(const data_type_info* dti_p)
 {
 	int type_name_length = strnlen(dti_p->type_name, sizeof(dti_p->type_name));
-	int _large_length = strlen("_large");
-	if(type_name_length < _large_length)
+	int _extended_length = strlen("_extended");
+	if(type_name_length < _extended_length)
 		return 0;
-	return strcmp(dti_p->type_name + type_name_length - _large_length, "_large") == 0;
+	return strcmp(dti_p->type_name + type_name_length - _extended_length, "_large") == 0;
 }
 
-uint64_t get_extension_head_page_id_for_large_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
+uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
 {
 	// ensure that it is a large type_info
 	{
