@@ -85,7 +85,15 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 
 void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
+	printf("INLINE TUPLE (before init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
 	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+	printf("INLINE TUPLE (after init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
