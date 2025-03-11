@@ -1,7 +1,6 @@
 
- * refactor to call *_short as *_inline and *_large as *_extended types
- * refactor text and blob iterators to extended_byte iterators
- * internally jsonb and tuple_list will be same as blob_extended types
+ * refactor text and blob iterators to byte_array iterators
+ * internally jsonb and tuple_list will be same as blob_extended types and can use byte_array read and write iterators
 
  * NUMERIC
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
