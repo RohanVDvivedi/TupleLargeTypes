@@ -20,3 +20,13 @@
   * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
   * create_worm
   * uses JSONparser's node as input object
+
+* LARGE_TUPLE_LIST
+  * list of tuple of homogeneous types stored one after the another like in a large_text or large_blob
+  * need a function in tuple_def to get the size of a tuple from reading the prefix of object into a stream
+    api something like uin32_t get_tuple_size_from_stream_using_tuple_def(tuple_def* tpl_d, void* buffer, uint32_t* buffer_size, void* context, uint32_t read_from_stream(void* context_p, void* data, uint32_t data_size));
+    here the buffer must atleast be 4 bytes long and buffer_size will be set to the number of bytes read from the stream
+  * once size is known we can skip or read the res to the bytes, making us point to the next tuple in the tuple_list
+
+* refactor text blob iterators to large_bytes iterators
+* internally jsonb and tuple_list will be same as large_blob types
