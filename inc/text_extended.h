@@ -16,7 +16,7 @@ data_type_info* get_text_extended_type_info(const data_type_info* text_inline_p,
 
 #include<common_extended.h>
 
-#include<text_blob_read_iterator.h>
-#include<text_blob_write_iterator.h>
+#include<binary_read_iterator.h>
+#include<binary_write_iterator.h>
 
 #endif
