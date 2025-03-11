@@ -1,7 +1,4 @@
 
- * refactor text and blob iterators to byte_array iterators
- * internally jsonb and tuple_list will be same as blob_extended types and can use byte_array read and write iterators
-
  * NUMERIC
   * need a read/write iterator to read/write digits in order first from prefix then from the worm
   * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
@@ -13,14 +10,16 @@
 
 * TUPLE_LIST
   * list of tuple of homogeneous types stored one after the another like in a large_text or large_blob
-  * only inline  versions of the types can be contained here
+  * only inline versions of the types can be contained here
   * once size is known (using get_tuple_size_from_stream) we can skip or read the tuple to the buffer, making us point to the next tuple in the tuple_list
+  * will use binary iterators underneath, because of structural similarity with blob_inline and blob_extended
 
 * JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
   * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
   * create_worm
   * uses JSONparser's node as input object
+  * will use binary iterators underneath, because of structural similarity with blob_inline and blob_extended
 
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
   * hash -> first hash the prefix as is, then hash all the bytes from the following worm
