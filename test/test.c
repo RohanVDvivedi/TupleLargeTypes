@@ -83,7 +83,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 
 void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
-	text_blob_write_iterator* tbwi_p = get_new_text_blob_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
@@ -94,7 +94,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 	{
 		uint32_t bytes_to_write_this_iteration = min(bytes_to_write, WRITE_CHUNK_SIZE);
 
-		bytes_to_write_this_iteration = append_to_text_blob(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
 
 		if(bytes_to_write_this_iteration == 0)
 			break;
@@ -106,7 +106,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", bytes_written, TEST_DATA_SIZE);
 
-	delete_text_blob_write_iterator(tbwi_p, transaction_id, &abort_error);
+	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
 
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
@@ -115,7 +115,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 
-	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
@@ -123,7 +123,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 	uint32_t bytes_read = 0;
 	while(1)
 	{
-		uint32_t bytes_read_this_iteration = read_from_text_blob(tbri_p, read_buffer, READ_CHUNK_SIZE, transaction_id, &abort_error);
+		uint32_t bytes_read_this_iteration = read_from_binary_read_iterator(tbri_p, read_buffer, READ_CHUNK_SIZE, transaction_id, &abort_error);
 		if(bytes_read_this_iteration == 0)
 			break;
 
@@ -138,7 +138,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 
 	printf("bytes_read = %"PRIu32"/%"PRIu32"\n\n", bytes_read, TEST_DATA_SIZE);
 
-	delete_text_blob_read_iterator(tbri_p, transaction_id, &abort_error);
+	delete_binary_read_iterator(tbri_p, transaction_id, &abort_error);
 }
 
 int main()
