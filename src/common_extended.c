@@ -19,7 +19,7 @@ int is_extended_type_info(const data_type_info* dti_p)
 	int _extended_length = strlen("_extended");
 	if(type_name_length < _extended_length)
 		return 0;
-	return strcmp(dti_p->type_name + type_name_length - _extended_length, "_large") == 0;
+	return strcmp(dti_p->type_name + type_name_length - _extended_length, "_extended") == 0;
 }
 
 uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
