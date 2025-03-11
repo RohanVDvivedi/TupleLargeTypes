@@ -7,11 +7,11 @@
 #include<unWALed_in_memory_data_store.h>
 #include<unWALed_page_modification_methods.h>
 
-#include<blob_large.h>
-#include<text_large.h>
+#include<blob_extended.h>
+#include<text_extended.h>
 
-//#define USE_SHORT
-#define USE_LARGE
+//#define USE_INLINE
+#define USE_EXTENDED
 
 #define USE_BASE
 //#define USE_NESTED
@@ -55,12 +55,12 @@ char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
 data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	short_dti = get_text_short_type_info(PREFIX_SIZE + 10);
-	large_dti = get_text_large_type_info(short_dti, pas_p);
+	short_dti = get_text_inline_type_info(PREFIX_SIZE + 10);
+	large_dti = get_text_extended_type_info(short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");
-	#ifdef USE_SHORT
+	#ifdef USE_INLINE
 		tuple_dti->containees[0].al.type_info = short_dti;
 	#else
 		tuple_dti->containees[0].al.type_info = large_dti;
@@ -70,9 +70,9 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	#ifdef USE_NESTED
 		dti = tuple_dti;
 	#elif defined USE_BASE
-		#ifdef USE_SHORT
+		#ifdef USE_INLINE
 			dti = short_dti;
-		#elif defined USE_LARGE
+		#elif defined USE_EXTENDED
 			dti = large_dti;
 		#endif
 	#endif
@@ -113,7 +113,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 {
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_large_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 
 	text_blob_read_iterator* tbri_p = get_new_text_blob_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
@@ -159,7 +159,7 @@ int main()
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
 	{
 		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-		printf("is_short = %d, is_large = %d\n", is_short_type_info(dti_p), is_large_type_info(dti_p));
+		printf("is_inline = %d, is_extended = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p));
 	}
 
 	/* TESTS STARTED */
@@ -179,7 +179,7 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_large_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
 	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
