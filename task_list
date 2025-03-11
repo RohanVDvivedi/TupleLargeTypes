@@ -14,6 +14,7 @@
 
 * TUPLE_LIST
   * list of tuple of homogeneous types stored one after the another like in a large_text or large_blob
+  * only inline  versions of the types can be contained here
   * once size is known (using get_tuple_size_from_stream) we can skip or read the tuple to the buffer, making us point to the next tuple in the tuple_list
 
 * JSONB
