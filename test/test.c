@@ -101,6 +101,8 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 		if(bytes_to_write_this_iteration == 0)
 			break;
 
+		printf("bytes_written_this_iteration = %"PRIu32"\n", bytes_to_write_this_iteration);
+
 		bytes += bytes_to_write_this_iteration;
 		bytes_to_write -= bytes_to_write_this_iteration;
 		bytes_written += bytes_to_write_this_iteration;
