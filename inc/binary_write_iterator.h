@@ -46,6 +46,6 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, tuple_def* tpl_
 
 void delete_binary_write_iterator(binary_write_iterator* tbwi_p, const void* transaction_id, int* abort_error);
 
-uint32_t append_to_text_blob(binary_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
+uint32_t append_to_binary_write_iterator(binary_write_iterator* tbwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
 
 #endif

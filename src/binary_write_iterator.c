@@ -93,7 +93,7 @@ void delete_binary_write_iterator(binary_write_iterator* bwi_p, const void* tran
 	free(bwi_p);
 }
 
-uint32_t append_to_text_blob(binary_write_iterator* bwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
+uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
 {
 	if(data_size == 0)
 		return 0;

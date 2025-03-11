@@ -85,7 +85,7 @@ binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* bri_p, co
 	return clone_p;
 }
 
-uint32_t read_from_text_blob(binary_read_iterator* bri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
+uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
 {
 	if(data_size == 0)
 		return 0;

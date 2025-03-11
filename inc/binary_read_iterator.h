@@ -39,7 +39,7 @@ binary_read_iterator* get_new_binary_read_iterator(const void* tupl, tuple_def* 
 
 void delete_binary_read_iterator(binary_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
 
-uint32_t read_from_text_blob(binary_read_iterator* tbri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
+uint32_t read_from_binary_read_iterator(binary_read_iterator* tbri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
 
 binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
 
