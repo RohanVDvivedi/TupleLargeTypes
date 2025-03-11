@@ -1,23 +1,23 @@
-#ifndef NUMERIC_LARGE_H
-#define NUMERIC_LARGE_H
+#ifndef NUMERIC_EXTENDED_H
+#define NUMERIC_EXTENDED_H
 
 #include<tuple.h>
 #include<data_type_info.h>
 #include<page_access_specification.h>
 
 // below two functions only check the type_name of the dti passed
-int is_numeric_short_type_info(const data_type_info* numeric_short_p);
-int is_numeric_large_type_info(const data_type_info* numeric_large_p);
+int is_numeric_inline_type_info(const data_type_info* dti_p);
+int is_numeric_extended_type_info(const data_type_info* dti_p);
 
-// returns a new type info pointing to short type that is atmost max_size bytes big
+// returns a new type info pointing to inline type that is atmost max_size bytes big
 // max_size = 2 * ceil(log(page_size) base 256) + 1 (bytes for sign bit field) + 2 (bytes for exponent) + 5 * ceil(digits / 12)
 // for 8 KB page and storing 36 digits, max_size = 2 * 2 + 1 + 2 + 5 * 3 = 22 bytes of max size
-data_type_info* get_numeric_short_type_info(uint32_t max_size);
+data_type_info* get_numeric_inline_type_info(uint32_t max_size);
 
-// returns a new type info pointing to a tuple, of 2 elements the numeric_short_p, and a page_id type from pas_p
-data_type_info* get_numeric_large_type_info(const data_type_info* numeric_short_p, const page_access_specs* pas_p);
+// returns a new type info pointing to a tuple, of 2 elements the numeric_inline_p, and a page_id type from pas_p
+data_type_info* get_numeric_extended_type_info(const data_type_info* numeric_inline_p, const page_access_specs* pas_p);
 
-// for reason to easy comparison of the short numeric directly using the TupleStore functions
+// for reason to ease comparison of the inline numeric directly using the TupleStore functions
 // the information about the numeric being infinity has been coded directly into the sign bits and that too in order that results in correct default comparison
 typedef enum numeric_sign_bits numeric_sign_bits;
 enum numeric_sign_bits
@@ -43,14 +43,14 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 //                    -> else, multiply the sign of this variable in what we get from comparing the digits (this will be 1, if they are both positive, and, -1, if they are both negative)
 int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_requirement);
 
-#include<common_large.h>
+#include<common_extended.h>
 
 #endif
 
 /*
-	SHORT NUMERIC TYPE
+	INLINE NUMERIC TYPE
 	numeric type here is represented as a base 10^12 number, with each digit being a 5 byte unsigned number between [0, 10^12), in-memory representation of each digit will be a uint64_t
-	each short numeric type is composed of
+	each inline numeric type is composed of
 		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are not +/- zeros just a zero), 3 -> positive number and 4 -> +infinity
 		* 2 byte signed exponent
 		* some N number of digits as an array of 5 byte unsigned integers
@@ -73,7 +73,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 		* now since we are storing digits in base 10^12 in a 5 byte integer, why not store exponent represented as a (10^12) ^ exponent
 		* now everything becomes radix 10^12 instead of radix of 10, and with 3 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
-	LARGE NUMERIC TYPE
-	will just be a tuple of a short numeric type and a page_id to point to a worm
+	EXTENDED NUMERIC TYPE
+	will just be a tuple of a inline numeric type and a page_id to point to a worm
 	any and all following digit that could not be accomodated in the prefix will be pushed into the worm in 5 byte chunks one after the another
 */
