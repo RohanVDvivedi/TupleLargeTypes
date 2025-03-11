@@ -27,7 +27,7 @@ uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tu
 	// ensure that it is a large type_info
 	{
 		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pa);
-		if(!is_large_type_info(dti_p))
+		if(!is_extended_type_info(dti_p))
 			return pas_p->NULL_PAGE_ID;
 	}
 

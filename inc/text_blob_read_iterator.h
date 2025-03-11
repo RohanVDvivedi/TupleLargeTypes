@@ -3,24 +3,24 @@
 
 #include<tuple.h>
 #include<worm.h>
-#include<text_large.h>
-#include<blob_large.h>
+#include<text_extended.h>
+#include<blob_extended.h>
 
 typedef struct text_blob_read_iterator text_blob_read_iterator;
 struct text_blob_read_iterator
 {
-	int is_short:1;
+	int is_inline:1;
 
 	// local copy of the prefix and the bytes that have been read from it already
 	user_value prefix;
 	uint32_t bytes_read_from_prefix;
 
-	// head_page_id to start the worm, unused if is_short is set
+	// head_page_id to start the worm, unused if is_inline is set
 	uint64_t extension_head_page_id;
 
 	// above three attributes are cached in the constructor
 
-	// unused if is_short is set
+	// unused if is_inline is set
 	worm_read_iterator* wri_p;
 
 	// below attributes only to be used to initialize the wri, only upon requirement

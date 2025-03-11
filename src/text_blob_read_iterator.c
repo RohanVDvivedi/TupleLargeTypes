@@ -13,9 +13,9 @@ text_blob_read_iterator* get_new_text_blob_read_iterator(const void* tupl, tuple
 		exit(-1);
 
 	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-	tbri_p->is_short = is_text_short_type_info(dti_p) || is_blob_short_type_info(dti_p);
+	tbri_p->is_inline = is_text_inline_type_info(dti_p) || is_blob_inline_type_info(dti_p);
 
-	if(tbri_p->is_short)
+	if(tbri_p->is_inline)
 	{
 		int valid_prefix = get_value_from_element_from_tuple(&(tbri_p->prefix), tpl_d, inline_accessor, tupl);
 		if((!valid_prefix) || is_user_value_NULL(&(tbri_p->prefix))) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
@@ -72,7 +72,7 @@ text_blob_read_iterator* clone_text_blob_read_iterator(text_blob_read_iterator* 
 
 	(*clone_p) = (*tbri_p);
 
-	if((!clone_p->is_short) && (tbri_p->wri_p != NULL)) // if is_large && wri_p != NULL then a wri_p clone is necessary
+	if((!clone_p->is_inline) && (tbri_p->wri_p != NULL)) // if is_large && wri_p != NULL then a wri_p clone is necessary
 	{
 		clone_p->wri_p = clone_worm_read_iterator(tbri_p->wri_p, transaction_id, abort_error);
 		if(*abort_error)
@@ -103,7 +103,7 @@ uint32_t read_from_text_blob(text_blob_read_iterator* tbri_p, char* data, uint32
 				memory_move(data, tbri_p->prefix.string_or_blob_value + tbri_p->bytes_read_from_prefix, bytes_read_this_iteration);
 			tbri_p->bytes_read_from_prefix += bytes_read_this_iteration;
 		}
-		else if(!(tbri_p->is_short)) // go here only if it is a large text or blob
+		else if(!(tbri_p->is_inline)) // go here only if it is a large text or blob
 		{
 			// initialize worm read iterator if not done already
 			if(tbri_p->wri_p == NULL)

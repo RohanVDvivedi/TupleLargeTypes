@@ -6,14 +6,14 @@
 
 #include<relative_positional_accessor.h>
 
-static inline void point_to_attribute(relative_positional_accessor* rpa, int is_short)
+static inline void point_to_attribute(relative_positional_accessor* rpa, int is_inline)
 {
 	relative_positonal_accessor_set_from_relative(rpa, SELF);
 }
 
-static inline void point_to_prefix(relative_positional_accessor* rpa, int is_short)
+static inline void point_to_prefix(relative_positional_accessor* rpa, int is_inline)
 {
-	if(is_short)
+	if(is_inline)
 	{
 		relative_positonal_accessor_set_from_relative(rpa, SELF);
 		return ;
@@ -22,9 +22,9 @@ static inline void point_to_prefix(relative_positional_accessor* rpa, int is_sho
 	relative_positonal_accessor_set_from_relative(rpa, STATIC_POSITION(0));
 }
 
-static inline void point_to_prefix_character(relative_positional_accessor* rpa, uint32_t index, int is_short)
+static inline void point_to_prefix_character(relative_positional_accessor* rpa, uint32_t index, int is_inline)
 {
-	if(is_short)
+	if(is_inline)
 	{
 		relative_positonal_accessor_set_from_relative(rpa, STATIC_POSITION(index));
 		return ;
@@ -33,9 +33,9 @@ static inline void point_to_prefix_character(relative_positional_accessor* rpa, 
 	relative_positonal_accessor_set_from_relative(rpa, STATIC_POSITION(0, index));
 }
 
-static inline void point_to_extension_head_page_id(relative_positional_accessor* rpa, int is_short)
+static inline void point_to_extension_head_page_id(relative_positional_accessor* rpa, int is_inline)
 {
-	if(is_short)
+	if(is_inline)
 		return ;
 
 	relative_positonal_accessor_set_from_relative(rpa, STATIC_POSITION(1));
@@ -48,23 +48,23 @@ text_blob_write_iterator* get_new_text_blob_write_iterator(void* tupl, tuple_def
 		exit(-1);
 
 	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-	tbwi_p->is_short = is_text_short_type_info(dti_p) || is_blob_short_type_info(dti_p);
+	tbwi_p->is_inline = is_text_inline_type_info(dti_p) || is_blob_inline_type_info(dti_p);
 
 	tbwi_p->tupl = tupl;
 	tbwi_p->tpl_d = tpl_d;
 	tbwi_p->inline_accessor = inline_accessor;
 
 	// if it is a large_string or large_blob, with a worm attached then make bytes_to_be_written_to_prefix = 0
-	if(!(tbwi_p->is_short))
+	if(!(tbwi_p->is_inline))
 	{
 		relative_positional_accessor child_relative_accessor;
 		initialize_relative_positional_accessor(&child_relative_accessor, &(tbwi_p->inline_accessor), 2);
 
-		point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_short);
+		point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_inline);
 		user_value extension_head_page;
 		int valid_extension = get_value_from_element_from_tuple(&extension_head_page, tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 
-		point_to_prefix(&child_relative_accessor, tbwi_p->is_short);
+		point_to_prefix(&child_relative_accessor, tbwi_p->is_inline);
 		user_value prefix;
 		int valid_prefix = get_value_from_element_from_tuple(&prefix, tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 
@@ -104,7 +104,7 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 	// initialization
 	// if the attribute is NULL, set it to EMPTY_USER_VALUE
 	{
-		point_to_attribute(&child_relative_accessor, tbwi_p->is_short);
+		point_to_attribute(&child_relative_accessor, tbwi_p->is_inline);
 		user_value attr;
 		get_value_from_element_from_tuple(&attr, tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 		if(is_user_value_NULL(&attr))
@@ -112,9 +112,9 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 	}
 
 	// if the prefix is NULL in a large text or blob, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
-	if(!(tbwi_p->is_short))
+	if(!(tbwi_p->is_inline))
 	{
-		point_to_prefix(&child_relative_accessor, tbwi_p->is_short);
+		point_to_prefix(&child_relative_accessor, tbwi_p->is_inline);
 		user_value prefix;
 		get_value_from_element_from_tuple(&prefix, tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 		int reset = 0;
@@ -127,13 +127,13 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 
 		if(reset)
 		{
-			point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_short);
+			point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_inline);
 			set_element_in_tuple(tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl, &((user_value){.uint_value = tbwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
 		}
 	}
 	else
 	{
-		point_to_attribute(&child_relative_accessor, tbwi_p->is_short);
+		point_to_attribute(&child_relative_accessor, tbwi_p->is_inline);
 		tbwi_p->bytes_to_be_written_to_prefix = min(tbwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl));
 	}
 
@@ -148,27 +148,27 @@ uint32_t append_to_text_blob(text_blob_write_iterator* tbwi_p, const char* data,
 			bytes_written_this_iteration = min(data_size, tbwi_p->bytes_to_be_written_to_prefix - tbwi_p->bytes_written_to_prefix);
 
 			// grab old_element_count and expand the container
-			point_to_prefix(&child_relative_accessor, tbwi_p->is_short);
+			point_to_prefix(&child_relative_accessor, tbwi_p->is_inline);
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 			expand_element_count_for_element_in_tuple(tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
 			
 			// copy data into it byte by byte
 			for(uint32_t i = 0; i < bytes_written_this_iteration; i++)
 			{
-				point_to_prefix_character(&child_relative_accessor, old_element_count + i, tbwi_p->is_short);
+				point_to_prefix_character(&child_relative_accessor, old_element_count + i, tbwi_p->is_inline);
 				set_element_in_tuple(tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl, &((user_value){.uint_value = data[i]}), UINT32_MAX);
 			}
 
 			tbwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
 		}
-		else if(!(tbwi_p->is_short))
+		else if(!(tbwi_p->is_inline))
 		{
 			if(tbwi_p->wai_p == NULL)
 			{
 				// read extension_head_page_id
 				uint64_t extension_head_page_id;
 				{
-					point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_short);
+					point_to_extension_head_page_id(&child_relative_accessor, tbwi_p->is_inline);
 					user_value extension_head;
 					get_value_from_element_from_tuple(&extension_head, tbwi_p->tpl_d, child_relative_accessor.exact, tbwi_p->tupl);
 					extension_head_page_id = extension_head.uint_value;

@@ -3,13 +3,13 @@
 
 #include<tuple.h>
 #include<worm.h>
-#include<text_large.h>
-#include<blob_large.h>
+#include<text_extended.h>
+#include<blob_extended.h>
 
 typedef struct text_blob_write_iterator text_blob_write_iterator;
 struct text_blob_write_iterator
 {
-	int is_short:1;
+	int is_inline:1;
 
 	// shallow copy attributes
 	void* tupl;
@@ -20,7 +20,7 @@ struct text_blob_write_iterator
 	uint32_t bytes_written_to_prefix;
 	// no more appending to prefix if the above 2 attributes become equal
 
-	// unused if is_short is set
+	// unused if is_inline is set
 	worm_append_iterator* wai_p;
 
 	// below attributes only to be used to initialize the wai, only upon requirement
