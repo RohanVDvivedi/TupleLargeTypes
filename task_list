@@ -1,18 +1,27 @@
+PICKED TASKS
 
- * NUMERIC
-  * need a read/write iterator to read/write digits in order first from prefix then from the worm
-  * api will read/write digits in to a buffer holding digits in a array of uint64_t[], each digit is a base 10^12 number
+* NUMERIC
 
+  * simple function to set sign_bits and exponent in the numeric type
+
+  * digit_read_iterator and a digit_write_iterator
+    * copy declaration stubs from binary_read_iterator and binary_write_iterator
+    * replacing void* data with uint64_t digits, and data_size with digits_size
+
+------------------------
+
+MATERIALIZED NUMERIC
   * we also need a materialized struct to store all the digits (base 10^12)
     * struct stores uint sign_bits:2, int64_t exponent, and then a value array list of uint64_t digits
     * add functions like push least significant digit, add most significant digit (also changes exponent) and modify/get nth digit
     * write a complete briefcase of functions to perform add, sub, multiplication and division, compare and min, max functions
 
 * TUPLE_LIST
-  * list of tuple of homogeneous types stored one after the another like in a large_text or large_blob
-  * only inline versions of the types can be contained here
+  * list of tuple of homogeneous types stored one after the another like in blob_extended -> no inline version for this, inline array is already supported by a native array of TupleStore
+  * only inline versions of the types can be contained here (can not be composed of any extended type)
   * once size is known (using get_tuple_size_from_stream) we can skip or read the tuple to the buffer, making us point to the next tuple in the tuple_list
   * will use binary iterators underneath, because of structural similarity with blob_inline and blob_extended
+  * implement a wrapper function over the read_from_binary_read_iterator to read tuples one after the another, by deciphering the size before hand and allocating the necessary buffers to hold all of the tuple
 
 * JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
