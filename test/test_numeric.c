@@ -88,7 +88,7 @@ int main()
 				{
 					int d = 0;
 					int cmp = compare_numeric_prefix_no_digits(s1, e1, s2, e2, &d);
-					printf("(%d, %d) - (%d, %d) = %d (%d)\n", s1-2, e1, s2-2, e2, cmp, d);
+					printf("(%s, %d) - (%s, %d) = %d (%d)\n", numeric_sign_bits_str[s1], e1, numeric_sign_bits_str[s2], e2, cmp, d);
 				}
 			}
 		}
