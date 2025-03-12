@@ -7,8 +7,8 @@
 #include<unWALed_in_memory_data_store.h>
 #include<unWALed_page_modification_methods.h>
 
-#include<blob_extended.h>
-#include<text_extended.h>
+#include<numeric_extended.h>
+#include<worm.h> // to be removed in favor of digit_read_iterator.h and digit_write_iterator.h
 
 //#define USE_INLINE
 #define USE_EXTENDED
@@ -39,15 +39,6 @@
 const void* transaction_id = NULL;
 int abort_error = 0;
 
-char* test_data = "Rohan is a good boy, "
-					"Rohan is probably a bad boy, "
-					"Common sense is not all that common, "
-					"Does Rohan have any? "
-					"Not if this code functions as required, "
-					"What else can I write here? "
-					"No one cares what would be written here. "
-					"I will probably change it to lorem ipsum once this project goes big enough.";
-
 tuple_def tpl_d;
 data_type_info* short_dti = NULL;
 data_type_info* large_dti = NULL;
@@ -55,8 +46,8 @@ char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
 data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	short_dti = get_text_inline_type_info(PREFIX_SIZE + 10);
-	large_dti = get_text_extended_type_info(short_dti, pas_p);
+	short_dti = get_numeric_inline_type_info(1 + 1 + 2 + 1 + PREFIX_SIZE + 10); // giving it 10 extra bytes, 2 digits extra
+	large_dti = get_numeric_extended_type_info(short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");
@@ -83,78 +74,27 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	return &tpl_d;
 }
 
-void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
-{
-	printf("INLINE TUPLE (before init-ing write_iterator) : ");
-	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-
-	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
-
-	printf("INLINE TUPLE (after init-ing write_iterator) : ");
-	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-
-	const uint32_t TEST_DATA_SIZE = strlen(test_data);
-
-	char* bytes = test_data;
-	uint32_t bytes_to_write = TEST_DATA_SIZE;
-	uint32_t bytes_written = 0;
-	while(bytes_to_write > 0)
-	{
-		uint32_t bytes_to_write_this_iteration = min(bytes_to_write, WRITE_CHUNK_SIZE);
-
-		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
-
-		if(bytes_to_write_this_iteration == 0)
-			break;
-
-		printf("bytes_written_this_iteration = %"PRIu32"\n", bytes_to_write_this_iteration);
-
-		bytes += bytes_to_write_this_iteration;
-		bytes_to_write -= bytes_to_write_this_iteration;
-		bytes_written += bytes_to_write_this_iteration;
-	}
-
-	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", bytes_written, TEST_DATA_SIZE);
-
-	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
-}
-
-void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
-{
-	printf("INLINE TUPLE : ");
-	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
-
-	const uint32_t TEST_DATA_SIZE = strlen(test_data);
-
-	char read_buffer[READ_CHUNK_SIZE];
-	uint32_t bytes_read = 0;
-	while(1)
-	{
-		uint32_t bytes_read_this_iteration = read_from_binary_read_iterator(tbri_p, read_buffer, READ_CHUNK_SIZE, transaction_id, &abort_error);
-		if(bytes_read_this_iteration == 0)
-			break;
-
-		int matches = 1;
-		for(uint32_t i = 0; i < bytes_read_this_iteration && matches == 1; i++)
-			matches = (read_buffer[i] == test_data[(bytes_read + i) % TEST_DATA_SIZE]);
-
-		printf(" ->\"%.*s\" matches => %d\n", bytes_read_this_iteration, read_buffer, matches);
-
-		bytes_read += bytes_read_this_iteration;
-	}
-
-	printf("bytes_read = %"PRIu32"/%"PRIu32"\n\n", bytes_read, TEST_DATA_SIZE);
-
-	delete_binary_read_iterator(tbri_p, transaction_id, &abort_error);
-}
-
 int main()
 {
+	// base cases for comparing numeric based on sign bits and exponent
+
+	for(int s1 = 0; s1 < 5; s1++)
+	{
+		for(int e1 = -3; e1 <= 3; e1 += 3)
+		{
+			for(int s2 = 0; s2 < 5; s2++)
+			{
+				for(int e2 = -3; e2 <= 3; e2 += 3)
+				{
+					int d = 0;
+					int cmp = compare_numeric_prefix_no_digits(s1, e1, s2, e2, &d);
+					printf("(%d, %d) - (%d, %d) = %d (%d)\n", s1-2, e1, s2-2, e2, cmp, d);
+				}
+			}
+		}
+	}
+	printf("\n");
+
 	/* SETUP STARTED */
 
 	// construct an in-memory data store
@@ -176,15 +116,42 @@ int main()
 
 	/* TESTS STARTED */
 
+	numeric_sign_bits s;
+	int16_t e;
+
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
 
-	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	s = POSITIVE_INFINITY_NUMERIC;
+	e = -2;
+	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
 
-	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	s = NEGATIVE_NUMERIC;
+	e = 2;
+	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
+	s = ZERO_NUMERIC;
+	e = 1;
+	set_sign_bits_and_exponent_for_numeric(NULL, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
+	s = POSITIVE_NUMERIC;
+	e = 10;
+	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
 
 	/* TESTS ENDED */
 
