@@ -121,6 +121,9 @@ int main()
 
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
+	#ifdef USE_NESTED
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+	#endif
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
