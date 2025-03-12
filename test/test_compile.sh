@@ -1,1 +1,1 @@
-gcc ./test.c -o test.out -ltuplelargetypes -ltupleindexer -lrwlock -ltuplestore -lcutlery
+gcc ./test_text_blob.c -o test_tb.out -ltuplelargetypes -ltupleindexer -lrwlock -ltuplestore -lcutlery
