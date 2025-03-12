@@ -1,5 +1,7 @@
 PICKED TASKS
 
+ * write simple tests for the sign_bits and exponent of the numeric
+
 * NUMERIC
   * digit_read_iterator and a digit_write_iterator
     * copy declaration stubs from binary_read_iterator and binary_write_iterator
