@@ -147,7 +147,7 @@ int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, c
 			return 0;
 		}
 		if(is_user_value_NULL(&inline_component)) // set it to empty user value only if it is absent, else tht set calls to its sign bits and exponent will fail
-			set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_USER_VALUE, 0);
+			set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_USER_VALUE, UINT32_MAX);
 	}
 
 	int result = 1;
