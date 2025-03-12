@@ -128,6 +128,13 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
+	s = NEGATIVE_NUMERIC;
+	e = -2;
+	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
 	s = POSITIVE_INFINITY_NUMERIC;
 	e = -2;
 	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
@@ -149,7 +156,28 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
+	s = ZERO_NUMERIC;
+	e = 1;
+	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
 	s = POSITIVE_NUMERIC;
+	e = 10;
+	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
+	s = POSITIVE_NUMERIC;
+	e = 10;
+	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf("\n");
+
+	s = POSITIVE_INFINITY_NUMERIC;
 	e = 10;
 	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
