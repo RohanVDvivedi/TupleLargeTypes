@@ -1,9 +1,6 @@
 PICKED TASKS
 
 * NUMERIC
-
-  * simple function to set sign_bits and exponent in the numeric type
-
   * digit_read_iterator and a digit_write_iterator
     * copy declaration stubs from binary_read_iterator and binary_write_iterator
     * replacing void* data with uint64_t digits, and data_size with digits_size
