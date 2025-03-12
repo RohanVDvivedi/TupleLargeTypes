@@ -189,14 +189,14 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	/*uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
 	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
 	{
 		decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
 		printf("dependent_root_page_id = %"PRIu64" vaccum_needed = %d\n", dependent_root_page_id, vaccum_needed);
-	}
+	}*/
 
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
@@ -208,6 +208,7 @@ int main()
 	delete_unWALed_page_modification_methods(pmm_p);
 
 	// delete the record definition
+	free(short_dti->containees[2].al.type_info);
 	free(short_dti);
 	free(large_dti);
 
