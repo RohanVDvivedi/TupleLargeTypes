@@ -32,6 +32,7 @@ enum numeric_sign_bits
 #define IS_NEGATIVE_NUMERIC_SIGN_BIT(s) (((s) <= NEGATIVE_NUMERIC))
 #define IS_POSITIVE_NUMERIC_SIGN_BIT(s) (((s) >= POSITIVE_NUMERIC))
 #define IS_ZERO_NUMERIC_SIGN_BIT(s)     (((s) == ZERO_NUMERIC))
+extern char const * numeric_sign_bits_str[5];
 
 // pass in/out parameter sign_bits and exponent based on what ever you need
 int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor);

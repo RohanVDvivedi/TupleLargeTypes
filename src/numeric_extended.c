@@ -4,6 +4,14 @@
 
 #include<relative_positional_accessor.h>
 
+char const * numeric_sign_bits_str[5] = {
+	"-inf",
+	"-",
+	"0",
+	"+",
+	"+inf",
+};
+
 int is_numeric_inline_type_info(const data_type_info* dti_p)
 {
 	return strcmp(dti_p->type_name, "numeric_inline") == 0;
