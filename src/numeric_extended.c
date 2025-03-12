@@ -28,13 +28,13 @@ data_type_info* get_numeric_inline_type_info(uint32_t max_size)
 	strcpy(dti_p->containees[1].field_name, "exponent");
 	dti_p->containees[1].al.type_info = INT_NON_NULLABLE[2];
 
-	strcpy(dti_p->containees[1].field_name, "digits");
+	strcpy(dti_p->containees[2].field_name, "digits");
 	{
 		data_type_info* digits_dti_p = malloc(sizeof(data_type_info));
 		if(digits_dti_p == NULL)
 			exit(-1);
 		(*digits_dti_p) = get_variable_element_count_array_type("numeric_digit", max_size, UINT_NON_NULLABLE[5]);
-		dti_p->containees[1].al.type_info = digits_dti_p;
+		dti_p->containees[2].al.type_info = digits_dti_p;
 	}
 
 	return dti_p;
