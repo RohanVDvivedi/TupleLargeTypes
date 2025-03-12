@@ -152,18 +152,37 @@ int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, c
 
 	int result = 1;
 
+	// if the sign_bits to be set were +inf, -inf or 0, then do not allow setting exponent
+	int disallowed_setting_exponent = 0;
+
 	// set sign_bits
 	if(sign_bits != NULL && result == 1)
 	{
-		if(is_extended)
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
-		else
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.bit_field_value = (*sign_bits)}), 0);
+		{
+			// reset the internal inline numeric if the sign_bits were to be set to +inf, -inf or 0
+			if(IS_INFINITY_NUMERIC_SIGN_BIT((*sign_bits)) || IS_ZERO_NUMERIC_SIGN_BIT((*sign_bits)))
+			{
+				if(is_extended)
+					relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+				else
+					relative_positonal_accessor_set_from_relative(&rpa, SELF);
+				result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_USER_VALUE, 0);
+				disallowed_setting_exponent = 1;
+			}
+		}
+
+		if(result == 1)
+		{
+			if(is_extended)
+				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
+			else
+				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.bit_field_value = (*sign_bits)}), 0);
+		}
 	}
 
 	// set exponent
-	if(exponent != NULL && result == 1)
+	if(exponent != NULL && result == 1 && disallowed_setting_exponent == 0)
 	{
 		if(is_extended)
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
