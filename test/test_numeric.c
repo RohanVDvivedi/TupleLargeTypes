@@ -126,6 +126,7 @@ int main()
 	#endif
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 	printf("\n");
 
 	s = NEGATIVE_NUMERIC;
@@ -182,6 +183,7 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 	printf("\n");
 
 	/* TESTS ENDED */
