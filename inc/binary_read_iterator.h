@@ -38,10 +38,10 @@ struct binary_read_iterator
 
 binary_read_iterator* get_new_binary_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
 
-void delete_binary_read_iterator(binary_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
+void delete_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
-uint32_t read_from_binary_read_iterator(binary_read_iterator* tbri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
+uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
 
-binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
+binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
 #endif
