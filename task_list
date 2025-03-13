@@ -1,7 +1,5 @@
 PICKED TASKS
 
- * make binary_read_iterator not materialize the string blob and the extension_head_page_id and test everything
-
 * NUMERIC
   * digit_read_iterator and a digit_write_iterator
     * copy declaration stubs from binary_read_iterator and binary_write_iterator
