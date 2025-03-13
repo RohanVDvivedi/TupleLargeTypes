@@ -11,6 +11,8 @@
 	extended types like : text_extended, blob_extended,
 
 	It gives you a TupleIndexer worm like interface, that means you can easily use consuming inline and overflow page contents in a stream like fashion agnostic of whether it is an inline type or an extended type
+
+	Note: there should not exist another binary_write_iterator on the same attribute of the same tuple at the same time
 */
 
 typedef struct binary_read_iterator binary_read_iterator;
