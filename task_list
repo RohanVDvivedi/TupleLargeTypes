@@ -1,9 +1,8 @@
 PICKED TASKS
 
 * NUMERIC
-  * digit_read_iterator and a digit_write_iterator
-    * copy declaration stubs from binary_read_iterator and binary_write_iterator
-    * replacing void* data with uint64_t digits, and data_size with digits_size
+  * implement digit_read_iterator
+  * implement digit_write_iterator
 
 ------------------------
 
