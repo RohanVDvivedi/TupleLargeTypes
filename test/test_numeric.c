@@ -131,56 +131,56 @@ int main()
 
 	s = NEGATIVE_NUMERIC;
 	e = -2;
-	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = POSITIVE_INFINITY_NUMERIC;
 	e = -2;
-	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = NEGATIVE_NUMERIC;
 	e = 2;
-	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = ZERO_NUMERIC;
 	e = 1;
-	set_sign_bits_and_exponent_for_numeric(NULL, &e, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = ZERO_NUMERIC;
-	e = 1;
-	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	e = 0;
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = POSITIVE_NUMERIC;
 	e = 10;
-	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = POSITIVE_NUMERIC;
 	e = 10;
-	set_sign_bits_and_exponent_for_numeric(&s, &e, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf("\n");
 
 	s = POSITIVE_INFINITY_NUMERIC;
 	e = 10;
-	set_sign_bits_and_exponent_for_numeric(&s, NULL, inline_tuple, tpl_d, ACCS);
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
