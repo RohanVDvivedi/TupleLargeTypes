@@ -123,7 +123,7 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 	return result;
 }
 
-int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, const int16_t* exponent, void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor)
+int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t exponent, void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor)
 {
 	int is_extended = 0;
 	{
@@ -135,10 +135,6 @@ int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, c
 		else
 			return 0;
 	}
-
-	// why call this function if you do not need to set any thing
-	if(sign_bits == NULL && exponent == NULL)
-		return 1;
 
 	relative_positional_accessor rpa;
 	initialize_relative_positional_accessor(&rpa, &inline_accessor, 2);
@@ -164,11 +160,11 @@ int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, c
 	int disallowed_setting_exponent = 0;
 
 	// set sign_bits
-	if(sign_bits != NULL && result == 1)
+	if(result == 1)
 	{
 		{
 			// reset the internal inline numeric if the sign_bits were to be set to +inf, -inf or 0
-			if(IS_INFINITY_NUMERIC_SIGN_BIT((*sign_bits)) || IS_ZERO_NUMERIC_SIGN_BIT((*sign_bits)))
+			if(IS_INFINITY_NUMERIC_SIGN_BIT(sign_bits) || IS_ZERO_NUMERIC_SIGN_BIT(sign_bits))
 			{
 				if(is_extended)
 					relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
@@ -185,18 +181,18 @@ int set_sign_bits_and_exponent_for_numeric(const numeric_sign_bits* sign_bits, c
 				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
 			else
 				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.bit_field_value = (*sign_bits)}), 0);
+			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.bit_field_value = sign_bits}), 0);
 		}
 	}
 
 	// set exponent
-	if(exponent != NULL && result == 1 && disallowed_setting_exponent == 0)
+	if(result == 1 && disallowed_setting_exponent == 0)
 	{
 		if(is_extended)
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
 		else
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
-		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.int_value = (*exponent)}), 0);
+		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.int_value = exponent}), 0);
 	}
 
 	deinitialize_relative_positional_accessor(&rpa);
