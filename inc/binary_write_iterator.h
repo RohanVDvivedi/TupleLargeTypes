@@ -41,8 +41,6 @@ struct binary_write_iterator
 /*
 	prefix is appended to a non-persistent tuple, making it as much larger as possible (also controller using bytes_to_be_written_to_prefix parameter)
 	suffix is transaction protected, and could be persistent
-
-	NOTE: as soon as you create this iterator the attribute will be made non null and will be initialized if not already initialized, so if you plan to not use this iterator then you will need to NULL it after
 */
 
 // the text of blob in context must be either NULL or atleast EMPTY

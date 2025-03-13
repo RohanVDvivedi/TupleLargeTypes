@@ -48,22 +48,6 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	bwi_p->pam_p = pam_p;
 	bwi_p->pmm_p = pmm_p;
 
-	// initialization
-	// if the attribute is NULL, set it to EMPTY_USER_VALUE
-	{
-		point_to_attribute(&child_relative_accessor, bwi_p->is_inline);
-		user_value attr;
-		int valid_attr = get_value_from_element_from_tuple(&attr, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-		if(!valid_attr)
-		{
-			free(bwi_p);
-			deinitialize_relative_positional_accessor(&child_relative_accessor);
-			return NULL;
-		}
-		if(is_user_value_NULL(&attr))
-			set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
-	}
-
 	// if the prefix is NULL in a large text or blob, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
 	if(!(bwi_p->is_inline))
 	{
