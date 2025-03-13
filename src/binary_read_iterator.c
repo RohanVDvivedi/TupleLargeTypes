@@ -6,6 +6,8 @@
 
 #include<relative_positional_accessor.h>
 
+#include<binary_iterator_commons.h>
+
 binary_read_iterator* get_new_binary_read_iterator(const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
 {
 	binary_read_iterator* bri_p = malloc(sizeof(binary_read_iterator));
