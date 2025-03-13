@@ -20,14 +20,13 @@ struct binary_read_iterator
 {
 	int is_inline:1;
 
-	// local copy of the prefix and the bytes that have been read from it already
-	user_value prefix;
+	// shallow copy attributes
+	void* tupl;
+	tuple_def* tpl_d;
+	positional_accessor inline_accessor;
+
 	uint32_t bytes_read_from_prefix;
-
-	// head_page_id to start the worm, unused if is_inline is set
-	uint64_t extension_head_page_id;
-
-	// above three attributes are cached in the constructor
+	// no reading bytes from prefix, if this value becomes equal to the prefix size
 
 	// unused if is_inline is set
 	worm_read_iterator* wri_p;
