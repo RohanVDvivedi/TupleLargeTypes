@@ -25,19 +25,23 @@ int is_extended_type_info(const data_type_info* dti_p)
 uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
 {
 	// ensure that it is a large type_info
+	int is_numeric = 0;
 	{
 		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pa);
 		if(!is_extended_type_info(dti_p))
 			return pas_p->NULL_PAGE_ID;
+		is_numeric = strncmp(dti_p->type_name, "numeric", sizeof("numeric")-1) == 0;
 	}
 
 	relative_positional_accessor rpa;
-	initialize_relative_positional_accessor(&rpa, &pa, 1);
+	initialize_relative_positional_accessor(&rpa, &pa, 2);
 
 	// before a worm is created and appended to, the prefix has to be non null and valid, (it may not be full, but it must have something)
 	{
-		//pa_temp.positions_length = pa.positions_length;
-		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+		if(is_numeric)
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 2));
+		else
+			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
 		user_value prefix;
 		int valid = get_value_from_element_from_tuple(&prefix, tpl_d, rpa.exact, tupl);
 		if((!valid) || is_user_value_NULL(&prefix))
