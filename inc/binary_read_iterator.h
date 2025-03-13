@@ -21,8 +21,8 @@ struct binary_read_iterator
 	int is_inline:1;
 
 	// shallow copy attributes
-	void* tupl;
-	tuple_def* tpl_d;
+	const void* tupl;
+	const tuple_def* tpl_d;
 	positional_accessor inline_accessor;
 
 	uint32_t bytes_read_from_prefix;
@@ -36,7 +36,7 @@ struct binary_read_iterator
 	const page_access_methods* pam_p;
 };
 
-binary_read_iterator* get_new_binary_read_iterator(const void* tupl, tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
+binary_read_iterator* get_new_binary_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
 
 void delete_binary_read_iterator(binary_read_iterator* tbri_p, const void* transaction_id, int* abort_error);
 
