@@ -178,6 +178,9 @@ int main()
 
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
+	#ifdef USE_NESTED
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+	#endif
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
