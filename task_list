@@ -1,8 +1,9 @@
 PICKED TASKS
 
 * NUMERIC
-  * implement digit_read_iterator
-  * implement digit_write_iterator
+  * implement digit_read_iterator  -> read function
+  * implement digit_write_iterator -> write function
+  * test
 
 ------------------------
 
