@@ -6,6 +6,17 @@ static inline void point_to_attribute(relative_positional_accessor* rpa, int is_
 	relative_positonal_accessor_set_from_relative(rpa, SELF);
 }
 
+static inline void point_to_prefix_container(relative_positional_accessor* rpa, int is_inline)
+{
+	if(is_inline)
+	{
+		relative_positonal_accessor_set_from_relative(rpa, SELF);
+		return ;
+	}
+
+	relative_positonal_accessor_set_from_relative(rpa, STATIC_POSITION(0));
+}
+
 static inline void point_to_prefix(relative_positional_accessor* rpa, int is_inline)
 {
 	if(is_inline)
