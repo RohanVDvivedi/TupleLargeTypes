@@ -51,6 +51,16 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	// if the prefix is NULL in an extended numeric, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
 	if(!(dwi_p->is_inline))
 	{
+		// if prefix_container is NULL set it to EMPTY_USER_VALUE
+		{
+			point_to_prefix_conatiner(&child_relative_accessor, dwi_p->is_inline);
+			user_value prefix_container;
+			get_value_from_element_from_tuple(&prefix_container, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+			if(is_user_value_NULL(&prefix_container))
+				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
+		}
+		
+		// if prefix is NULL set it to EMPTY_USER_VALUE
 		point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
 		user_value prefix;
 		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
