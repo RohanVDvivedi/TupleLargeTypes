@@ -24,7 +24,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	relative_positional_accessor child_relative_accessor;
 	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->inline_accessor),2);
 
-	// if it is a large_string or large_blob, with a worm attached then make bytes_to_be_written_to_prefix = 0
+	// if it is a text_extended or blob_extended, with a worm attached then make bytes_to_be_written_to_prefix = 0
 	if(!(bwi_p->is_inline))
 	{
 		point_to_extension_head_page_id(&child_relative_accessor, bwi_p->is_inline);
@@ -48,7 +48,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	bwi_p->pam_p = pam_p;
 	bwi_p->pmm_p = pmm_p;
 
-	// if the prefix is NULL in a large text or blob, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
+	// if the prefix is NULL in an extended text or blob, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
 	if(!(bwi_p->is_inline))
 	{
 		point_to_prefix(&child_relative_accessor, bwi_p->is_inline);
