@@ -145,11 +145,11 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 			}
 
 			// we will read data from worm directly into the digits buffer but at the end of this buffer
-			const uint32_t buffer_size = (digits_size * 5); // 5 bytes per digit will require this many bytes
+			const uint32_t buffer_size = (digits_size * BYTES_PER_NUMERIC_DIGIT); // BYTES_PER_NUMERIC_DIGIT bytes per digit will require this many bytes
 			void * const buffer = ((void*)(digits + digits_size)) - buffer_size; // (end of digits) - buffer_size
 
 			// perform actual read
-			const uint32_t bytes_read_this_iteration = read_from_worm(dri_p->wri_p, buffer, buffer_size, transaction_id, abort_error); // current code assumes that bytes_read_this_iteration will always be multiple of 5
+			const uint32_t bytes_read_this_iteration = read_from_worm(dri_p->wri_p, buffer, buffer_size, transaction_id, abort_error); // current code assumes that bytes_read_this_iteration will always be multiple of BYTES_PER_NUMERIC_DIGIT
 			if(*abort_error) // on abort error, delete worm iterator and set it to NULL
 			{
 				delete_worm_read_iterator(dri_p->wri_p, transaction_id, abort_error);
@@ -160,9 +160,9 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 
 			// now convert bytes into digits
 			// this copy without fail will ensure that a write happens after the read and at a location such that subsequent reads are not affected, it may overwrite the currently read bytes, DEEP BUT TRUE, this is the only way you can do it without additional buffer allocation
-			digits_read_this_iteration = bytes_read_this_iteration / 5; // current code assumes that bytes_read_this_iteration will always be multiple of 5
+			digits_read_this_iteration = bytes_read_this_iteration / BYTES_PER_NUMERIC_DIGIT; // current code assumes that bytes_read_this_iteration will always be multiple of BYTES_PER_NUMERIC_DIGIT
 			for(uint32_t i = 0; i < digits_read_this_iteration; i++)
-				digits[i] = deserialize_uint64(buffer + (i * 5), 5);
+				digits[i] = deserialize_uint64(buffer + (i * BYTES_PER_NUMERIC_DIGIT), BYTES_PER_NUMERIC_DIGIT);
 		}
 
 		// skip label to goto, if nothing to be read is found

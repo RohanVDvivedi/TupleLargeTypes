@@ -5,12 +5,15 @@
 #include<data_type_info.h>
 #include<page_access_specification.h>
 
+#define BYTES_PER_NUMERIC_DIGIT 5
+fail_build_on(BYTES_PER_NUMERIC_DIGIT > 8);
+
 // below two functions only check the type_name of the dti passed
 int is_numeric_inline_type_info(const data_type_info* dti_p);
 int is_numeric_extended_type_info(const data_type_info* dti_p);
 
 // returns a new type info pointing to inline type that is atmost max_size bytes big
-// max_size = 2 * ceil(log(page_size) base 256) + 1 (bytes for sign bit field) + 2 (bytes for exponent) + 5 * ceil(digits / 12)
+// max_size = 2 * ceil(log(page_size) base 256) + 1 (bytes for sign bit field) + 2 (bytes for exponent) + BYTES_PER_NUMERIC_DIGIT * ceil(digits / 12)
 // for 8 KB page and storing 36 digits, max_size = 2 * 2 + 1 + 2 + 5 * 3 = 22 bytes of max size
 data_type_info* get_numeric_inline_type_info(uint32_t max_size);
 

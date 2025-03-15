@@ -70,7 +70,7 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 			reset = 1;
 			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
 		}
-		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / 5);
+		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 
 		if(reset)
 		{
@@ -90,7 +90,7 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 		}
 
 		// get maximum digits you can extend it additionally by
-		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / 5);
+		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 	}
 
 	deinitialize_relative_positional_accessor(&child_relative_accessor);

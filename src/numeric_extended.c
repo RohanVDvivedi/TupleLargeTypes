@@ -41,7 +41,7 @@ data_type_info* get_numeric_inline_type_info(uint32_t max_size)
 		data_type_info* digits_dti_p = malloc(sizeof(data_type_info));
 		if(digits_dti_p == NULL)
 			exit(-1);
-		(*digits_dti_p) = get_variable_element_count_array_type("numeric_digit", max_size, UINT_NON_NULLABLE[5]);
+		(*digits_dti_p) = get_variable_element_count_array_type("numeric_digit", max_size, UINT_NON_NULLABLE[BYTES_PER_NUMERIC_DIGIT]);
 		dti_p->containees[2].al.type_info = digits_dti_p;
 	}
 
