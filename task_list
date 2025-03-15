@@ -1,7 +1,6 @@
 PICKED TASKS
 
 * NUMERIC
-  * in numeric add logic to define BYTES_PER_DIGIT macro and a meachanism that fails compilation if this value exceeds 8
   * implement digit_write_iterator -> write function
   * test digit_read_iterator and digit_write_iterator
 
