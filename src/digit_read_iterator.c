@@ -8,6 +8,8 @@
 
 #include<digit_iterator_commons.h>
 
+#include<numeric_extended.h>
+
 digit_read_iterator* get_new_digit_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
 {
 	digit_read_iterator* dri_p = malloc(sizeof(digit_read_iterator));
