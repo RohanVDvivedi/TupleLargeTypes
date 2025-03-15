@@ -159,6 +159,7 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 			}
 
 			// now convert bytes into digits
+			// this copy without fail will ensure that a write happens after the read and at a location such that subsequent reads are not affected, it may overwrite the currently read bytes, DEEP BUT TRUE, this is the only way you can do it without additional buffer allocation
 			digits_read_this_iteration = bytes_read_this_iteration / 5; // current code assumes that bytes_read_this_iteration will always be multiple of 5
 			for(uint32_t i = 0; i < digits_read_this_iteration; i++)
 				digits[i] = deserialize_uint64(buffer + (i * 5), 5);
