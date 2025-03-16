@@ -84,8 +84,8 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 uint32_t build_tuple(void* res, const char* sval, double dval)
 {
 	init_tuple(&tpl_d_tlist_elements, res);
-	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(user_value){.double_value = dval}, UINT32_MAX);
 	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(user_value){.string_value = sval, .string_size = strlen(sval)}, UINT32_MAX);
+	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(1), res, &(user_value){.double_value = dval}, UINT32_MAX);
 	return get_tuple_size(&tpl_d_tlist_elements, res);
 }
 
@@ -120,6 +120,7 @@ void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* w
 	}
 
 	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
+	printf("\n\n");
 }
 
 void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, int const * read_or_skip)
@@ -154,13 +155,15 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 				printf("skipped\n");
 			else
 			{
-				printf("skip failed");
+				printf("skip failed\n");
 				break;
 			}
 		}
+		read_or_skip++;
 	}
 
 	delete_binary_read_iterator(tbri_p, transaction_id, &abort_error);
+	printf("\n\n");
 }
 
 int main()
@@ -191,8 +194,12 @@ int main()
 	#ifdef USE_NESTED
 		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
 	#endif
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});
 
-
+	insert_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, pmm_p, (double[]){1.0,2.0,4.0,8.0,0.0}, (char const*[]){"This is one - Rohan","This is two - Rupa","This is four - Devashree","This is eight - Vipulkumar"});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});
 
 	/* TESTS ENDED */
 
