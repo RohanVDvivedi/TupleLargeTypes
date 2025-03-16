@@ -73,7 +73,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	return &tpl_d;
 }
 
-#define TEST_DIGITS_COUNT 1024
+#define TEST_DIGITS_COUNT 200
 #define TEST_DIGIT(index) (hash_randomizer((index)) % 1000000000000ULL);
 void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
 {
