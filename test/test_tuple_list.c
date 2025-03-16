@@ -89,7 +89,7 @@ uint32_t build_tuple(void* res, const char* sval, double dval)
 	return get_tuple_size(&tpl_d_tlist_elements, res);
 }
 
-void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
+void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
 {
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -111,7 +111,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 		if(bytes_to_write_this_iteration == 0)
 			break;
 
-		printf("-> ");
+		printf("written-> ");
 		print_tuple(tuple, &tpl_d_tlist_elements);
 		printf("bytes_written_this_iteration = %"PRIu32"\n", bytes_to_write_this_iteration);
 
@@ -120,6 +120,47 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 	}
 
 	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
+}
+
+void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, int const * read_or_skip)
+{
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+
+	while((*read_or_skip) != -1)
+	{
+		if(*read_or_skip)
+		{
+			void* tuple = read_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+			if(tuple)
+			{
+				printf("read-> ");
+				print_tuple(tuple, &tpl_d_tlist_elements);
+				free(tuple);
+			}
+			else
+			{
+				printf("read failed\n");
+				break;
+			}
+		}
+		else
+		{
+			int skipped = skip_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+			if(skipped)
+				printf("skipped\n");
+			else
+			{
+				printf("skip failed");
+				break;
+			}
+		}
+	}
+
+	delete_binary_read_iterator(tbri_p, transaction_id, &abort_error);
 }
 
 int main()
