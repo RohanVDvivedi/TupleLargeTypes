@@ -209,6 +209,7 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 	printf("\n");
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
 
 	s = NEGATIVE_NUMERIC;
 	e = -2;
@@ -281,6 +282,14 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 	printf("\n");
+
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+
+	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+
+	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
 
 	/* TESTS ENDED */
 
