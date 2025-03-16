@@ -147,7 +147,8 @@ uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data,
 		if(bytes_read_this_iteration == 0)
 			break;
 
-		data += bytes_read_this_iteration;
+		if(data != NULL)
+			data += bytes_read_this_iteration;
 		data_size -= bytes_read_this_iteration;
 		bytes_read += bytes_read_this_iteration;
 	}
