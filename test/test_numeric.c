@@ -22,7 +22,7 @@
 #endif
 // use ACCS as accessor to access the attribute
 
-#define PREFIX_SIZE 15
+#define PREFIX_SIZE 9
 
 #define READ_CHUNK_SIZE 5
 //#define READ_CHUNK_SIZE 100
@@ -45,7 +45,7 @@ char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
 data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	short_dti = get_numeric_inline_type_info(1 + 1 + 2 + 1 + PREFIX_SIZE + 10); // giving it 10 extra bytes, 2 digits extra
+	short_dti = get_numeric_inline_type_info(1 + 1 + 2 + 1 + PREFIX_SIZE * 5 + 10); // giving it 10 extra bytes, 2 digits extra
 	large_dti = get_numeric_extended_type_info(short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
@@ -277,6 +277,14 @@ int main()
 
 	s = NEGATIVE_INFINITY_NUMERIC;
 	e = -5;
+	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf("\n");
+
+	s = POSITIVE_NUMERIC;
+	e = 5;
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
