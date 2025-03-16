@@ -9,8 +9,8 @@
 
 #include<numeric_extended.h>
 
-//#define USE_INLINE
-#define USE_EXTENDED
+#define USE_INLINE
+//#define USE_EXTENDED
 
 //#define USE_BASE
 #define USE_NESTED
@@ -112,7 +112,7 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_def
 		digits_written += digits_to_write_this_iteration;
 	}
 
-	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", digits_written, TEST_DIGITS_COUNT);
+	printf("digits_written = %"PRIu32"/%"PRIu32"\n\n", digits_written, TEST_DIGITS_COUNT);
 
 	delete_digit_write_iterator(dwi_p, transaction_id, &abort_error);
 }
