@@ -74,6 +74,9 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	return &tpl_d;
 }
 
+#define TEST_DIGITS_COUNT 1024
+#define TEST_DIGIT(index) (hash_randomizer(index) % 1000000000000ULL);
+
 int main()
 {
 	// base cases for comparing numeric based on sign bits and exponent
