@@ -3,6 +3,7 @@ PICKED TASKS
 * TUPLE_LIST tasks
   * build type like tuple_list_extended, similar to blob_extended
   * build a function to read a tuple of specific type from the binary_read_iterator
+  * if nothing can be read return NULL, else return the read tuple
 * TUPLE_LIST
   * list of tuple of homogeneous types stored one after the another like in blob_extended -> no inline version for this, inline array is already supported by a native array of TupleStore
   * only inline versions of the types can be contained here (can not be composed of any extended type)
