@@ -9,6 +9,7 @@
 	it stores tuples one after another in the prefix then in the worm, adjacently
 	All these tuples can be of the same type or different
 	The user is responsible to provide the tuple_def that deciphers the ith tuple in the row
+	It is your responsibility to not allow any tuple in here that have any worm extended type in here, directly or nestedly
 */
 
 // below one function only check the type_name of the dti passed
