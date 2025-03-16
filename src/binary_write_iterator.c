@@ -107,7 +107,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			point_to_prefix(&child_relative_accessor, bwi_p->is_inline);
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
 			expand_element_count_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
-			
+
 			// copy data into it byte by byte
 			for(uint32_t i = 0; i < bytes_written_this_iteration; i++)
 			{

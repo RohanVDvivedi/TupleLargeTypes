@@ -105,3 +105,93 @@ void delete_digit_write_iterator(digit_write_iterator* dwi_p, const void* transa
 		delete_worm_append_iterator(dwi_p->wai_p, transaction_id, abort_error);
 	free(dwi_p);
 }
+
+uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint64_t* digits, uint32_t digits_size, const void* transaction_id, int* abort_error)
+{
+	if(digits_size == 0)
+		return 0;
+
+	relative_positional_accessor child_relative_accessor;
+	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->inline_accessor), 2);
+
+	uint32_t digits_written = 0;
+
+	while(digits_size > 0)
+	{
+		uint32_t digits_written_this_iteration = 0;
+
+		if(dwi_p->digits_to_be_written_to_prefix > dwi_p->digits_written_to_prefix)
+		{
+			digits_written_this_iteration = min(digits_size, dwi_p->digits_to_be_written_to_prefix - dwi_p->digits_written_to_prefix);
+
+			// grab old_element_count and expand the container
+			point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
+			uint32_t old_element_count = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+			expand_element_count_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, old_element_count, digits_written_this_iteration, digits_written_this_iteration * BYTES_PER_NUMERIC_DIGIT);
+
+			// copy data into it byte by byte
+			for(uint32_t i = 0; i < digits_written_this_iteration; i++)
+			{
+				point_to_prefix_s_digit(&child_relative_accessor, old_element_count + i, dwi_p->is_inline);
+				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((user_value){.uint_value = digits[i]}), UINT32_MAX);
+			}
+
+			dwi_p->digits_written_to_prefix += digits_written_this_iteration;
+		}
+		else if(!(dwi_p->is_inline))
+		{
+			if(dwi_p->wai_p == NULL)
+			{
+				// read extension_head_page_id
+				uint64_t extension_head_page_id;
+				{
+					point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
+					user_value extension_head;
+					get_value_from_element_from_tuple(&extension_head, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+					extension_head_page_id = extension_head.uint_value;
+				}
+
+				// if it is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
+				if(extension_head_page_id == dwi_p->pam_p->pas.NULL_PAGE_ID)
+				{
+					extension_head_page_id = get_new_worm(1, dwi_p->pam_p->pas.NULL_PAGE_ID, dwi_p->wtd_p, dwi_p->pam_p, dwi_p->pmm_p, transaction_id, abort_error);
+					if(*abort_error)
+					{
+						deinitialize_relative_positional_accessor(&child_relative_accessor);
+						return 0;
+					}
+					set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((user_value){.uint_value = extension_head_page_id}), UINT32_MAX);
+				}
+
+				// open a new wai
+				dwi_p->wai_p = get_new_worm_append_iterator(extension_head_page_id, dwi_p->wtd_p, dwi_p->pam_p, dwi_p->pmm_p, transaction_id, abort_error);
+				if(*abort_error)
+				{
+					dwi_p->wai_p = NULL;
+					deinitialize_relative_positional_accessor(&child_relative_accessor);
+					return 0;
+				}
+			}
+
+			// append to worm
+			bytes_written_this_iteration = append_to_worm(dwi_p->wai_p, data, data_size, transaction_id, abort_error);
+			if(*abort_error)
+			{
+				delete_worm_append_iterator(dwi_p->wai_p, transaction_id, abort_error);
+				dwi_p->wai_p = NULL;
+				deinitialize_relative_positional_accessor(&child_relative_accessor);
+				return 0;
+			}
+		}
+
+		if(digits_written_this_iteration == 0)
+			break;
+
+		digits += digits_written_this_iteration;
+		digits_size -= digits_written_this_iteration;
+		digits_written += digits_written_this_iteration;
+	}
+
+	deinitialize_relative_positional_accessor(&child_relative_accessor);
+	return digits_written;
+}
