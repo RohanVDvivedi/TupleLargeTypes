@@ -23,4 +23,6 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t inline_size, const pa
 #include<binary_read_iterator.h>
 #include<binary_write_iterator.h>
 
+#include<tuple_list_helper.h>
+
 #endif
