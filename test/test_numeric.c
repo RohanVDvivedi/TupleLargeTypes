@@ -9,8 +9,8 @@
 
 #include<numeric_extended.h>
 
-#define USE_INLINE
-//#define USE_EXTENDED
+//#define USE_INLINE
+#define USE_EXTENDED
 
 //#define USE_BASE
 #define USE_NESTED
@@ -27,8 +27,8 @@
 #define READ_CHUNK_SIZE 5
 //#define READ_CHUNK_SIZE 100
 
-#define WRITE_CHUNK_SIZE 5
-//#define WRITE_CHUNK_SIZE 100
+#define WRITE_CHUNK_SIZE 7
+//#define WRITE_CHUNK_SIZE 30
 
 // attributes of the page_access_specs suggestions for creating page_access_methods
 #define PAGE_ID_WIDTH        3
