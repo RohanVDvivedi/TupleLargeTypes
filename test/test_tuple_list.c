@@ -81,6 +81,14 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	return &tpl_d;
 }
 
+uint32_t build_tuple(void* res, const char* sval, double dval)
+{
+	init_tuple(&tpl_d_tlist_elements, res);
+	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(user_value){.double_value = dval}, UINT32_MAX);
+	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(user_value){.string_value = sval, .string_size = strlen(sval)}, UINT32_MAX);
+	return get_tuple_size(&tpl_d_tlist_elements, res);
+}
+
 int main()
 {
 	/* SETUP STARTED */
