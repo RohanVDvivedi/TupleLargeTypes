@@ -44,7 +44,7 @@ data_type_info string_0;
 
 void init_tpl_d_tlist_elements()
 {
-	initialize_tuple_data_type_info(tpl_d_tlist_elements_dti, "elments", 1, PAGE_SIZE, 1);
+	initialize_tuple_data_type_info(tpl_d_tlist_elements_dti, "elments", 1, PAGE_SIZE, 2);
 	strcpy(tpl_d_tlist_elements_dti->containees[0].field_name, "varchar");
 	#ifdef FIXED_LENGTH
 		string_0 = get_fixed_length_string_type("char", 64, 1);
@@ -59,7 +59,7 @@ void init_tpl_d_tlist_elements()
 
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	data_type_info* tlist_dti = get_tuple_list_extended_type_info(PREFIX_SIZE + 10, pas_p);
+	tlist_dti = get_tuple_list_extended_type_info(PREFIX_SIZE + 10, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");
