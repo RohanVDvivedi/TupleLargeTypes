@@ -9,8 +9,8 @@
 
 #include<numeric_extended.h>
 
-#define USE_INLINE
-//#define USE_EXTENDED
+//#define USE_INLINE
+#define USE_EXTENDED
 
 //#define USE_BASE
 #define USE_NESTED
@@ -24,8 +24,8 @@
 
 #define PREFIX_SIZE 9
 
-#define READ_CHUNK_SIZE 5
-//#define READ_CHUNK_SIZE 100
+#define READ_CHUNK_SIZE 7
+//#define READ_CHUNK_SIZE 30
 
 #define WRITE_CHUNK_SIZE 7
 //#define WRITE_CHUNK_SIZE 30
