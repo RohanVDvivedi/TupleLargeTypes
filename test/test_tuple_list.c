@@ -205,6 +205,8 @@ int main()
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,0,1,1,0,1,0,-1});
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,1,0,0,1,0,1,-1});
 
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,1,1,1,1,1,1,1,1,-1});
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
