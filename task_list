@@ -1,10 +1,5 @@
 PICKED TASKS
 
-* NUMERIC
-  * test digit_read_iterator and digit_write_iterator
-
-------------------------
-
 MATERIALIZED NUMERIC
   * we also need a materialized struct to store all the digits (base 10^12)
     * struct stores uint sign_bits:2, int64_t exponent, and then a value array list of uint64_t digits
