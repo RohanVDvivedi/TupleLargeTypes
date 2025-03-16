@@ -89,6 +89,37 @@ uint32_t build_tuple(void* res, const char* sval, double dval)
 	return get_tuple_size(&tpl_d_tlist_elements, res);
 }
 
+void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
+{
+	printf("INLINE TUPLE (before init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+	printf("INLINE TUPLE (after init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	while((*dvals) != 0.0)
+	{
+		char tuple[1024];
+		uint32_t bytes_to_write_this_iteration = build_tuple(tuple, *svals, *dvals);
+
+		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, tuple, bytes_to_write_this_iteration, transaction_id, &abort_error);
+
+		if(bytes_to_write_this_iteration == 0)
+			break;
+
+		printf("bytes_written_this_iteration = %"PRIu32"\n", bytes_to_write_this_iteration);
+
+		dvals++;
+		svals++;
+	}
+
+	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
+}
+
 int main()
 {
 	/* SETUP STARTED */
