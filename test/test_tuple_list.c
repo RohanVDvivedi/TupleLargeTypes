@@ -201,6 +201,10 @@ int main()
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});
 
+	insert_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, pmm_p, (double[]){16.0,32.0,64.0,128.0,0.0}, (char const*[]){"This is sixteen - Rohan Vipulkumar Dvivedi","This is thirty two - Rupa Vipulkumar Dvivedi","This is sixty four - Devashree Manan Joshi","This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi"});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,0,1,1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,1,0,0,1,0,1,-1});
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
