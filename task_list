@@ -1,9 +1,7 @@
 PICKED TASKS
 
 * TUPLE_LIST tasks
-  * build a function to read a tuple of specific type from the binary_read_iterator
-  * if nothing can be read return NULL, else return the read tuple
-  * once size is known (using get_tuple_size_from_stream) we can skip or read the tuple to the buffer, making us point to the next tuple in the tuple_list
+ * test for fixed length and variable length tuples
 
 * JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
