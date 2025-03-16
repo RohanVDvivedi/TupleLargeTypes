@@ -24,6 +24,7 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
    * `#include<blob_extended.h>`
    * `#include<text_extended.h>`
    * `#include<numeric_extended.h>`
+   * `#include<tuple_list_extended.h>`
 
 ## Instructions for uninstalling library
 
