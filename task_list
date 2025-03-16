@@ -1,7 +1,6 @@
 PICKED TASKS
 
 * NUMERIC
-  * implement digit_write_iterator -> write function
   * test digit_read_iterator and digit_write_iterator
 
 ------------------------
