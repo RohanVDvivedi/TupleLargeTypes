@@ -8,7 +8,6 @@
 #include<unWALed_page_modification_methods.h>
 
 #include<numeric_extended.h>
-#include<worm.h> // to be removed in favor of digit_read_iterator.h and digit_write_iterator.h
 
 //#define USE_INLINE
 #define USE_EXTENDED
@@ -75,7 +74,86 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 }
 
 #define TEST_DIGITS_COUNT 1024
-#define TEST_DIGIT(index) (hash_randomizer(index) % 1000000000000ULL);
+#define TEST_DIGIT(index) (hash_randomizer((index)) % 1000000000000ULL);
+void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
+{
+	for(uint32_t i = 0; i < count; i++)
+		digits[i] = TEST_DIGIT((index + i) % TEST_DIGITS_COUNT);
+}
+
+void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+{
+	printf("INLINE TUPLE (before init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	digit_write_iterator* dwi_p = get_new_digit_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+	printf("INLINE TUPLE (after init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	uint64_t digits[WRITE_CHUNK_SIZE];
+	uint32_t digits_to_write = TEST_DIGITS_COUNT;
+	uint32_t digits_written = 0;
+	while(digits_to_write > 0)
+	{
+		uint32_t digits_to_write_this_iteration = min(digits_to_write, WRITE_CHUNK_SIZE);
+
+		populate_digits_buffer(digits, digits_written, digits_to_write_this_iteration);
+		digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+
+		if(digits_to_write_this_iteration == 0)
+			break;
+
+		printf("digits_written_this_iteration = %"PRIu32"\n", digits_to_write_this_iteration);
+
+		digits_to_write -= digits_to_write_this_iteration;
+		digits_written += digits_to_write_this_iteration;
+	}
+
+	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", digits_written, TEST_DIGITS_COUNT);
+
+	delete_digit_write_iterator(dwi_p, transaction_id, &abort_error);
+}
+
+void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
+{
+	printf("INLINE TUPLE : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	digit_read_iterator* dri_p = get_new_digit_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+
+	uint64_t digits[READ_CHUNK_SIZE];
+
+	uint64_t read_buffer[READ_CHUNK_SIZE];
+	uint32_t digits_read = 0;
+	while(1)
+	{
+		uint32_t digits_read_this_iteration = read_from_digit_read_iterator(dri_p, read_buffer, READ_CHUNK_SIZE, transaction_id, &abort_error);
+		if(digits_read_this_iteration == 0)
+			break;
+
+		populate_digits_buffer(digits, digits_read, digits_read_this_iteration);
+
+		printf(" ->");
+		int matches = 1;
+		for(uint32_t i = 0; i < digits_read_this_iteration; i++)
+		{
+			matches = matches && (read_buffer[i] == digits[i]);
+			printf("%"PRIu64", ", read_buffer[i]);
+		}
+
+		printf("matches => %d\n", matches);
+
+		digits_read += digits_read_this_iteration;
+	}
+
+	printf("digits_read = %"PRIu32"/%"PRIu32"\n\n", digits_read, TEST_DIGITS_COUNT);
+
+	delete_digit_read_iterator(dri_p, transaction_id, &abort_error);
+}
 
 int main()
 {
