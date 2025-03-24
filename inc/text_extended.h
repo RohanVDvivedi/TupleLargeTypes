@@ -19,4 +19,6 @@ data_type_info* get_text_extended_type_info(uint32_t max_size, const data_type_i
 #include<binary_read_iterator.h>
 #include<binary_write_iterator.h>
 
+#include<binary_hasher.h>
+
 #endif

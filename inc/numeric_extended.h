@@ -55,6 +55,8 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 #include<digit_read_iterator.h>
 #include<digit_write_iterator.h>
 
+#include<binary_hasher.h>
+
 #endif
 
 /*
