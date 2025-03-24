@@ -48,14 +48,13 @@ data_type_info* get_numeric_inline_type_info(uint32_t max_size)
 	return dti_p;
 }
 
-data_type_info* get_numeric_extended_type_info(const data_type_info* numeric_inline_p, const page_access_specs* pas_p)
+data_type_info* get_numeric_extended_type_info(uint32_t max_size, const data_type_info* numeric_inline_p, const page_access_specs* pas_p)
 {
 	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
 	if(dti_p == NULL)
 		exit(-1);
 
-	// the numeric_inline controls the total size so we allow the numeric_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "numeric_extended", 1, pas_p->page_size, 2);
+	initialize_tuple_data_type_info(dti_p, "numeric_extended", 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "numeric_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)numeric_inline_p;

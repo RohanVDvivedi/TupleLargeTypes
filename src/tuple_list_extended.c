@@ -7,14 +7,14 @@ int is_tuple_list_extended_type_info(const data_type_info* dti_p)
 	return strcmp(dti_p->type_name, "tuple_list_extended") == 0;
 }
 
-data_type_info* get_tuple_list_extended_type_info(uint32_t inline_size, const page_access_specs* pas_p)
+data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p)
 {
 	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
 	if(dti_p == NULL)
 		exit(-1);
 
 	// the blob_inline controls the total size so we allow the blob_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "tuple_list_extended", 1, pas_p->page_size, 2);
+	initialize_tuple_data_type_info(dti_p, "tuple_list_extended", 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "tuple_list_prefix");
 	{

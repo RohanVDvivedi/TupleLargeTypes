@@ -16,7 +16,7 @@
 int is_tuple_list_extended_type_info(const data_type_info* dti_p);
 
 // returns a new type info pointing to a tuple, of 2 elements the blob inline, and a page_id type from pas_p
-data_type_info* get_tuple_list_extended_type_info(uint32_t inline_size, const page_access_specs* pas_p);
+data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p);
 
 #include<common_extended.h>
 

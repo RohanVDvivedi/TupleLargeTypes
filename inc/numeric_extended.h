@@ -18,7 +18,7 @@ int is_numeric_extended_type_info(const data_type_info* dti_p);
 data_type_info* get_numeric_inline_type_info(uint32_t max_size);
 
 // returns a new type info pointing to a tuple, of 2 elements the numeric_inline_p, and a page_id type from pas_p
-data_type_info* get_numeric_extended_type_info(const data_type_info* numeric_inline_p, const page_access_specs* pas_p);
+data_type_info* get_numeric_extended_type_info(uint32_t max_size, const data_type_info* numeric_inline_p, const page_access_specs* pas_p);
 
 // for reason to ease comparison of the inline numeric directly using the TupleStore functions
 // the information about the numeric being infinity has been coded directly into the sign bits and that too in order that results in correct default comparison
