@@ -127,6 +127,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf("hash => %"PRIu64"\n\n", hash_blob(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
 
 	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
