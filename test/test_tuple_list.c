@@ -59,7 +59,8 @@ void init_tpl_d_tlist_elements()
 
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	tlist_dti = get_tuple_list_extended_type_info(PREFIX_SIZE + 10, pas_p);
+	uint32_t max_size = PREFIX_SIZE + 10;
+	tlist_dti = get_tuple_list_extended_type_info(max_size, PREFIX_SIZE + 10, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");

@@ -55,8 +55,9 @@ char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
 data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
-	short_dti = get_text_inline_type_info(PREFIX_SIZE + 10);
-	large_dti = get_text_extended_type_info(short_dti, pas_p);
+	uint32_t max_size = PREFIX_SIZE + 10;
+	short_dti = get_text_inline_type_info(max_size);
+	large_dti = get_text_extended_type_info(max_size, short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");
