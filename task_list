@@ -8,7 +8,7 @@ PICKED TASKS
   * will use binary iterators underneath, because of structural similarity with blob_inline and blob_extended
 
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
-  * hash -> first hash the prefix as is, then hash all the bytes from the following worm
+  * hash for tuple_list and jsonb yet to implement
   * using the corresponding read write iterators
     * compare -> read iterators on both a and b -> compare until the 1st one vanishes -> return a - b -> for heap table
     * generate_prefix -> read iterator on the larger one and write on the shorter one -> to be used for indexes -> 1 if a is prefix of b, 2 if they are equal, 0 otherwise
