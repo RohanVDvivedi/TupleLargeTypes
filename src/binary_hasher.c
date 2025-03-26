@@ -10,7 +10,7 @@ uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor 
 	// check for the attribute being valid and not null
 	{
 		user_value uval;
-		int valid = get_value_from_element_from_tuple(*uval, tpl_d, inline_accessor, tupl);
+		int valid = get_value_from_element_from_tuple(&uval, tpl_d, inline_accessor, tupl);
 		if(!valid || is_user_value_NULL(&uval))
 			return th->hash;
 	}
