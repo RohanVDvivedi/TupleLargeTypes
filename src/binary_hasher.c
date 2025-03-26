@@ -7,6 +7,14 @@
 
 uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor inline_accessor, tuple_hasher* th, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error)
 {
+	// check for the attribute being valid and not null
+	{
+		user_value uval;
+		int valid = get_value_from_element_from_tuple(*uval, tpl_d, inline_accessor, tupl);
+		if(!valid || is_user_value_NULL(&uval))
+			return th->hash;
+	}
+
 	if(is_inline_type_info(get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor)))
 		return hash_tuple(tupl, tpl_d, &inline_accessor, th, 1);
 
