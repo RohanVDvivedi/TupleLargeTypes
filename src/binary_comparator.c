@@ -157,7 +157,6 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 		if(!extract_sign_bits_and_exponent_from_numeric(&sign_bits2, &exponent2, tupl2, tpl_d2, inline_accessor2))
 			return -2;
 
-		int digits_requirement = 0;
 		int cmp = compare_numeric_prefix_no_digits(sign_bits1, exponent1, sign_bits2, exponent2, &digits_requirement);
 
 		if(!digits_requirement) // if digits are not required for comparison then early quit
