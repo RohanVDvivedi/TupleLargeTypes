@@ -110,6 +110,8 @@ int compare_tb(const tuple_def* tpl_d1, const void* tupl1, positional_accessor i
 	return cmp;
 }
 
+#include<numeric_extended.h>
+
 int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_accessor inline_accessor1, const worm_tuple_defs* wtd1_p, const page_access_methods* pam1_p, const void* transaction_id1, int* abort_error1,
 					const tuple_def* tpl_d2, const void* tupl2, positional_accessor inline_accessor2, const worm_tuple_defs* wtd2_p, const page_access_methods* pam2_p, const void* transaction_id2, int* abort_error2,
 					int* is_prefix)
@@ -140,5 +142,30 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 	else if(is_null1 && !is_null2)
 		return -1;
 
+	int digits_requirement = 0;
+
+	// compare first with sign bits and exponent
+	{
+		numeric_sign_bits sign_bits1;
+		int16_t exponent1;
+		if(!extract_sign_bits_and_exponent_from_numeric(&sign_bits1, &exponent1, tupl1, tpl_d1, inline_accessor1))
+			return -2;
+
+		numeric_sign_bits sign_bits2;
+		int16_t exponent2;
+		if(!extract_sign_bits_and_exponent_from_numeric(&sign_bits2, &exponent2, tupl2, tpl_d2, inline_accessor2))
+			return -2;
+
+		int digits_requirement = 0;
+		int cmp = compare_numeric_prefix_no_digits(sign_bits1, exponent1, sign_bits2, exponent2, &digits_requirement);
+
+		if(!digits_requirement) // if digits are not required for comparison then early quit
+			return cmp;
+	}
+
+	int cmp = 0;
+
 	// TODO
+
+	return cmp * digits_requirement;
 }
