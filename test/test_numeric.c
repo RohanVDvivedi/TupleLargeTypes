@@ -498,11 +498,15 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		printf("\n\n========================================\n\n");
 	}
 
 	{
@@ -514,6 +518,24 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
 		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		printf("\n\n========================================\n\n");
 	}
 
 	{
@@ -525,5 +547,23 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
 		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		printf("\n\n========================================\n\n");
 	}
 }
