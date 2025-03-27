@@ -334,7 +334,9 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
@@ -351,7 +353,9 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
@@ -368,7 +372,9 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
