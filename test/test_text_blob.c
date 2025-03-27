@@ -226,7 +226,99 @@ int main()
 	return 0;
 }
 
-void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p);
+void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+{
+	init_tuple(tpl_d, tuple);
+
+	// set s1 in tuple
+	if(s1 != NULL)
+	{
+		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+		const uint32_t TEST_DATA_SIZE = strlen(test_data);
+
+		char* bytes = s1;
+		uint32_t bytes_to_write = strlen(s1);
+		uint32_t bytes_written = 0;
+		while(bytes_to_write > 0)
+		{
+			uint32_t bytes_to_write_this_iteration = bytes_to_write;
+			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+
+			if(bytes_to_write_this_iteration == 0)
+				break;
+
+			bytes += bytes_to_write_this_iteration;
+			bytes_to_write -= bytes_to_write_this_iteration;
+			bytes_written += bytes_to_write_this_iteration;
+		}
+
+		delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
+	}
+
+	// set s2 in tuple
+	if(s2 != NULL)
+	{
+		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+		const uint32_t TEST_DATA_SIZE = strlen(test_data);
+
+		char* bytes = s2;
+		uint32_t bytes_to_write = strlen(s2);
+		uint32_t bytes_written = 0;
+		while(bytes_to_write > 0)
+		{
+			uint32_t bytes_to_write_this_iteration = bytes_to_write;
+			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+
+			if(bytes_to_write_this_iteration == 0)
+				break;
+
+			bytes += bytes_to_write_this_iteration;
+			bytes_to_write -= bytes_to_write_this_iteration;
+			bytes_written += bytes_to_write_this_iteration;
+		}
+
+		delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
+	}
+
+	{
+		int cmp = 100;
+		int prefix = 100;
+		compare_tb(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
+				tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
+				&prefix);
+		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
+	}
+
+	{
+		int cmp = 100;
+		int prefix = 100;
+		compare_tb(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
+				tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
+				&prefix);
+		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
+	}
+	printf("\n");
+
+	// destroy s1
+	{
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(0), &(pam_p->pas));
+		uint64_t dependent_root_page_id;
+		int vaccum_needed = 0;
+		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
+			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
+	}
+
+	// destroy s2
+	{
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(1), &(pam_p->pas));
+		uint64_t dependent_root_page_id;
+		int vaccum_needed = 0;
+		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
+			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
+	}
+}
 
 void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
@@ -241,42 +333,42 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 	{
 		tuple_dti->containees[0].al.type_info = short_dti;
 		tuple_dti->containees[1].al.type_info = short_dti;
-		initialize_tuple_def(&tpl_d, dti);
+		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("def", NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "def", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, tpl_d, wtd_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 	}
 
 	{
 		tuple_dti->containees[0].al.type_info = large_dti;
 		tuple_dti->containees[1].al.type_info = short_dti;
-		initialize_tuple_def(&tpl_d, dti);
+		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("def", NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "def", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, tpl_d, wtd_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 	}
 
 	{
 		tuple_dti->containees[0].al.type_info = large_dti;
 		tuple_dti->containees[1].al.type_info = large_dti;
-		initialize_tuple_def(&tpl_d, dti);
+		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("def", NULL, tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abc", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "def", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, tpl_d, wtd_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, tpl_d, wtd_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
 	}
 }
