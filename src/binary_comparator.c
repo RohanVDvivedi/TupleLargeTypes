@@ -160,7 +160,11 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 		int cmp = compare_numeric_prefix_no_digits(sign_bits1, exponent1, sign_bits2, exponent2, &digits_requirement);
 
 		if(!digits_requirement) // if digits are not required for comparison then early quit
+		{
+			if(cmp == 0) // at this place here if they are equal then both are prefixes or each other
+				(*prefix) = 1 | 2;
 			return cmp;
+		}
 	}
 
 	int cmp = 0;
