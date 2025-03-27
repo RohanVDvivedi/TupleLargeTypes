@@ -114,5 +114,31 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 					const tuple_def* tpl_d2, const void* tupl2, positional_accessor inline_accessor2, const worm_tuple_defs* wtd2_p, const page_access_methods* pam2_p, const void* transaction_id2, int* abort_error2,
 					int* is_prefix)
 {
+	(*is_prefix) = 0;
+
+	int is_null1;
+	{
+		user_value uval1;
+		if(!get_value_from_element_from_tuple(&uval1, tpl_d1, inline_accessor1, tupl1))
+			return -2;
+		is_null1 = is_user_value_NULL(&uval1);
+	}
+
+	int is_null2;
+	{
+		user_value uval2;
+		if(!get_value_from_element_from_tuple(&uval2, tpl_d2, inline_accessor2, tupl2))
+			return -2;
+		is_null2 = is_user_value_NULL(&uval2);
+	}
+
+	// if one of them is NULL
+	if(is_null1 && is_null2)
+		return 0;
+	else if(!is_null1 && is_null2)
+		return 1;
+	else if(is_null1 && !is_null2)
+		return -1;
+
 	// TODO
 }
