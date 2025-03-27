@@ -285,7 +285,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	{
 		int cmp = 100;
 		int prefix = 100;
-		compare_tb(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
+		cmp = compare_tb(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
 				tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
 				&prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
@@ -294,7 +294,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	{
 		int cmp = 100;
 		int prefix = 100;
-		compare_tb(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
+		cmp = compare_tb(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
 				tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
 				&prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
