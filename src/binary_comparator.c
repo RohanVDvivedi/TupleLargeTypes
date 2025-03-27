@@ -163,15 +163,13 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 		if(!digits_requirement) // if digits are not required for comparison then early quit
 		{
 			if(cmp == 0) // at this place here if they are equal then both are prefixes or each other
-				(*prefix) = 1 | 2;
+				(*is_prefix) = 1 | 2;
 			return cmp;
 		}
 	}
 
 
 	// compare using digits
-	int cmp = 0;
-
 	uint64_t buffer1[BUFFER_CAPACITY/sizeof(uint64_t)];
 	uint64_t buffer2[BUFFER_CAPACITY/sizeof(uint64_t)];
 
