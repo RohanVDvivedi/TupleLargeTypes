@@ -157,6 +157,8 @@ void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm
 	delete_digit_read_iterator(dri_p, transaction_id, &abort_error);
 }
 
+void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p);
+
 int main()
 {
 	// base cases for comparing numeric based on sign bits and exponent
@@ -315,6 +317,9 @@ int main()
 		printf("dependent_root_page_id = %"PRIu64" vaccum_needed = %d\n", dependent_root_page_id, vaccum_needed);
 	}
 
+	// run comparison based tests
+	compare_tests(&wtd, pam_p, pmm_p);
+
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
 
@@ -330,4 +335,176 @@ int main()
 	free(large_dti);
 
 	return 0;
+}
+
+typedef struct num num;
+struct num
+{
+	numeric_sign_bits sb;
+	int16_t exp;
+	uint32_t digits_count;
+	uint64_t* digits;
+};
+
+#define STATIC_NUM(sb_, exp_, digits_) &((num){.sb = sb_, .exp = exp_, .digits_count = sizeof(digits_)/sizeof(uint64_t), .digits = digits_})
+#define STATIC_NUM2(sb_, exp_) &((num){.sb = sb_, .exp = exp_, .digits_count = 0, .digits = NULL})
+
+void print_num(const num* n)
+{
+	printf("%s %"PRId16" [", numeric_sign_bits_str[n->sb], n->exp);
+	if(n->digits == NULL)
+		printf("NULL]");
+	else
+	{
+		for(uint32_t i = 0; i < n->digits_count; i++)
+			printf("%"PRIu64", ", n->digits[i]);
+		printf("]");
+	}
+}
+
+void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+{
+	init_tuple(tpl_d, tuple);
+
+	// set s1 in tuple
+	if(n1 != NULL)
+	{
+		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_sign_bits_and_exponent_for_numeric(n1->sb, n1->exp, tuple, tpl_d, STATIC_POSITION(0));
+
+		if(n1->digits != NULL)
+		{
+			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+			const uint64_t* digits = n1->digits;
+			uint32_t digits_to_write = n1->digits_count;
+			while(digits_to_write > 0)
+			{
+				uint32_t digits_to_write_this_iteration = digits_to_write;
+				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+
+				if(digits_to_write_this_iteration == 0)
+					break;
+
+				digits += digits_to_write_this_iteration;
+				digits_to_write -= digits_to_write_this_iteration;
+			}
+
+			delete_digit_write_iterator(dwi_p, transaction_id, &abort_error);
+		}
+	}
+
+	// set s2 in tuple
+	if(n2 != NULL)
+	{
+		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_sign_bits_and_exponent_for_numeric(n2->sb, n2->exp, tuple, tpl_d, STATIC_POSITION(1));
+
+		if(n2->digits != NULL)
+		{
+			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+			const uint64_t* digits = n2->digits;
+			uint32_t digits_to_write = n2->digits_count;
+			while(digits_to_write > 0)
+			{
+				uint32_t digits_to_write_this_iteration = digits_to_write;
+				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+
+				if(digits_to_write_this_iteration == 0)
+					break;
+
+				digits += digits_to_write_this_iteration;
+				digits_to_write -= digits_to_write_this_iteration;
+			}
+
+			delete_digit_write_iterator(dwi_p, transaction_id, &abort_error);
+		}
+	}
+
+	printf("\nprinting the built tuple : \n");
+	print_tuple(tuple, tpl_d);
+	printf("\n");
+
+	{
+		int cmp = 100;
+		int prefix = 100;
+		cmp = compare_numeric(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
+				tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
+				&prefix);
+		print_num(n1);
+		printf(", ");
+		print_num(n2);
+		printf(" => cmp(%d), prefix(%d)\n",cmp, prefix);
+	}
+
+	{
+		int cmp = 100;
+		int prefix = 100;
+		cmp = compare_numeric(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
+				tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
+				&prefix);
+		print_num(n2);
+		printf(", ");
+		print_num(n1);
+		printf(" => cmp(%d), prefix(%d)\n",cmp, prefix);
+	}
+	printf("\n");
+
+	// destroy s1
+	{
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(0), &(pam_p->pas));
+		uint64_t dependent_root_page_id;
+		int vaccum_needed = 0;
+		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
+			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
+	}
+
+	// destroy s2
+	{
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(1), &(pam_p->pas));
+		uint64_t dependent_root_page_id;
+		int vaccum_needed = 0;
+		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
+			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
+	}
+
+}
+
+void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+{
+	char tuple[1024];
+
+	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
+		tuple_dti->containees[0].al.type_info = short_dti;
+		tuple_dti->containees[1].al.type_info = short_dti;
+		initialize_tuple_def(&tpl_d, tuple_dti);
+
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+	}
+
+	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
+		tuple_dti->containees[0].al.type_info = large_dti;
+		tuple_dti->containees[1].al.type_info = short_dti;
+		initialize_tuple_def(&tpl_d, tuple_dti);
+
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+	}
+
+	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
+		tuple_dti->containees[0].al.type_info = large_dti;
+		tuple_dti->containees[1].al.type_info = large_dti;
+		initialize_tuple_def(&tpl_d, tuple_dti);
+
+		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+	}
 }
