@@ -226,7 +226,7 @@ int main()
 	return 0;
 }
 
-void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	init_tuple(tpl_d, tuple);
 
@@ -236,7 +236,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
-		char* bytes = s1;
+		const char* bytes = s1;
 		uint32_t bytes_to_write = strlen(s1);
 		uint32_t bytes_written = 0;
 		while(bytes_to_write > 0)
@@ -261,7 +261,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_USER_VALUE, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
-		char* bytes = s2;
+		const char* bytes = s2;
 		uint32_t bytes_to_write = strlen(s2);
 		uint32_t bytes_written = 0;
 		while(bytes_to_write > 0)
@@ -320,19 +320,17 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
 			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
 	}
+
 }
 
 void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	char tuple[1024];
 
-	char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
-	data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
-	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
-	strcpy(tuple_dti->containees[0].field_name, "containee1");
-	strcpy(tuple_dti->containees[1].field_name, "containee2");
-
 	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
 		tuple_dti->containees[0].al.type_info = short_dti;
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
@@ -347,6 +345,9 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 	}
 
 	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
 		tuple_dti->containees[0].al.type_info = large_dti;
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
@@ -361,6 +362,9 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 	}
 
 	{
+		initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 2);
+		strcpy(tuple_dti->containees[0].field_name, "containee1");
+		strcpy(tuple_dti->containees[1].field_name, "containee2");
 		tuple_dti->containees[0].al.type_info = large_dti;
 		tuple_dti->containees[1].al.type_info = large_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
