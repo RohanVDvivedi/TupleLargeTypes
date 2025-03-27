@@ -238,7 +238,6 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 
 		const char* bytes = s1;
 		uint32_t bytes_to_write = strlen(s1);
-		uint32_t bytes_written = 0;
 		while(bytes_to_write > 0)
 		{
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
@@ -249,7 +248,6 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 
 			bytes += bytes_to_write_this_iteration;
 			bytes_to_write -= bytes_to_write_this_iteration;
-			bytes_written += bytes_to_write_this_iteration;
 		}
 
 		delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
@@ -263,7 +261,6 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 
 		const char* bytes = s2;
 		uint32_t bytes_to_write = strlen(s2);
-		uint32_t bytes_written = 0;
 		while(bytes_to_write > 0)
 		{
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
@@ -274,7 +271,6 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 
 			bytes += bytes_to_write_this_iteration;
 			bytes_to_write -= bytes_to_write_this_iteration;
-			bytes_written += bytes_to_write_this_iteration;
 		}
 
 		delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
