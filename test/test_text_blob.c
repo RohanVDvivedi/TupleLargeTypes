@@ -233,6 +233,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	// set s1 in tuple
 	if(s1 != NULL)
 	{
+		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
 		char* bytes = s1;
@@ -257,6 +258,7 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	// set s2 in tuple
 	if(s2 != NULL)
 	{
+		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
 		char* bytes = s2;
@@ -277,6 +279,10 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 
 		delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
 	}
+
+	printf("\nprinting the built tuple : \n");
+	print_tuple(tuple, tpl_d);
+	printf("\n");
 
 	{
 		int cmp = 100;
