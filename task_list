@@ -11,10 +11,10 @@ PICKED TASKS
 
  * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
   * hash for jsonb yet to be implemented
-  * compare for numeric and jsonb, yet to be implemented
+  * compare for jsonb, yet to be implemented
+  * is_prefix for jsonb, yet to be implemented
   * using the corresponding read write iterators
     * generate_prefix -> read iterator on the larger one and write on the shorter one -> to be used for indexes -> 1 if a is prefix of b, 2 if they are equal, 0 otherwise
-    * is_prefix -> read on both on them, until the shorter one is completely read -> checking for indexes
 
 
 
