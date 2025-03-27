@@ -235,8 +235,6 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	{
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
-		const uint32_t TEST_DATA_SIZE = strlen(test_data);
-
 		char* bytes = s1;
 		uint32_t bytes_to_write = strlen(s1);
 		uint32_t bytes_written = 0;
@@ -260,8 +258,6 @@ void set_and_compare(char* s1, char* s2, char* tuple, const tuple_def* tpl_d, wo
 	if(s2 != NULL)
 	{
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
-
-		const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
 		char* bytes = s2;
 		uint32_t bytes_to_write = strlen(s2);
