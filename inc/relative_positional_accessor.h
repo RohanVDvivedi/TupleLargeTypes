@@ -24,9 +24,8 @@ static inline void initialize_relative_positional_accessor(relative_positional_a
 		if(rpa->exact.positions == NULL)
 			exit(-1);
 		rpa->exact.positions_length = 0;
+		append_positions(&(rpa->exact), *(rpa->base));
 	}
-
-	append_positions(&(rpa->exact), *(rpa->base));
 }
 
 static inline void relative_positonal_accessor_set_from_relative(relative_positional_accessor* rpa, positional_accessor rel)
