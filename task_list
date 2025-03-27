@@ -1,6 +1,6 @@
 PICKED TASKS
 
- * implement compare for numeric
+ * test compare for numeric
 
 * JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
