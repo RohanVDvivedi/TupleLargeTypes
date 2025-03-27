@@ -351,6 +351,11 @@ struct num
 
 void print_num(const num* n)
 {
+	if(n == NULL)
+	{
+		printf("NULL");
+		return;
+	}
 	printf("%s %"PRId16" [", numeric_sign_bits_str[n->sb], n->exp);
 	if(n->digits == NULL)
 		printf("NULL]");
