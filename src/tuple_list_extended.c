@@ -47,8 +47,13 @@ int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
 		const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, absolute_position);
 
 		{
-			positional_accessor parent_position = absolute_position;
-			if((dti == NULL) || (point_to_parent_position(&parent_position) && get_type_info_for_element_from_tuple_def(tpl_d, parent_position)->type == ARRAY && absolute_position.positions[absolute_position.positions_length-1] == 1) )
+			const data_type_info* parent_dti = NULL;
+			{
+				positional_accessor parent_position = absolute_position;
+				if(point_to_parent_position(&parent_position))
+					parent_dti = get_type_info_for_element_from_tuple_def(tpl_d, parent_position);
+			}
+			if((dti == NULL) || (parent_dti != NULL && (parent_dti->type == ARRAY || parent_dti->type == STRING || parent_dti->type == BLOB) && absolute_position.positions[absolute_position.positions_length-1] == 1))
 			{
 				if((absolute_position.positions_length >= 2) && point_to_next_uncle_position(&absolute_position))
 					continue;
@@ -58,6 +63,9 @@ int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
 		}
 
 		// analyze dti and user_value
+		for(uint32_t i = 0; i < absolute_position.positions_length; i++)
+			printf("%"PRIu32" ,", absolute_position.positions[i]);
+		printf(" => %s -> %s\n", dti->type_name, types_as_string[dti->type]);
 		can_be_inserted = can_be_inserted && (!is_extended_type_info(dti));
 		if(can_be_inserted == 0)
 			break;
