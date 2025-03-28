@@ -18,6 +18,10 @@ int is_tuple_list_extended_type_info(const data_type_info* dti_p);
 // returns a new type info pointing to a tuple, of 2 elements the blob inline, and a page_id type from pas_p
 data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p);
 
+// returns true if the tpl_d can be inserted in to some tuple_list_extended
+// NOTE :: a tuple can not be inserted into a tuple_list_extended if any of it's elements (however deeply nested) is an extended type
+int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d);
+
 #include<common_extended.h>
 
 #include<binary_read_iterator.h>
