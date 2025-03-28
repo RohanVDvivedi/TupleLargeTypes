@@ -1,9 +1,5 @@
 PICKED TASKS
 
-* utility function to iterate over the type_info or tuple_def and check if it could be inserted into the tuple_list_extended
-  * extended types themselves could not be inserted into the tuple_list_extended
-  * api int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d);
-
 * JSONB
   * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
   * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
