@@ -44,7 +44,7 @@ data_type_info string_0;
 
 void init_tpl_d_tlist_elements()
 {
-	initialize_tuple_data_type_info(tpl_d_tlist_elements_dti, "elments", 1, PAGE_SIZE, 2);
+	initialize_tuple_data_type_info(tpl_d_tlist_elements_dti, "elements", 1, PAGE_SIZE, 2);
 	strcpy(tpl_d_tlist_elements_dti->containees[0].field_name, "varchar");
 	#ifdef FIXED_LENGTH
 		string_0 = get_fixed_length_string_type("char", 64, 1);
@@ -188,8 +188,8 @@ int main()
 		printf("is_inline = %d, is_extended = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p));
 	}
 
-	int is_insertable = can_tuple_be_inserted_in_tuple_list_extended(tpl_d);
-	printf("can be inserted in tuple_list_extended = %d\n\n", is_insertable);
+	int is_insertable = can_tuple_be_inserted_in_tuple_list_extended(&tpl_d_tlist_elements);
+	printf("can element tuple_def-s be inserted in tuple_list_extended = %d\n\n", is_insertable);
 	if(!is_insertable)
 		exit(-1);
 
