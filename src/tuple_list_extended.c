@@ -63,9 +63,6 @@ int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
 		}
 
 		// analyze dti and user_value
-		for(uint32_t i = 0; i < absolute_position.positions_length; i++)
-			printf("%"PRIu32" ,", absolute_position.positions[i]);
-		printf(" => %s -> %s\n", dti->type_name, types_as_string[dti->type]);
 		can_be_inserted = can_be_inserted && (!is_extended_type_info(dti));
 		if(can_be_inserted == 0)
 			break;
