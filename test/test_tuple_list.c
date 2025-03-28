@@ -188,6 +188,11 @@ int main()
 		printf("is_inline = %d, is_extended = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p));
 	}
 
+	int is_insertable = can_tuple_be_inserted_in_tuple_list_extended(tpl_d);
+	printf("can be inserted in tuple_list_extended = %d\n\n", is_insertable);
+	if(!is_insertable)
+		exit(-1);
+
 	/* TESTS STARTED */
 
 	char inline_tuple[PAGE_SIZE];
