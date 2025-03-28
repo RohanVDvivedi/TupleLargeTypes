@@ -32,3 +32,61 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 
 	return dti_p;
 }
+
+int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
+{
+	uint32_t max_absolute_depth = 10;
+	positional_accessor absolute_position = {.positions = malloc(sizeof(uint32_t) * max_absolute_depth), .positions_length = 0};
+	if(absolute_position.positions == NULL)
+		exit(-1);
+
+	int can_be_inserted = 1;
+
+	while(can_be_inserted)
+	{
+		const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, absolute_position);
+
+		{
+			positional_accessor parent_position = absolute_position;
+			if((dti == NULL) || (point_to_parent_position(&parent_position) && get_type_info_for_element_from_tuple_def(tpl_d, parent_position)->type == ARRAY && absolute_position.positions[absolute_position.positions_length-1] == 1) )
+			{
+				if((absolute_position.positions_length >= 2) && point_to_next_uncle_position(&absolute_position))
+					continue;
+				else
+					break;
+			}
+		}
+
+		// analyze dti and user_value
+		can_be_inserted = can_be_inserted && (!is_extended_type_info(dti));
+		if(can_be_inserted == 0)
+			break;
+
+		// default way to go next
+		if(is_container_type_info(dti))
+		{
+			if(absolute_position.positions_length == max_absolute_depth)
+			{
+				max_absolute_depth *= 2;
+				absolute_position.positions = realloc(absolute_position.positions, sizeof(uint32_t) * max_absolute_depth);
+				if(absolute_position.positions == NULL)
+					exit(-1);
+			}
+			point_to_first_child_position(&absolute_position);
+			continue;
+		}
+		else
+		{
+			if(absolute_position.positions_length > 0)
+			{
+				point_to_next_sibling_position(&absolute_position);
+				continue;
+			}
+			else
+				break;
+		}
+	}
+
+	free(absolute_position.positions);
+	return can_be_inserted;
+}
