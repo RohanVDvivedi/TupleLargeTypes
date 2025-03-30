@@ -1,7 +1,7 @@
-#include<binary_hasher.h>
+#include<tuplelargetypes/binary_hasher.h>
 
-#include<common_extended.h>
-#include<relative_positional_accessor.h>
+#include<tuplelargetypes/common_extended.h>
+#include<tuplelargetypes/relative_positional_accessor.h>
 
 #define BUFFER_CAPACITY 1024
 

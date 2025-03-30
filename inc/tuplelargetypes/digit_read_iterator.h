@@ -1,9 +1,9 @@
 #ifndef DIGIT_READ_ITERATOR_H
 #define DIGIT_READ_ITERATOR_H
 
-#include<tuple.h>
-#include<worm.h>
-#include<common_extended.h>
+#include<tuplestore/tuple.h>
+#include<tupleindexer/worm/worm.h>
+#include<tuplelargetypes/common_extended.h>
 
 /*
 	To be used solely with data_type_info-s that are structurally similar to

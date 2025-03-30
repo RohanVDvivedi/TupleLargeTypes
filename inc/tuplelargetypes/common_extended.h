@@ -1,9 +1,9 @@
 #ifndef COMMON_EXTENDED_H
 #define COMMON_EXTENDED_H
 
-#include<tuple.h>
-#include<data_type_info.h>
-#include<page_access_specification.h>
+#include<tuplestore/tuple.h>
+#include<tuplestore/data_type_info.h>
+#include<tupleindexer/common/page_access_specification.h>
 
 int is_inline_type_info(const data_type_info* dti_p);
 int is_extended_type_info(const data_type_info* dti_p);

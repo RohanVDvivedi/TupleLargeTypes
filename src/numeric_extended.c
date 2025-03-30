@@ -1,8 +1,8 @@
-#include<numeric_extended.h>
+#include<tuplelargetypes/numeric_extended.h>
 
 #include<stdlib.h>
 
-#include<relative_positional_accessor.h>
+#include<tuplelargetypes/relative_positional_accessor.h>
 
 char const * numeric_sign_bits_str[5] = {
 	"-inf",

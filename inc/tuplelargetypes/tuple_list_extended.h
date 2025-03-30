@@ -1,8 +1,8 @@
 #ifndef TUPLE_LIST_EXTENDED_H
 #define TUPLE_LIST_EXTENDED_H
 
-#include<data_type_info.h>
-#include<page_access_specification.h>
+#include<tuplestore/data_type_info.h>
+#include<tupleindexer/common/page_access_specification.h>
 
 /*
 	The tuple_list_extended type info is nothing but a list of tuples inside a blob_extended like type
@@ -22,11 +22,11 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 // NOTE :: a tuple can not be inserted into a tuple_list_extended if any of it's elements (however deeply nested) is an extended type
 int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d);
 
-#include<common_extended.h>
+#include<tuplelargetypes/common_extended.h>
 
-#include<binary_read_iterator.h>
-#include<binary_write_iterator.h>
+#include<tuplelargetypes/binary_read_iterator.h>
+#include<tuplelargetypes/binary_write_iterator.h>
 
-#include<tuple_list_helper.h>
+#include<tuplelargetypes/tuple_list_helper.h>
 
 #endif

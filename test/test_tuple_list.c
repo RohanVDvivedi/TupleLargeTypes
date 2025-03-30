@@ -1,13 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-#include<tuple.h>
-#include<tuple_def.h>
+#include<tuplestore/tuple.h>
+#include<tuplestore/tuple_def.h>
 
-#include<unWALed_in_memory_data_store.h>
-#include<unWALed_page_modification_methods.h>
+#include<tupleindexer/interface/unWALed_in_memory_data_store.h>
+#include<tupleindexer/interface/unWALed_page_modification_methods.h>
 
-#include<tuple_list_extended.h>
+#include<tuplelargetypes/tuple_list_extended.h>
 
 //#define USE_BASE
 #define USE_NESTED

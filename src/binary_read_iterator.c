@@ -1,12 +1,12 @@
-#include<binary_read_iterator.h>
+#include<tuplelargetypes/binary_read_iterator.h>
 
-#include<page_access_methods.h>
+#include<tupleindexer/interface/page_access_methods.h>
 
 #include<stdlib.h>
 
-#include<relative_positional_accessor.h>
+#include<tuplelargetypes/relative_positional_accessor.h>
 
-#include<binary_iterator_commons.h>
+#include<tuplelargetypes/binary_iterator_commons.h>
 
 binary_read_iterator* get_new_binary_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
 {

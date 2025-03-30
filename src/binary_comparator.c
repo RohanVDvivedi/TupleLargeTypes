@@ -1,9 +1,9 @@
-#include<binary_comparator.h>
+#include<tuplelargetypes/binary_comparator.h>
 
-#include<common_extended.h>
-#include<relative_positional_accessor.h>
+#include<tuplelargetypes/common_extended.h>
+#include<tuplelargetypes/relative_positional_accessor.h>
 
-#include<binary_read_iterator.h>
+#include<tuplelargetypes/binary_read_iterator.h>
 
 #define BUFFER_CAPACITY 1024
 
@@ -110,8 +110,8 @@ int compare_tb(const tuple_def* tpl_d1, const void* tupl1, positional_accessor i
 	return cmp;
 }
 
-#include<numeric_extended.h>
-#include<digit_read_iterator.h>
+#include<tuplelargetypes/numeric_extended.h>
+#include<tuplelargetypes/digit_read_iterator.h>
 
 int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_accessor inline_accessor1, const worm_tuple_defs* wtd1_p, const page_access_methods* pam1_p, const void* transaction_id1, int* abort_error1,
 					const tuple_def* tpl_d2, const void* tupl2, positional_accessor inline_accessor2, const worm_tuple_defs* wtd2_p, const page_access_methods* pam2_p, const void* transaction_id2, int* abort_error2,

@@ -1,9 +1,9 @@
 #ifndef NUMERIC_EXTENDED_H
 #define NUMERIC_EXTENDED_H
 
-#include<tuple.h>
-#include<data_type_info.h>
-#include<page_access_specification.h>
+#include<tuplestore/tuple.h>
+#include<tuplestore/data_type_info.h>
+#include<tupleindexer/common/page_access_specification.h>
 
 #define BYTES_PER_NUMERIC_DIGIT 5
 fail_build_on(BYTES_PER_NUMERIC_DIGIT > 8);
@@ -50,13 +50,13 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 //                    -> else, multiply the sign of this variable in what we get from comparing the digits (this will be 1, if they are both positive, and, -1, if they are both negative)
 int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_sign_bits s2, int16_t e2, int* digits_requirement);
 
-#include<common_extended.h>
+#include<tuplelargetypes/common_extended.h>
 
-#include<digit_read_iterator.h>
-#include<digit_write_iterator.h>
+#include<tuplelargetypes/digit_read_iterator.h>
+#include<tuplelargetypes/digit_write_iterator.h>
 
-#include<binary_hasher.h>
-#include<binary_comparator.h>
+#include<tuplelargetypes/binary_hasher.h>
+#include<tuplelargetypes/binary_comparator.h>
 
 #endif
 
