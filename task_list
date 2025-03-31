@@ -9,6 +9,7 @@ PICKED TASKS
       int (*is_null)(numeric_reader_interface* nri_p);
       void (*extract_sign_bits_and_exponent)(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
       uint32_t (*read_digits_as_stream)(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+      void (*close_digits_stream)(numeric_reader_interface* nri_p);
    };
 
  * implement binary_reader_interface using binary_read_iterator AND a user_value
