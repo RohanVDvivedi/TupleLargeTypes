@@ -12,10 +12,9 @@ PICKED TASKS
       void (*close_digits_stream)(numeric_reader_interface* nri_p);
    };
 
- * implement binary_reader_interface using binary_read_iterator AND a user_value
  * implement binary_reader_interface using digit_read_iterator AND a MATERIALIZED_NUMERIC (*in future)
 
- * refactor comparator and hasher to to use these interfaces instead
+ * refactor comparator and hasher to use these interfaces instead
 
 * JSONB
   * uses JSONparser's node as input object
