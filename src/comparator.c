@@ -1,4 +1,4 @@
-#include<tuplelargetypes/binary_comparator.h>
+#include<tuplelargetypes/comparator.h>
 
 #define BUFFER_CAPACITY 1024
 

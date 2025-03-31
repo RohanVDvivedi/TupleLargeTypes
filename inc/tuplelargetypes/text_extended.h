@@ -20,6 +20,6 @@ data_type_info* get_text_extended_type_info(uint32_t max_size, const data_type_i
 #include<tuplelargetypes/binary_write_iterator.h>
 
 #include<tuplelargetypes/binary_hasher.h>
-#include<tuplelargetypes/binary_comparator.h>
+#include<tuplelargetypes/comparator.h>
 
 #endif

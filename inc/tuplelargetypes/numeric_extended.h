@@ -56,7 +56,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 #include<tuplelargetypes/digit_write_iterator.h>
 
 #include<tuplelargetypes/binary_hasher.h>
-#include<tuplelargetypes/binary_comparator.h>
+#include<tuplelargetypes/comparator.h>
 
 #endif
 
