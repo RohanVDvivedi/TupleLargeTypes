@@ -10,15 +10,14 @@ PICKED TASKS
       uint32_t (*read_digits_as_stream)(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
       void (*close_digits_stream)(numeric_reader_interface* nri_p);
    };
-
- * implement numeric_reader_interface using digit_read_iterator AND a MATERIALIZED_NUMERIC (*in future)
-
- * refactor comparator and hasher to use these interfaces instead
+ * implement numeric_reader_interface using digit_read_iterator
+ * refactor comparator to use this interface
 
 * JSONB
   * uses JSONparser's node as input object
   * allows us to serialize it as per the design of this project
   * generates binary_reader_interface and numeric_reader_interface on text and numeric types
+  * add hasher to hash some attribute nestedly
   * first byte says type
     0 -> NULL
     1 -> true
