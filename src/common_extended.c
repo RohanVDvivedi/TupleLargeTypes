@@ -6,11 +6,7 @@
 
 int is_inline_type_info(const data_type_info* dti_p)
 {
-	int type_name_length = strnlen(dti_p->type_name, sizeof(dti_p->type_name));
-	int _inline_length = strlen("_inline");
-	if(type_name_length < _inline_length)
-		return 0;
-	return strcmp(dti_p->type_name + type_name_length - _inline_length, "_inline") == 0;
+	return !is_extended_type_info(dti_p);
 }
 
 int is_extended_type_info(const data_type_info* dti_p)

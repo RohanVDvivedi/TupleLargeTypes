@@ -5,6 +5,7 @@
 #include<tuplestore/data_type_info.h>
 #include<tupleindexer/common/page_access_specification.h>
 
+// anything that is not extended is inline, including float, integer, etc
 int is_inline_type_info(const data_type_info* dti_p);
 int is_extended_type_info(const data_type_info* dti_p);
 
