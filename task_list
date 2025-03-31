@@ -18,7 +18,7 @@ PICKED TASKS
 * JSONB
   * uses JSONparser's node as input object
   * allows us to serialize it as per the design of this project
-  * generates binary_reader_interface and numeric_reader_interface on text and number types
+  * generates binary_reader_interface and numeric_reader_interface on text and numeric types
   * first byte says type
     0 -> NULL
     1 -> true
