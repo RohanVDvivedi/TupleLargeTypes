@@ -190,8 +190,61 @@ int main()
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
+	char* compare_with[] = {
+		NULL,
+		"",
+		"Rohan",
+		"Rohan is a good boy, ",
+		"Rohan is a good boy,X",
+		test_data,
+	};
+
+	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
+	{
+		{
+			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_tb(&bri1, &bri2, &prefix);
+			printf("forward compared with %s => cmp(%d), prefix(%d)\n\n", compare_with[i], cmp, prefix);
+		}
+
+		{
+			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_tb(&bri2, &bri1, &prefix);
+			printf("reverse compared with %s => cmp(%d), prefix(%d)\n\n", compare_with[i], cmp, prefix);
+		}
+	}
+	printf("\n\n");
+
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+
+	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
+	{
+		{
+			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_tb(&bri1, &bri2, &prefix);
+			printf("forward compared with %s => cmp(%d), prefix(%d)\n\n", compare_with[i], cmp, prefix);
+		}
+
+		{
+			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_tb(&bri2, &bri1, &prefix);
+			printf("reverse compared with %s => cmp(%d), prefix(%d)\n\n", compare_with[i], cmp, prefix);
+		}
+	}
+	printf("\n\n");
 
 	/* TESTS ENDED */
 
