@@ -27,7 +27,7 @@ PICKED TASKS
     3 -> string -> 4 byte size (>= 4), and then the bytes
     4 -> numeric -> 4 byte size (always 4 + 4*Ndigits + 3), 1 byte sign bits, 2 bytes exponent, then digits
     5 -> json array -> 4 byte size (>= 8), 4 byte element count, then elements
-    6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, 
+    6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, keys are always strings and ordered lexicographically
 
 future tasks
 
