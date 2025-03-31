@@ -30,7 +30,7 @@ uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 
-	if((*cntxt->abort_error))
+	if((*(cntxt->abort_error)))
 	{
 		(*error) = (*cntxt->abort_error);
 		return 0;
@@ -41,7 +41,7 @@ uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_
 
 	data_size = read_from_binary_read_iterator(cntxt->bri_p, data, data_size, cntxt->transaction_id, cntxt->abort_error);
 	(*error) = (*cntxt->abort_error);
-	if((*cntxt->abort_error))
+	if((*(cntxt->abort_error)))
 	{
 		delete_binary_read_iterator(cntxt->bri_p, cntxt->transaction_id, cntxt->abort_error);
 		cntxt->bri_p = NULL;
