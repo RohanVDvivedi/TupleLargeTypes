@@ -12,7 +12,7 @@ PICKED TASKS
       void (*close_digits_stream)(numeric_reader_interface* nri_p);
    };
 
- * implement binary_reader_interface using digit_read_iterator AND a MATERIALIZED_NUMERIC (*in future)
+ * implement numeric_reader_interface using digit_read_iterator AND a MATERIALIZED_NUMERIC (*in future)
 
  * refactor comparator and hasher to use these interfaces instead
 
@@ -34,5 +34,6 @@ future tasks
 MATERIALIZED NUMERIC
   * we also need a materialized struct to store all the digits (base 10^12)
     * struct stores uint sign_bits:2, int64_t exponent, and then a value array list of uint64_t digits
+    * implement numeric_reader_interface for MATERIALIZED_NUMERIC
     * add functions like push least significant digit, add most significant digit (also changes exponent) and modify/get nth digit
     * write a complete briefcase of functions to perform add, sub, multiplication and division, compare and min, max functions
