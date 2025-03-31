@@ -283,18 +283,18 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	{
 		int cmp = 100;
 		int prefix = 100;
-		cmp = compare_tb(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
-				tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
-				&prefix);
+		blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
+		blob_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
+		cmp = compare_tb(&bri1, &bri2, &prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
 	}
 
 	{
 		int cmp = 100;
 		int prefix = 100;
-		cmp = compare_tb(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error,
-				tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error,
-				&prefix);
+		blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
+		blob_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
+		cmp = compare_tb(&bri2, &bri1, &prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
 	}
 	printf("\n");
