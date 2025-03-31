@@ -1,15 +1,5 @@
 PICKED TASKS
 
- * build binary_reader_interface -> text_reader_interface and blob_reader_interface to read extended text and blob types
- * define it as
-   struct binary_reader_interface
-   {
-      const void* context;
-      int (*is_valid)(binary_reader_interface* bri_p);
-      int (*is_null)(binary_reader_interface* bri_p);
-      uint32_t (*read_bytes_as_stream)(binary_read_iterator* bri_p, char* data, uint32_t data_size, int* error);
-   };
-
  * build numeric_reader_interface
  * define it as
    struct numeric_reader_interface
