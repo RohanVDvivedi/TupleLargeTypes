@@ -1,20 +1,45 @@
 PICKED TASKS
 
+ * every type that is not extended is inline, in common_extended.h
+
+ * build binary_reader_interface -> text_reader_interface and blob_reader_interface to read extended text and blob types
+ * define it as
+   struct binary_reader_interface
+   {
+      const void* context;
+      int (*is_valid)(binary_reader_interface* bri_p);
+      int (*is_null)(binary_reader_interface* bri_p);
+      uint32_t (*read_bytes_as_stream)(binary_read_iterator* bri_p, char* data, uint32_t data_size, int* error);
+   };
+
+ * build numeric_reader_interface
+ * define it as
+   struct numeric_reader_interface
+   {
+      const void* context;
+      int (*is_valid)(numeric_reader_interface* nri_p);
+      int (*is_null)(numeric_reader_interface* nri_p);
+      void (*extract_sign_bits_and_exponent)(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
+      uint32_t (*read_digits_as_stream)(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+   };
+
+ * implement binary_reader_interface using binary_read_iterator AND a user_value
+ * implement binary_reader_interface using digit_read_iterator AND a MATERIALIZED_NUMERIC (*in future)
+
+ * refactor comparator and hasher to to use these interfaces instead
+
 * JSONB
-  * get -> takes var array of integers and string and makes you point to the beginning of the data in json struct
-  * build a one direction readabale json serialization type, where we only need to go forward until we reach the desired type
-  * create_worm
   * uses JSONparser's node as input object
-  * will use binary iterators underneath, because of structural similarity with blob_inline and blob_extended
-
- * Implement the below functions as templated macros, so their usage is common between all of text, blob, numeric and json
-  * hash for jsonb yet to be implemented
-  * compare for jsonb, yet to be implemented
-  * is_prefix for jsonb, yet to be implemented
-  * using the corresponding read write iterators
-    * generate_prefix -> read iterator on the larger one and write on the shorter one -> to be used for indexes -> 1 if a is prefix of b, 2 if they are equal, 0 otherwise
-
-
+  * allows us to serialize it as per the design of this project
+  * generates binary_reader_interface and numeric_reader_interface on text and number types
+  * first byte says type
+    0 -> NULL
+    1 -> true
+    2 -> false
+    3 -> string -> 4 byte size (>= 4), and then the bytes
+    4 -> numeric -> 4 byte size (always 4 + 4*Ndigits + 3), 1 byte sign bits, 2 bytes exponent, then digits
+    5 -> json array -> 4 byte size (>= 8), 4 byte element count, then elements
+    6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, 
 
 future tasks
 
