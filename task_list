@@ -1,8 +1,7 @@
 PICKED TASKS
 
- * build numeric_reader_interface
- * define it as
-   struct numeric_reader_interface
+ * build numeric_reader_interface as
+   struct numeric_reader_interface // copy similar comments from binary reader interface
    {
       const void* context;
       int (*is_valid)(numeric_reader_interface* nri_p);
