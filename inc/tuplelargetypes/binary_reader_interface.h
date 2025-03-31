@@ -50,7 +50,8 @@ uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_
 void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p);
 
 #define init_intuple_binary_reader_interface(tpl_d_v, tupl_v, inline_accessor_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v) \
-	(binary_reader_interface){&(intuple_binary_reader_interface_context){tpl_d_v, tupl_v, inline_accessor_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v, NULL}, \
+(binary_reader_interface){ \
+	&(intuple_binary_reader_interface_context){tpl_d_v, tupl_v, inline_accessor_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v, NULL}, \
 	is_valid_for_intuple_binary_reader_interface, \
 	is_null_for_intuple_binary_reader_interface, \
 	read_bytes_as_stream_for_intuple_binary_reader_interface, \
