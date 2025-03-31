@@ -61,3 +61,29 @@ void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interf
 /*
 	implementation for a text/blob inside a user_value (extended or inline)
 */
+
+int is_valid_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+{
+	return 1;
+}
+
+int is_null_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+{
+	user_value_binary_reader_interface_context* cntxt = bri_p->context;
+	return is_user_value_NULL(&(cntxt->uval));
+}
+
+uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error)
+{
+	user_value_binary_reader_interface_context* cntxt = bri_p->context;
+
+	data_size = min(data_size, cntxt->uval.string_or_blob_size - cntxt->bytes_read);
+	memory_move(data, cntxt->uval.string_or_blob_value + cntxt->bytes_read, data_size);
+	cntxt->bytes_read += data_size;
+
+	return data_size;
+}
+
+void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+{
+}

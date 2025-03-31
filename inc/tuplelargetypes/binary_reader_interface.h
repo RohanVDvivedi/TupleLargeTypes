@@ -63,4 +63,25 @@ void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interf
 	implementation for a text/blob inside a user_value (extended or inline)
 */
 
+typedef struct user_value_binary_reader_interface_context user_value_binary_reader_interface_context;
+struct user_value_binary_reader_interface_context
+{
+	user_value uval;
+	uint32_t bytes_read;
+};
+
+int is_valid_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
+int is_null_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
+uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
+void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
+
+#define init_user_value_binary_reader_interface(uval_v) \
+(binary_reader_interface){ \
+	&(user_value_binary_reader_interface_context){uval_v, 0}, \
+	is_valid_for_user_value_binary_reader_interface, \
+	is_null_for_user_value_binary_reader_interface, \
+	read_bytes_as_stream_for_user_value_binary_reader_interface, \
+	close_bytes_stream_for_user_value_binary_reader_interface, \
+};
+
 #endif
