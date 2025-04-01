@@ -9,7 +9,7 @@
 typedef struct numeric_reader_interface numeric_reader_interface;
 struct numeric_reader_interface
 {
-	const void* context;
+	void* context;
 
 	int (*is_valid)(numeric_reader_interface* nri_p);
 	// call below functions only if the above one returns 1
