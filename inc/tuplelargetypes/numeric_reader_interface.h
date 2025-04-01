@@ -4,9 +4,10 @@
 #include<tuplestore/tuple.h>
 #include<tuplestore/tuple_def.h>
 
+typedef struct numeric_reader_interface numeric_reader_interface;
+
 #include<tuplelargetypes/numeric_extended.h>
 
-typedef struct numeric_reader_interface numeric_reader_interface;
 struct numeric_reader_interface
 {
 	void* context;
