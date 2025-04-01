@@ -1,18 +1,5 @@
 PICKED TASKS
 
- * build numeric_reader_interface as
-   struct numeric_reader_interface // copy similar comments from binary reader interface
-   {
-      const void* context;
-      int (*is_valid)(numeric_reader_interface* nri_p);
-      int (*is_null)(numeric_reader_interface* nri_p);
-      void (*extract_sign_bits_and_exponent)(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
-      uint32_t (*read_digits_as_stream)(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
-      void (*close_digits_stream)(numeric_reader_interface* nri_p);
-   };
- * implement numeric_reader_interface using digit_read_iterator
- * refactor comparator to use this interface
-
 * JSONB
   * uses JSONparser's node as input object
   * allows us to serialize it as per the design of this project
