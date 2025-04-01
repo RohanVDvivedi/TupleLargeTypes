@@ -160,6 +160,7 @@ int compare_numeric(numeric_reader_interface* nri1_p, numeric_reader_interface* 
 
 		if(data_size2 == 0) // if there are no more bytes in the data2 then read it
 		{
+			int error = 0;
 			data2 = buffer2;
 			data_size2 = nri2_p->read_digits_as_stream(nri2_p, data2, BUFFER_CAPACITY/sizeof(uint64_t), &error);
 			if(error)
