@@ -448,7 +448,7 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 		int prefix = 100;
 		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
 		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
-		cmp = compare_numeric(&nri2, &nri2, &prefix);
+		cmp = compare_numeric(&nri2, &nri1, &prefix);
 		print_num(n2);
 		printf(", ");
 		print_num(n1);
