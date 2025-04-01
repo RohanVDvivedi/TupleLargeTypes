@@ -93,35 +93,16 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 	return cmp;
 }
 
-#include<tuplelargetypes/common_extended.h>
-#include<tuplelargetypes/relative_positional_accessor.h>
-
-#include<tuplelargetypes/binary_read_iterator.h>
-
-#include<tuplelargetypes/numeric_extended.h>
-#include<tuplelargetypes/digit_read_iterator.h>
-
-int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_accessor inline_accessor1, const worm_tuple_defs* wtd1_p, const page_access_methods* pam1_p, const void* transaction_id1, int* abort_error1,
-					const tuple_def* tpl_d2, const void* tupl2, positional_accessor inline_accessor2, const worm_tuple_defs* wtd2_p, const page_access_methods* pam2_p, const void* transaction_id2, int* abort_error2,
-					int* is_prefix)
+int compare_numeric(numeric_reader_interface* nri1_p, numeric_reader_interface* nri2_p, int* is_prefix)
 {
 	(*is_prefix) = 0;
 
-	int is_null1;
-	{
-		user_value uval1;
-		if(!get_value_from_element_from_tuple(&uval1, tpl_d1, inline_accessor1, tupl1))
-			return -2;
-		is_null1 = is_user_value_NULL(&uval1);
-	}
+	// if any one if it is not valid return -2
+	if((!nri1_p->is_valid(nri1_p)) || (!nri2_p->is_valid(nri2_p)))
+		return -2;
 
-	int is_null2;
-	{
-		user_value uval2;
-		if(!get_value_from_element_from_tuple(&uval2, tpl_d2, inline_accessor2, tupl2))
-			return -2;
-		is_null2 = is_user_value_NULL(&uval2);
-	}
+	int is_null1 = nri1_p->is_null(nri1_p);
+	int is_null2 = nri2_p->is_null(nri2_p);
 
 	// if one of them is NULL
 	if(is_null1 && is_null2)
@@ -137,13 +118,11 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 	{
 		numeric_sign_bits sign_bits1;
 		int16_t exponent1;
-		if(!extract_sign_bits_and_exponent_from_numeric(&sign_bits1, &exponent1, tupl1, tpl_d1, inline_accessor1))
-			return -2;
+		nri1_p->extract_sign_bits_and_exponent(nri1_p, &sign_bits1, &exponent1);
 
 		numeric_sign_bits sign_bits2;
 		int16_t exponent2;
-		if(!extract_sign_bits_and_exponent_from_numeric(&sign_bits2, &exponent2, tupl2, tpl_d2, inline_accessor2))
-			return -2;
+		nri2_p->extract_sign_bits_and_exponent(nri2_p, &sign_bits2, &exponent2);
 
 		int cmp = compare_numeric_prefix_no_digits(sign_bits1, exponent1, sign_bits2, exponent2, &digits_requirement);
 
@@ -163,20 +142,18 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 	uint64_t* data1 = buffer1; uint32_t data_size1 = 0;
 	uint64_t* data2 = buffer2; uint32_t data_size2 = 0;
 
-	digit_read_iterator* dri1_p = get_new_digit_read_iterator(tupl1, tpl_d1, inline_accessor1, wtd1_p, pam1_p);
-	digit_read_iterator* dri2_p = get_new_digit_read_iterator(tupl2, tpl_d2, inline_accessor2, wtd2_p, pam2_p);
-
 	int cmp = 0;
 	while(cmp == 0)
 	{
 		if(data_size1 == 0) // if there are no more bytes in the data1 then read it
 		{
+			int error = 0;
 			data1 = buffer1;
-			data_size1 = read_from_digit_read_iterator(dri1_p, data1, BUFFER_CAPACITY/sizeof(uint64_t), transaction_id1, abort_error1);
-			if(*abort_error1)
+			data_size1 = nri1_p->read_digits_as_stream(nri1_p, data1, BUFFER_CAPACITY/sizeof(uint64_t), &error);
+			if(error)
 			{
-				delete_digit_read_iterator(dri1_p, transaction_id1, abort_error1);
-				delete_digit_read_iterator(dri2_p, transaction_id2, abort_error2);
+				nri1_p->close_digits_stream(nri1_p);
+				nri2_p->close_digits_stream(nri2_p);
 				return 0;
 			}
 		}
@@ -184,11 +161,11 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 		if(data_size2 == 0) // if there are no more bytes in the data2 then read it
 		{
 			data2 = buffer2;
-			data_size2 = read_from_digit_read_iterator(dri2_p, data2, BUFFER_CAPACITY/sizeof(uint64_t), transaction_id2, abort_error2);
-			if(*abort_error2)
+			data_size2 = nri2_p->read_digits_as_stream(nri2_p, data2, BUFFER_CAPACITY/sizeof(uint64_t), &error);
+			if(error)
 			{
-				delete_digit_read_iterator(dri1_p, transaction_id1, abort_error1);
-				delete_digit_read_iterator(dri2_p, transaction_id2, abort_error2);
+				nri1_p->close_digits_stream(nri1_p);
+				nri2_p->close_digits_stream(nri2_p);
 				return 0;
 			}
 		}
@@ -224,8 +201,8 @@ int compare_numeric(const tuple_def* tpl_d1, const void* tupl1, positional_acces
 		data_size2 -= digits_processed;
 	}
 
-	delete_digit_read_iterator(dri1_p, transaction_id1, abort_error1);
-	delete_digit_read_iterator(dri2_p, transaction_id2, abort_error2);
+	nri1_p->close_digits_stream(nri1_p);
+	nri2_p->close_digits_stream(nri2_p);
 
 	return cmp * digits_requirement;
 }
