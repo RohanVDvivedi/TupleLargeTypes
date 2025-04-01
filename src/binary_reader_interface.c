@@ -57,7 +57,7 @@ void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interf
 	if(cntxt->bri_p != NULL)
 	{
 		delete_binary_read_iterator(cntxt->bri_p, cntxt->transaction_id, cntxt->abort_error);
-		cntxt->dri_p = NULL;
+		cntxt->bri_p = NULL;
 	}
 }
 
