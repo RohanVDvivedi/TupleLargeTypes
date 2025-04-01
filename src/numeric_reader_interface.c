@@ -48,5 +48,7 @@ uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(numeric_read
 
 void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p)
 {
-
+	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
+	delete_digit_read_iterator(cntxt->dri_p, cntxt->transaction_id, cntxt->abort_error);
+	cntxt->dri_p = NULL;
 }
