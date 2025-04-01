@@ -112,7 +112,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 		return 0;
 
 	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->inline_accessor), 2);
+	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->inline_accessor), 3);
 
 	uint32_t digits_written = 0;
 
