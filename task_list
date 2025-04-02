@@ -1,5 +1,20 @@
 PICKED TASKS
 
+materialized_numeric
+  * struct materialized_numeric{
+    sign_bits;
+    exponent;
+    value_arraylist called digits_list digits; // of uint64_t
+  }
+    * implement numeric_reader_interface for materialized_numeric
+    * get/set sign_bits and exponent -> no exponent needed for -inf, +inf and 0, hence it will be zeroed out, and digits_list will be cleared
+    * get/set nth digit, get_digits_count, push front and push back for digits
+    * clone function
+    * compare digits function, returning cmp and prefix AND min and max
+    * init function to take sign_bits, exponent and digits_array and digits_count as input
+    * init function to take sign_bits, exponent and digits_capacity as input
+    * write a complete briefcase of functions to perform add, sub, multiplication and division
+
 * JSONB
   * first byte says type
     0 -> NULL
@@ -17,12 +32,3 @@ PICKED TASKS
    * allows materializing the current object being pointer to into a json_node
    * json_node then allows equality, contains, union, intersection and difference
   * add hasher to hash some attribute nestedly
-
-future tasks
-
-MATERIALIZED NUMERIC
-  * we also need a materialized struct to store all the digits (base 10^12)
-    * struct stores uint sign_bits:2, int64_t exponent, and then a value array list of uint64_t digits
-    * implement numeric_reader_interface for MATERIALIZED_NUMERIC
-    * add functions like push least significant digit, add most significant digit (also changes exponent) and modify/get nth digit
-    * write a complete briefcase of functions to perform add, sub, multiplication and division, compare and min, max functions
