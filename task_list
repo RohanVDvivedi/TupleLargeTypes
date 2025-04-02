@@ -1,10 +1,6 @@
 PICKED TASKS
 
 * JSONB
-  * uses JSONparser's node as input object
-  * allows us to serialize it as per the design of this project
-  * generates binary_reader_interface and numeric_reader_interface on text and numeric types
-  * add hasher to hash some attribute nestedly
   * first byte says type
     0 -> NULL
     1 -> true
@@ -13,6 +9,14 @@ PICKED TASKS
     4 -> numeric -> 4 byte size (always 4 + 4*Ndigits + 3), 1 byte sign bits, 2 bytes exponent, then digits
     5 -> json array -> 4 byte size (>= 8), 4 byte element count, then elements
     6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, keys are always strings and ordered lexicographically
+  * uses JSONparser's node as input object
+    * build a helper function to serialize json_node and write it to a open binary_write_iterator
+  * allows opening a binary_read_iterator on it
+   * function to check if the current object being pointer to is of what type using the first byte
+   * generates text_reader_interface and numeric_reader_interface on text and numeric types
+   * allows materializing the current object being pointer to into a json_node
+   * json_node then allows equality, contains, union, intersection and difference
+  * add hasher to hash some attribute nestedly
 
 future tasks
 
