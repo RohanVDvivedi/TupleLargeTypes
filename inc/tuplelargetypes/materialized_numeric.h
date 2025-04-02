@@ -23,6 +23,8 @@ struct materialized_numeric
 int initialize_materialized_numeric(materialized_numeric* m, uint32_t digits_capacity);
 int initialize_static_materialized_numeric(materialized_numeric* m, numeric_sign_bits sign_bits, int16_t exponent, uint64_t* digits_array, uint32_t digits_count);
 
+int can_materialized_numeric_have_exponent_digits(const materialized_numeric* m);
+
 void get_sign_bits_and_exponent_for_materialized_numeric(const materialized_numeric* m, numeric_sign_bits* sign_bits, int16_t* exponent);
 void set_sign_bits_and_exponent_for_materialized_numeric(materialized_numeric* m, numeric_sign_bits sign_bits, int16_t exponent);
 
@@ -37,6 +39,6 @@ int set_nth_digit_in_materialized_numeric(materialized_numeric* m, uint64_t digi
 
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
 
-void deinitialize__materialized_numeric(materialized_numeric* m);
+void deinitialize_materialized_numeric(materialized_numeric* m);
 
 #endif
