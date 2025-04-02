@@ -42,4 +42,6 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 
 void deinitialize_materialized_numeric(materialized_numeric* m);
 
+void print_materialized_numeric(const materialized_numeric* m);
+
 #endif

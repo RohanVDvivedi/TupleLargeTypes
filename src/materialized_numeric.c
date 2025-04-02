@@ -140,3 +140,47 @@ void deinitialize_materialized_numeric(materialized_numeric* m)
 {
 	deinitialize_digits_list(&(m->digits));
 }
+
+void print_materialized_numeric(const materialized_numeric* m)
+{
+	switch(m->sign_bits)
+	{
+		case NEGATIVE_INFINITY_NUMERIC :
+		{
+			printf("-INF");
+			return;
+		}
+		case NEGATIVE_NUMERIC :
+		{
+			printf("-");
+			break;
+		}
+		case ZERO_NUMERIC :
+		{
+			printf("0");
+			return;
+		}
+		case POSITIVE_NUMERIC :
+		{
+			printf("+");
+			break;
+		}
+		case POSITIVE_INFINITY_NUMERIC :
+		{
+			printf("-INF");
+			return;
+		}
+	}
+
+	for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(m); i++)
+	{
+		if(i > 0)
+			printf(" ");
+		printf("%012"PRIu64, get_nth_digit_from_materialized_numeric(m, i));
+		if(i == 0 && get_digits_count_for_materialized_numeric(m) > 1)
+			printf(".");
+	}
+
+	if(m->exponent != 0)
+		printf(" (10^12)^(%"PRId16")", m->exponent);
+}
