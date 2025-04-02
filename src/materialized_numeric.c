@@ -81,6 +81,11 @@ int push_lsd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 	return push_back_to_digits_list(&(m->digits), &digit);
 }
 
+int pop_lsd_from_materialized_numeric(materialized_numeric* m)
+{
+	return pop_back_from_digits_list(&(m->digits));
+}
+
 uint64_t get_nth_digit_from_materialized_numeric(const materialized_numeric* m, uint32_t position)
 {
 	uint64_t digit = 0;
