@@ -1,18 +1,7 @@
 PICKED TASKS
 
 materialized_numeric
-  * struct materialized_numeric{
-    sign_bits;
-    exponent;
-    value_arraylist called digits_list digits; // of uint64_t
-  }
     * implement numeric_reader_interface for materialized_numeric
-    * get/set sign_bits and exponent -> no exponent needed for -inf, +inf and 0, hence it will be zeroed out, and digits_list will be cleared
-    * get/set nth digit, get_digits_count, push front and push back for digits
-    * clone function
-    * compare digits function, returning cmp and prefix AND min and max
-    * init function to take sign_bits, exponent and digits_array and digits_count as input
-    * init function to take sign_bits, exponent and digits_capacity as input
     * write a complete briefcase of functions to perform add, sub, multiplication and division
 
 * JSONB
