@@ -22,7 +22,7 @@ int initialize_static_materialized_numeric(materialized_numeric* m, numeric_sign
 	return 1;
 }
 
-int can_materialized_numeric_have_exponent_digits(const materialized_numeric* m)
+int can_materialized_numeric_have_exponent_and_digits(const materialized_numeric* m)
 {
 	switch(m->sign_bits)
 	{
@@ -42,7 +42,7 @@ void get_sign_bits_and_exponent_for_materialized_numeric(const materialized_nume
 
 void set_sign_bits_and_exponent_for_materialized_numeric(materialized_numeric* m, numeric_sign_bits sign_bits, int16_t exponent)
 {
-	if(!can_materialized_numeric_have_exponent_digits(m))
+	if(!can_materialized_numeric_have_exponent_and_digits(m))
 	{
 		exponent = 0;
 		remove_all_from_digits_list(&(m->digits));
@@ -59,7 +59,7 @@ uint32_t get_digits_count_for_materialized_numeric(const materialized_numeric* m
 
 int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 {
-	if(!can_materialized_numeric_have_exponent_digits(m))
+	if(!can_materialized_numeric_have_exponent_and_digits(m))
 		return 0;
 
 	if(push_front_to_digits_list(&(m->digits), &digit))
@@ -71,7 +71,7 @@ int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 
 int push_lsd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 {
-	if(!can_materialized_numeric_have_exponent_digits(m))
+	if(!can_materialized_numeric_have_exponent_and_digits(m))
 		return 0;
 
 	if(push_back_to_digits_list(&(m->digits), &digit))
