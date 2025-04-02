@@ -28,5 +28,32 @@ int main()
 	print_materialized_numeric(&m);
 	printf("\n\n");
 
+	initialize_materialized_numeric(&m, 12);
+	set_sign_bits_and_exponent_for_materialized_numeric(&m, POSITIVE_NUMERIC, 6);
+
+	push_msd_in_materialized_numeric(&m, 1);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	push_lsd_in_materialized_numeric(&m, 2);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	push_msd_in_materialized_numeric(&m, 3);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	push_lsd_in_materialized_numeric(&m, 4);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	pop_lsd_from_materialized_numeric(&m);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	pop_lsd_from_materialized_numeric(&m);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
 	return 0;
 }
