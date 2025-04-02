@@ -55,5 +55,7 @@ int main()
 	print_materialized_numeric(&m);
 	printf("\n\n");
 
+	deinitialize_materialized_numeric(&m);
+
 	return 0;
 }
