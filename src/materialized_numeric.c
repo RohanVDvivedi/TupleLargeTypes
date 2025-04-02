@@ -100,7 +100,41 @@ int set_nth_digit_in_materialized_numeric(materialized_numeric* m, uint64_t digi
 	return set_from_front_in_digits_list(&(m->digits), &digit, position);
 }
 
-int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
+int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2)
+{
+	numeric_sign_bits sign_bits1; int16_t exponent1;
+	get_sign_bits_and_exponent_for_materialized_numeric(m1, &sign_bits1, &exponent1);
+
+	numeric_sign_bits sign_bits2; int16_t exponent2;
+	get_sign_bits_and_exponent_for_materialized_numeric(m2, &sign_bits2, &exponent2);
+
+	int digits_requirement = 0;
+	int cmp = compare_numeric_prefix_no_digits(sign_bits1, exponent1, sign_bits2, exponent2, &digits_requirement);
+
+	if(!digits_requirement)
+		return cmp;
+
+	uint32_t digits_count1 = get_digits_count_for_materialized_numeric(m1);
+	uint32_t digits_count2 = get_digits_count_for_materialized_numeric(m2);
+
+	uint32_t digits_to_compare = min(digits_count1, digits_count2);
+	for(uint32_t i = 0; i < digits_to_compare && cmp == 0; i++)
+	{
+		uint64_t d1 = get_nth_digit_from_materialized_numeric(m1, i);
+		uint64_t d2 = get_nth_digit_from_materialized_numeric(m2, i);
+		cmp = compare_numbers(d1, d2);
+	}
+
+	if(digits_count1 != digits_count2)
+	{
+		if(digits_count1 > digits_count2)
+			cmp = 1;
+		else
+			cmp = -1;
+	}
+
+	return cmp * digits_requirement;
+}
 
 void deinitialize_materialized_numeric(materialized_numeric* m)
 {
