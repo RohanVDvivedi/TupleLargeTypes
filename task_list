@@ -12,7 +12,7 @@ PICKED TASKS
   * uses JSONparser's node as input object
     * build a helper function to serialize json_node and write it to a open binary_write_iterator
   * allows opening a binary_read_iterator on it
-   * function to check if the current object being pointer to is of what type using the first byte
+   * function to check if the current object being pointed to is of what type using the first byte
    * generates text_reader_interface and numeric_reader_interface on text and numeric types
    * allows materializing the current object being pointer to into a json_node
    * json_node then allows equality, contains, union, intersection and difference
