@@ -1,8 +1,9 @@
 PICKED TASKS
 
 materialized_numeric
-    * implement numeric_reader_interface for materialized_numeric
-    * write a complete briefcase of functions to perform add, sub, multiplication and division
+  * test implementation of materialized numeric functions up until now
+  * implement numeric_reader_interface for materialized_numeric
+  * write a complete briefcase of functions to perform add, sub, multiplication and division
 
 * JSONB
   * first byte says type
