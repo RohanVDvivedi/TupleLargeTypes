@@ -55,6 +55,18 @@ int main()
 	print_materialized_numeric(&m);
 	printf("\n\n");
 
+	set_sign_bits_and_exponent_for_materialized_numeric(&m, ZERO_NUMERIC, 3);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	push_lsd_in_materialized_numeric(&m, 2);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
+	push_msd_in_materialized_numeric(&m, 3);
+	print_materialized_numeric(&m);
+	printf("\n\n");
+
 	deinitialize_materialized_numeric(&m);
 
 	return 0;
