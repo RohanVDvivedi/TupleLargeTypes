@@ -69,5 +69,50 @@ int main()
 
 	deinitialize_materialized_numeric(&m);
 
+	{
+		materialized_numeric m1;
+		init_static_mat_num(&m1, NEGATIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		materialized_numeric m2;
+		init_static_mat_num(&m2, NEGATIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		int cmp = compare_materialized_numeric(&m1, &m2);
+
+		print_materialized_numeric(&m1);
+		printf("\n");
+		print_materialized_numeric(&m2);
+		printf("\n -> %d\n\n", cmp);
+	}
+
+	{
+		materialized_numeric m1;
+		init_static_mat_num(&m1, POSITIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		materialized_numeric m2;
+		init_static_mat_num(&m2, POSITIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		int cmp = compare_materialized_numeric(&m1, &m2);
+
+		print_materialized_numeric(&m1);
+		printf("\n");
+		print_materialized_numeric(&m2);
+		printf("\n -> %d\n\n", cmp);
+	}
+
+	{
+		materialized_numeric m1;
+		init_static_mat_num(&m1, ZERO_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		materialized_numeric m2;
+		init_static_mat_num(&m2, ZERO_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		
+		int cmp = compare_materialized_numeric(&m1, &m2);
+
+		print_materialized_numeric(&m1);
+		printf("\n");
+		print_materialized_numeric(&m2);
+		printf("\n -> %d\n\n", cmp);
+	}
+
 	return 0;
 }

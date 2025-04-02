@@ -167,7 +167,7 @@ void print_materialized_numeric(const materialized_numeric* m)
 		}
 		case POSITIVE_INFINITY_NUMERIC :
 		{
-			printf("-INF");
+			printf("+INF");
 			return;
 		}
 	}
