@@ -75,3 +75,44 @@ void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_int
 		cntxt->dri_p = NULL;
 	}
 }
+
+/*
+	implementation for a materialized_numeric
+*/
+
+int is_valid_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+{
+	return 1;
+}
+
+int is_null_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+{
+	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
+	return (cntxt->m == NULL);
+}
+
+void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
+{
+	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
+	get_sign_bits_and_exponent_for_materialized_numeric(cntxt->m, sign_bits, exponent);
+}
+
+uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
+{
+	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
+
+	uint32_t digits_count = get_digits_count_for_materialized_numeric(cntxt->m);
+
+	uint32_t digits_to_read = min(digits_size, digits_count - cntxt->digits_read);
+
+	for(uint32_t i = 0; i < digits_to_read; i++)
+		digits[i] = get_nth_digit_from_materialized_numeric(cntxt->m, cntxt->digits_read + i);
+
+	cntxt->digits_read += digits_to_read;
+
+	return digits_to_read;
+}
+
+void close_digits_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+{
+}

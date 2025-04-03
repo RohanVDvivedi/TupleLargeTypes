@@ -71,7 +71,7 @@ struct materialized_numeric_reader_interface_context
 {
 	const materialized_numeric* m;
 
-	uint32_t digits_processed;
+	uint32_t digits_read;
 };
 
 int is_valid_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
