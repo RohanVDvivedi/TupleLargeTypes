@@ -310,9 +310,9 @@ int main()
 	materialized_numeric m7;init_static_mat_num(&m7, NEGATIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2),1}));
 
 	uint64_t m8_digits[TEST_DIGITS_COUNT];
-	materialized_numeric m8;init_static_mat_num(&m6, POSITIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2),5}));
+	materialized_numeric m8;
 	populate_digits_buffer(m8_digits, 0, TEST_DIGITS_COUNT);
-	initialize_static_materialized_numeric(&m6, POSITIVE_NUMERIC, 5, m8_digits, TEST_DIGITS_COUNT);
+	initialize_static_materialized_numeric(&m8, POSITIVE_NUMERIC, 5, m8_digits, TEST_DIGITS_COUNT);
 	materialized_numeric* compare_with[] = {
 		NULL,
 		&m1,
