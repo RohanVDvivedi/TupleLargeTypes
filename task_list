@@ -1,8 +1,5 @@
 PICKED TASKS
 
-materialized_numeric
-  * write a complete briefcase of functions to perform add, sub, multiplication and division
-
 * JSONB
   * first byte says type
     0 -> NULL
@@ -20,3 +17,8 @@ materialized_numeric
    * allows materializing the current object being pointer to into a json_node
    * json_node then allows equality, contains, union, intersection and difference
   * add hasher to hash some attribute nestedly
+
+
+(*future)
+materialized_numeric
+  * write a complete briefcase of functions to perform add, sub, multiplication and division
