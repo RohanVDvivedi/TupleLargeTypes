@@ -75,7 +75,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 }
 
 #define TEST_DIGITS_COUNT 200
-#define TEST_DIGIT(index) (hash_randomizer((index)) % 1000000000000ULL);
+#define TEST_DIGIT(index) (hash_randomizer((index)) % 1000000000000ULL)
 void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
 {
 	for(uint32_t i = 0; i < count; i++)
@@ -300,8 +300,95 @@ int main()
 	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
 
+	#define init_static_mat_num(n, s, e, ds) initialize_static_materialized_numeric(n, s, e, ds, sizeof(ds)/sizeof(uint64_t))
+	materialized_numeric m1;init_static_mat_num(&m1, NEGATIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+	materialized_numeric m2;init_static_mat_num(&m2, ZERO_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+	materialized_numeric m3;init_static_mat_num(&m3, POSITIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+	materialized_numeric m4;init_static_mat_num(&m4, POSITIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2)}));
+	materialized_numeric m5;init_static_mat_num(&m5, NEGATIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2)}));
+	materialized_numeric m6;init_static_mat_num(&m6, POSITIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2),5}));
+	materialized_numeric m7;init_static_mat_num(&m7, NEGATIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2),1}));
+
+	uint64_t m8_digits[TEST_DIGITS_COUNT];
+	materialized_numeric m8;init_static_mat_num(&m6, POSITIVE_NUMERIC, 5, ((uint64_t[]){TEST_DIGIT(0),TEST_DIGIT(1),TEST_DIGIT(2),5}));
+	populate_digits_buffer(m8_digits, 0, TEST_DIGITS_COUNT);
+	initialize_static_materialized_numeric(&m6, POSITIVE_NUMERIC, 5, m8_digits, TEST_DIGITS_COUNT);
+	materialized_numeric* compare_with[] = {
+		NULL,
+		&m1,
+		&m2,
+		&m3,
+		&m4,
+		&m5,
+		&m6,
+		&m7,
+		&m8
+	};
+
+	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
+	{
+		{
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_numeric(&nri1, &nri2, &prefix);
+			printf("forward compared with ");
+			if(compare_with[i] != NULL)
+				print_materialized_numeric(compare_with[i]);
+			else
+				printf("NULL");
+			printf(" => cmp(%d), prefix(%d)\n\n", cmp, prefix);
+		}
+
+		{
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_numeric(&nri2, &nri1, &prefix);
+			printf("reverse compared with ");
+			if(compare_with[i] != NULL)
+				print_materialized_numeric(compare_with[i]);
+			else
+				printf("NULL");
+			printf(" => cmp(%d), prefix(%d)\n\n", cmp, prefix);
+		}
+	}
+
 	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+
+	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
+	{
+		{
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_numeric(&nri1, &nri2, &prefix);
+			printf("forward compared with ");
+			if(compare_with[i] != NULL)
+				print_materialized_numeric(compare_with[i]);
+			else
+				printf("NULL");
+			printf(" => cmp(%d), prefix(%d)\n\n", cmp, prefix);
+		}
+
+		{
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
+			int cmp = 100;
+			int prefix = 100;
+			cmp = compare_numeric(&nri2, &nri1, &prefix);
+			printf("reverse compared with ");
+			if(compare_with[i] != NULL)
+				print_materialized_numeric(compare_with[i]);
+			else
+				printf("NULL");
+			printf(" => cmp(%d), prefix(%d)\n\n", cmp, prefix);
+		}
+	}
 
 	/* TESTS ENDED */
 
