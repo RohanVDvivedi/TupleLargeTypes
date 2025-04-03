@@ -313,6 +313,17 @@ int main()
 	materialized_numeric m8;
 	populate_digits_buffer(m8_digits, 0, TEST_DIGITS_COUNT);
 	initialize_static_materialized_numeric(&m8, POSITIVE_NUMERIC, 5, m8_digits, TEST_DIGITS_COUNT);
+
+	uint64_t m9_digits[TEST_DIGITS_COUNT * 2];
+	materialized_numeric m9;
+	populate_digits_buffer(m9_digits, 0, TEST_DIGITS_COUNT * 2);
+	initialize_static_materialized_numeric(&m9, POSITIVE_NUMERIC, 5, m9_digits, TEST_DIGITS_COUNT * 2);
+
+	uint64_t m10_digits[TEST_DIGITS_COUNT * 3];
+	materialized_numeric m10;
+	populate_digits_buffer(m10_digits, 0, TEST_DIGITS_COUNT * 3);
+	initialize_static_materialized_numeric(&m10, POSITIVE_NUMERIC, 5, m10_digits, TEST_DIGITS_COUNT * 3);
+
 	materialized_numeric* compare_with[] = {
 		NULL,
 		&m1,
@@ -322,7 +333,9 @@ int main()
 		&m5,
 		&m6,
 		&m7,
-		&m8
+		&m8,
+		&m9,
+		&m10,
 	};
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
