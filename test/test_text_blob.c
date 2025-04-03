@@ -190,6 +190,11 @@ int main()
 	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
+	char* test5 = alloca(strlen(test_data) * 3);
+	memory_move(test5, test_data, strlen(test_data));
+	memory_move(test5 + strlen(test_data), test_data, strlen(test_data));
+	memory_move(test5 + 2 * strlen(test_data), test_data, strlen(test_data));
+
 	char* compare_with[] = {
 		NULL,
 		"",
@@ -197,6 +202,7 @@ int main()
 		"Rohan is a good boy, ",
 		"Rohan is a good boy,X",
 		test_data,
+		test5,
 	};
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
