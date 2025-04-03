@@ -1,6 +1,8 @@
 #ifndef MATERIALIZED_NUMERIC_H
 #define MATERIALIZED_NUMERIC_H
 
+typedef struct materialized_numeric materialized_numeric;
+
 #include<tuplelargetypes/numeric_extended.h>
 #include<cutlery/value_arraylist.h>
 
@@ -10,7 +12,6 @@ data_definitions_value_arraylist(digits_list, uint64_t)
 	materialized_numeric is a base 10^12 number
 */
 
-typedef struct materialized_numeric materialized_numeric;
 struct materialized_numeric
 {
 	numeric_sign_bits sign_bits;

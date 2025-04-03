@@ -27,7 +27,7 @@ struct numeric_reader_interface
 };
 
 /*
-	implementation for a text/blob inside a tuple (extended or inline)
+	implementation for a numeric inside a tuple (extended or inline)
 */
 
 #include<tuplelargetypes/digit_read_iterator.h>
@@ -60,6 +60,34 @@ void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_int
 	extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface, \
 	read_digits_as_stream_for_intuple_numeric_reader_interface, \
 	close_digits_stream_for_intuple_numeric_reader_interface, \
+};
+
+/*
+	implementation for a materialized_numeric
+*/
+
+typedef struct materialized_numeric_reader_interface_context materialized_numeric_reader_interface_context;
+struct materialized_numeric_reader_interface_context
+{
+	const materialized_numeric* m;
+
+	uint32_t digits_processed;
+};
+
+int is_valid_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
+int is_null_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
+void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
+uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+void close_digits_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
+
+#define init_materialized_numeric_reader_interface(m_v) \
+(numeric_reader_interface){ \
+	&(materialized_numeric_reader_interface_context){m_v, 0}, \
+	is_valid_for_materialized_numeric_reader_interface, \
+	is_null_for_materialized_numeric_reader_interface, \
+	extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface, \
+	read_digits_as_stream_for_materialized_numeric_reader_interface, \
+	close_digits_stream_for_materialized_numeric_reader_interface, \
 };
 
 #endif
