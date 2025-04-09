@@ -1,5 +1,8 @@
 PICKED TASKS
 
+* need list or a structure to store json_accessor each of whose elements can either be an index into an array or a string that is a key into a json object (*do this in json parser)
+* use this structure to point into the jsonb_extended column
+
 * JSONB
   * first byte says type
     0 -> NULL
