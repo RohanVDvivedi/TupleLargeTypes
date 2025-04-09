@@ -1,8 +1,5 @@
 PICKED TASKS
 
-* need list or a structure to store json_accessor each of whose elements can either be an index into an array or a string that is a key into a json object (*do this in json parser)
-* use this structure to point into the jsonb_extended column
-
 * JSONB
   * first byte says type
     0 -> NULL
@@ -14,7 +11,8 @@ PICKED TASKS
     6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, keys are always strings and ordered lexicographically
   * uses JSONparser's node as input object
     * build a helper function to serialize json_node and write it to a open binary_write_iterator
-  * allows opening a binary_read_iterator on it
+  * allows opening a binary_read_iterator on it using a json_accessor (from JSONparser library), which is first sorted and then elements with are prefixes to some other json_accessor, then some other are eliminated
+   * we will allow partial parsing
    * function to check if the current object being pointed to is of what type using the first byte
    * generates text_reader_interface and numeric_reader_interface on text and numeric types
    * allows materializing the current object being pointer to into a json_node
