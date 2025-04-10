@@ -105,8 +105,11 @@ uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric
 
 	uint32_t digits_to_read = min(digits_size, digits_count - cntxt->digits_read);
 
-	for(uint32_t i = 0; i < digits_to_read; i++)
-		digits[i] = get_nth_digit_from_materialized_numeric(cntxt->m, cntxt->digits_read + i);
+	if(digits != NULL)
+	{
+		for(uint32_t i = 0; i < digits_to_read; i++)
+			digits[i] = get_nth_digit_from_materialized_numeric(cntxt->m, cntxt->digits_read + i);
+	}
 
 	cntxt->digits_read += digits_to_read;
 
