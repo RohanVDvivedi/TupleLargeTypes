@@ -2,6 +2,41 @@ PICKED TASKS
 
 * define struct jsonb in-memory representation object using bst and array using arraylist, also an enum of jsonb type
   * number using materialized_numeric and strings and keys using dstring
+typedef enum jsonb_type jsonb_type;
+enum jsonb_type
+{
+    JSONB_NULL = 0,
+    JSONB_TRUE = 1,
+    JSONB_FALSE = 2,
+    JSONB_STRING = 3,
+    JSONB_NUMERIC = 4,
+    JSONB_ARRAY = 5,
+    JSONB_OBJECT = 6,
+};
+typedef struct jsonb_node jsonb_node;
+// node = NULL is same as JSONB_NULL node
+struct jsonb_node
+{
+  jsonb_type type; // NULL, true and false encapsulated here, and there will be static jsonb_node for that
+  union
+  {
+    dstring string_value;
+    materialized_numeric numeric_value;
+    bst jsonb_object;
+    arraylist jsonb_array;
+  };
+};
+typedef struct jsonb_object_entry jsonb_object_entry;
+struct jsonb_object_entry
+{
+  dstring key;
+  jsonb_node* value;
+
+  bstnode jsonb_object_node;
+};
+* build functions to get json node for respective types
+* build functions to delete jsonb_node
+* build functions to clone jsonb_node
 * intiialize jsonb write_iterator to write the jsonb struct using the underlying binary_write_iterator
 
 * define a container to store all json b accessor and their corresponding binary_read_iterator to start parsing from
@@ -25,6 +60,7 @@ PICKED TASKS
    * generates text_reader_interface and numeric_reader_interface on text and numeric types
    * allows materializing the current object being pointer to into a json_node
    * json_node then allows equality, contains, union, intersection and difference
+  * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
 
 
