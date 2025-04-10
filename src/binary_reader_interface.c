@@ -81,7 +81,8 @@ uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_read
 	user_value_binary_reader_interface_context* cntxt = bri_p->context;
 
 	data_size = min(data_size, cntxt->uval.string_or_blob_size - cntxt->bytes_read);
-	memory_move(data, cntxt->uval.string_or_blob_value + cntxt->bytes_read, data_size);
+	if(data != NULL) // allows you to skip bytes
+		memory_move(data, cntxt->uval.string_or_blob_value + cntxt->bytes_read, data_size);
 	cntxt->bytes_read += data_size;
 
 	return data_size;
