@@ -22,6 +22,26 @@ int initialize_static_materialized_numeric(materialized_numeric* m, numeric_sign
 	return 1;
 }
 
+int initialize_from_materialized_numeric(materialized_numeric* dest, uint64_t* digits_array, uint32_t digits_capacity, const materialized_numeric* src)
+{
+	int inited = 0;
+	if(digits_array == NULL)
+		inited = initialize_digits_list(&(dest->digits), get_digits_count_for_materialized_numeric(src));
+	else
+	{
+		if(digits_capacity < get_digits_count_for_materialized_numeric(src))
+			return 0;
+		inited = initialize_digits_list_with_memory(&(dest->digits), digits_capacity, digits_array);
+	}
+	if(inited == 0)
+		return 0;
+	dest->sign_bits = src->sign_bits;
+	dest->exponent = src->exponent;
+	for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(src); i++)
+		push_lsd_in_materialized_numeric(dest, get_nth_digit_from_materialized_numeric(src, i));
+	return 1;
+}
+
 int can_materialized_numeric_have_exponent_and_digits(const materialized_numeric* m)
 {
 	switch(m->sign_bits)
