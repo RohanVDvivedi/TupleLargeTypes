@@ -1,6 +1,5 @@
 PICKED TASKS
 
-* build function to delete jsonb_node nestedly
 * build function to add key-value into jsonb_object
 * build function to push value to jsonb_array
 
