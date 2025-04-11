@@ -45,4 +45,8 @@ struct jsonb_object_entry
 extern jsonb_node jsonb_true;
 extern jsonb_node jsonb_false;
 
+// below 2 functions clone internally
+jsonb_node* get_jsonb_string_node(const dstring* str);
+jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
+
 #endif
