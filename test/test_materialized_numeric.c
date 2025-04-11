@@ -47,6 +47,24 @@ int main()
 	print_materialized_numeric(&m);
 	printf("\n\n");
 
+	{
+		materialized_numeric m1;
+		initialize_from_materialized_numeric(&m1, NULL, 0, &m);
+		print_materialized_numeric(&m1);
+		printf(" => clone\n\n");
+
+		deinitialize_materialized_numeric(&m1);
+	}
+
+	{
+		materialized_numeric m1;
+		initialize_from_materialized_numeric(&m1, (uint64_t[5]){}, 5, &m);
+		print_materialized_numeric(&m1);
+		printf(" => clone\n\n");
+
+		deinitialize_materialized_numeric(&m1);
+	}
+
 	pop_lsd_from_materialized_numeric(&m);
 	print_materialized_numeric(&m);
 	printf("\n\n");
