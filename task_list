@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* function to clone materialized_numeric
+
 * build functions to get json node for respective types
 * build functions to delete jsonb_node
 * build functions to clone jsonb_node
