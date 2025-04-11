@@ -62,3 +62,16 @@ jsonb_node* get_jsonb_array_node(uint32_t capacity);
 jsonb_node* get_jsonb_object_node();
 
 #endif
+
+/*
+The first byte stores the type information of the object
+It will be consumed by the parse function
+Rest bytes will be consumed by the dedicated function
+	0 -> NULL  -> no futher bytes
+	1 -> true  -> no further bytes
+	2 -> false -> no further bytes
+	3 -> string -> 4 byte size, and then the bytes
+	4 -> numeric -> 4 byte size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
+	5 -> json array -> 4 byte size (>= 4), 4 byte element count, then elements
+	6 -> json object -> 4 byte size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
+*/
