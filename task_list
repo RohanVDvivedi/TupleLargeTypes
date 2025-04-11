@@ -17,7 +17,7 @@ PICKED TASKS
     3 -> string -> 4 byte size (>= 4), and then the bytes
     4 -> numeric -> 4 byte size (always 4 + 4*Ndigits + 3), 1 byte sign bits, 2 bytes exponent, then digits
     5 -> json array -> 4 byte size (>= 8), 4 byte element count, then elements
-    6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, keys are always strings and ordered lexicographically
+    6 -> json object -> 4 byte size (>= 8), 4 byte element count, 1 for each of the entries, then keys and values alternatively, keys are always strings and ordered lexicographically
   * allows opening a binary_read_iterator on it using a json_accessor (from JSONparser library), which is first sorted and then elements with are prefixes to some other json_accessor, then some other are eliminated
    * we will allow partial parsing
    * function to check if the current object being pointed to is of what type using the first byte

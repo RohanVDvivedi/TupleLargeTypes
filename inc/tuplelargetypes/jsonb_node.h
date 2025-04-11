@@ -23,11 +23,20 @@ typedef struct jsonb_node jsonb_node;
 struct jsonb_node
 {
 	jsonb_type type; // NULL, true and false encapsulated here, and there will be static jsonb_node for that
+
+	uint32_t size; // excluding the byte for the type information and the 4 bytes for the size itself
+	// This includes the size required to store the jsonb's element_count if it is JSONB_OBJECT or JSONB_ARRAY
+
 	union
 	{
 		dstring jsonb_string;
 		materialized_numeric jsonb_numeric;
-		bst jsonb_object;
+		struct
+		{
+			bst jsonb_object;
+			// bst does not store element_count hence the need
+			uint32_t element_count; // number of jsonb_object_entry in jsonb_object OR number of jsonb_node in jsonb_array
+		};
 		arraylist jsonb_array;
 	};
 };
