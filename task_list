@@ -2,14 +2,16 @@ PICKED TASKS
 
 * function to clone materialized_numeric
 
-* build functions to get json node for respective types
-* build functions to delete jsonb_node
+* build functions
+  * get_jsonb_string_node -> cloned dstring
+  * get_jsonb_materialized_numeric_node -> cloned materialized_numeric
+  * get_jsonb_object_node -> new jsonb object node
+  * get_jsonb_array_node -> new jsonb array node with fixed capacity
+* build function to delete jsonb_node
 * build functions to clone jsonb_node
-* intiialize jsonb write_iterator to write the jsonb struct using the underlying binary_write_iterator
-
-* define a container to store all json b accessor and their corresponding binary_read_iterator to start parsing from
-* need a function to normalize all jsonb accessors, sorting them, removing duplicates, removing all accessors that are contained inside th another one
-* need a function to iterate over all of jsonb_extended and build binary iterators to parse each one
+* build function to parse jsonb using binary_reader_interface
+* build function to write jsonb over to a binary_write_iterator, using a helper function
+* build function to skip the binary_reader_interface to a specific to a specific json_accessor
 
 * JSONB
   * first byte says type
@@ -20,8 +22,6 @@ PICKED TASKS
     4 -> numeric -> 4 byte size (always 4 + 4*Ndigits + 3), 1 byte sign bits, 2 bytes exponent, then digits
     5 -> json array -> 4 byte size (>= 8), 4 byte element count, then elements
     6 -> json object -> 4 byte size (>= 8), 4 byte element count (always a multiple of 2, key then values), then keys and values alternatively, keys are always strings and ordered lexicographically
-  * uses JSONparser's node as input object
-    * build a helper function to serialize json_node and write it to a open binary_write_iterator
   * allows opening a binary_read_iterator on it using a json_accessor (from JSONparser library), which is first sorted and then elements with are prefixes to some other json_accessor, then some other are eliminated
    * we will allow partial parsing
    * function to check if the current object being pointed to is of what type using the first byte
@@ -30,7 +30,6 @@ PICKED TASKS
    * json_node then allows equality, contains, union, intersection and difference
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
-
 
 (*future)
 materialized_numeric
