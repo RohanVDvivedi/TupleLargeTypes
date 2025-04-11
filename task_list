@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* function to clone materialized_numeric
-
 * build functions
   * get_jsonb_string_node -> cloned dstring
   * get_jsonb_materialized_numeric_node -> cloned materialized_numeric
