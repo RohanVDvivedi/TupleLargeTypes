@@ -7,7 +7,7 @@ PICKED TASKS
 * build functions to clone jsonb_node
 * build function to parse jsonb using binary_reader_interface
 * build function to write jsonb over to a binary_write_iterator, using a helper function
-* build function to skip the binary_reader_interface to a specific to a specific json_accessor
+* build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * JSONB
   * first byte says type
