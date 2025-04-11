@@ -61,6 +61,8 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
 jsonb_node* get_jsonb_array_node(uint32_t capacity);
 jsonb_node* get_jsonb_object_node();
 
+void delete_jsonb_node(jsonb_node* node_p);
+
 #endif
 
 /*

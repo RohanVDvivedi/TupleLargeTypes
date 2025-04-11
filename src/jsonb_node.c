@@ -59,3 +59,58 @@ jsonb_node* get_jsonb_object_node()
 	initialize_bst(&(node_p->jsonb_object), RED_BLACK_TREE, &simple_comparator(compare_jsonb_object_entries), offsetof(jsonb_object_entry, jsonb_object_node));
 	return node_p;
 }
+
+static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* data_p)
+{
+	jsonb_object_entry* e = (jsonb_object_entry*) data_p;
+	deinit_dstring(&(e->key));
+	delete_jsonb_node(e->value);
+	free(e);
+}
+
+void delete_jsonb_node(jsonb_node* node_p)
+{
+	if(node_p == NULL)
+		return;
+
+	switch(node_p->type)
+	{
+		case JSONB_NULL :
+			break;
+		case JSONB_TRUE :
+		case JSONB_FALSE :
+		{
+			if(node_p == &jsonb_true || node_p == &jsonb_false)
+				return;
+			break;
+		}
+		case JSONB_STRING :
+		{
+			deinit_dstring(&(node_p->jsonb_string));
+			break;
+		}
+		case JSONB_NUMERIC :
+		{
+			deinitialize_materialized_numeric(&(node_p->jsonb_numeric));
+			break;
+		}
+		case JSONB_ARRAY :
+		{
+			while(!is_empty_arraylist(&(node_p->jsonb_array)))
+			{
+				jsonb_node* n = (jsonb_node*) get_front_of_arraylist(&(node_p->jsonb_array));
+				pop_front_from_arraylist(&(node_p->jsonb_array));
+				delete_jsonb_node(n);
+			}
+			deinitialize_arraylist(&(node_p->jsonb_array));
+			break;
+		}
+		case JSONB_OBJECT :
+		{
+			remove_all_from_bst(&(node_p->jsonb_object), &((notifier_interface){NULL, notify_and_delete_jsonb_object_entry}));
+			break;
+		}
+	}
+
+	free(node_p);
+}
