@@ -1,8 +1,5 @@
 PICKED TASKS
 
-* build functions
-  * get_jsonb_object_node -> new jsonb object node
-  * get_jsonb_array_node -> new jsonb array node with fixed capacity
 * build function to delete jsonb_node
 * build functions to clone jsonb_node
 * build function to parse jsonb using binary_reader_interface
