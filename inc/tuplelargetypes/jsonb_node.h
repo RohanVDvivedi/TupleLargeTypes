@@ -25,8 +25,8 @@ struct jsonb_node
 	jsonb_type type; // NULL, true and false encapsulated here, and there will be static jsonb_node for that
 	union
 	{
-		dstring string_value;
-		materialized_numeric numeric_value;
+		dstring jsonb_string;
+		materialized_numeric jsonb_numeric;
 		bst jsonb_object;
 		arraylist jsonb_array;
 	};
@@ -48,5 +48,8 @@ extern jsonb_node jsonb_false;
 // below 2 functions clone internally
 jsonb_node* get_jsonb_string_node(const dstring* str);
 jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
+
+jsonb_node* get_jsonb_array_node(uint32_t capacity);
+jsonb_node* get_jsonb_object_node();
 
 #endif
