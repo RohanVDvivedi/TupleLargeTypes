@@ -1,8 +1,6 @@
 PICKED TASKS
 
 * build functions
-  * get_jsonb_string_node -> cloned dstring
-  * get_jsonb_materialized_numeric_node -> cloned materialized_numeric
   * get_jsonb_object_node -> new jsonb object node
   * get_jsonb_array_node -> new jsonb array node with fixed capacity
 * build function to delete jsonb_node
