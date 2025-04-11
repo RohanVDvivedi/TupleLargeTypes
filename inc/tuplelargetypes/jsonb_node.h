@@ -74,4 +74,6 @@ Rest bytes will be consumed by the dedicated function
 	4 -> numeric -> 4 byte size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
 	5 -> json array -> 4 byte size (>= 4), 4 byte element count, then elements
 	6 -> json object -> 4 byte size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
+
+	to skip read size information and then again skip that many bytes
 */
