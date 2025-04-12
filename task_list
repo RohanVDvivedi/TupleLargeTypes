@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* limit digits in materialized_numeric to UINT32_MAX
+
 * build function to parse jsonb using binary_reader_interface
 * build function to write jsonb over to a binary_write_iterator, using a helper function
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
