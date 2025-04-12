@@ -91,6 +91,8 @@ int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_nod
 
 	// TODO manage size
 
+	object_p->element_count++;
+
 	jsonb_object_entry* e = malloc(sizeof(jsonb_object_entry));
 	if(e == NULL)
 		exit(-1);
