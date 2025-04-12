@@ -84,6 +84,9 @@ uint32_t get_digits_count_for_materialized_numeric(const materialized_numeric* m
 
 int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 {
+	if(get_element_count_digits_list(&(m->digits)) == UINT32_MAX)
+		return 0;
+
 	if(!can_materialized_numeric_have_exponent_and_digits(m))
 		return 0;
 
@@ -98,6 +101,9 @@ int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 
 int push_lsd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 {
+	if(get_element_count_digits_list(&(m->digits)) == UINT32_MAX)
+		return 0;
+
 	if(!can_materialized_numeric_have_exponent_and_digits(m))
 		return 0;
 
