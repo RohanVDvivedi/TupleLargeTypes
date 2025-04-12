@@ -138,3 +138,8 @@ void delete_jsonb_node(jsonb_node* node_p)
 
 	free(node_p);
 }
+
+int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
+{
+	// TODO
+}

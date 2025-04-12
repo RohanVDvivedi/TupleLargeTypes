@@ -26,6 +26,7 @@ struct jsonb_node
 
 	uint32_t skip_size; // these are the bytes that need to be skipped if you want to completely skip the current element
 	// it does not include the space occupied by the type information and then skip_size itself
+	// it is calculated by the finalize_jsonb function and must be used only after this call
 
 	union
 	{
@@ -70,9 +71,9 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
 
 // computes skip sizes all the way from root to leaf
-// you may use this json node only after this function succeeds
-// returns 0, if any of the skip_sizes overflows
-int finalize_jsonb(jsonb_node* node_p);
+// you may use this json node only after this function succeeds (after skip_sizes are set accordingly)
+// returns 0, if any of the skip_sizes or total_size overflows
+int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size);
 
 void delete_jsonb_node(jsonb_node* node_p);
 
