@@ -24,8 +24,8 @@ struct jsonb_node
 {
 	jsonb_type type; // NULL, true and false encapsulated here, and there will be static jsonb_node for that
 
-	uint32_t size; // excluding the byte for the type information and the 4 bytes for the size itself
-	// This includes the size required to store the jsonb's element_count if it is JSONB_OBJECT or JSONB_ARRAY
+	uint32_t skip_size; // these are the bytes that need to be skipped if you want to completely skip the current element
+	// it does not include the space occupied by the type information and then skip_size itself
 
 	union
 	{
@@ -69,6 +69,8 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 // key is cloned for internal use
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
 
+uint32_t get_jsonb_skip_size(jsonb_node* node_p);
+
 void delete_jsonb_node(jsonb_node* node_p);
 
 #endif
@@ -77,13 +79,13 @@ void delete_jsonb_node(jsonb_node* node_p);
 The first byte stores the type information of the object
 It will be consumed by the parse function
 Rest bytes will be consumed by the dedicated function
-	0 -> NULL  -> no futher bytes
-	1 -> true  -> no further bytes
-	2 -> false -> no further bytes
-	3 -> string -> 4 byte size, and then the bytes
-	4 -> numeric -> 4 byte size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
-	5 -> json array -> 4 byte size (>= 4), 4 byte element count, then elements
-	6 -> json object -> 4 byte size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
+	0 -> NULL  -> no futher bytes -> skip_size = 0
+	1 -> true  -> no further bytes -> skip_size = 0
+	2 -> false -> no further bytes -> skip_size = 0
+	3 -> string -> 4 byte skip_size, and then the bytes
+	4 -> numeric -> 4 byte skip_size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
+	5 -> json array -> 4 byte skip_size (>= 4), 4 byte element count, then elements
+	6 -> json object -> 4 byte skip_size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
 
 	to skip read size information and then again skip that many bytes
 */
