@@ -70,19 +70,21 @@ static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* d
 
 int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
 {
-	if(array_p->type != JSONB_ARRAY)
+	if(array_p == NULL || array_p->type != JSONB_ARRAY)
 		return 0;
 
 	// TODO check size
 
 	// TODO manage size
 
-	// TODO
+	if(is_full_arraylist(&(array_p->jsonb_array)) && !expand_arraylist(&(array_p->jsonb_array))) // if full and the expand fails
+		exit(-1);
+	return push_back_to_arraylist(&(array_p->jsonb_array), node_p);
 }
 
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p)
 {
-	if(array_p->type != JSONB_ARRAY)
+	if(object_p == NULL || object_p->type != JSONB_OBJECT)
 		return 0;
 
 	// TODO check size

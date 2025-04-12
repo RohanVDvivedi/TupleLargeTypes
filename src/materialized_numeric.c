@@ -4,11 +4,15 @@ declarations_value_arraylist(digits_list, uint64_t, static inline)
 #define EXPANSION_FACTOR 1.5
 function_definitions_value_arraylist(digits_list, uint64_t, static inline)
 
+#include<stdlib.h>
+
 int initialize_materialized_numeric(materialized_numeric* m, uint32_t digits_capacity)
 {
 	m->sign_bits = 0;
 	m->exponent = 0;
-	return initialize_digits_list(&(m->digits), digits_capacity);
+	if(!initialize_digits_list(&(m->digits), digits_capacity))
+		exit(-1);
+	return 1;
 }
 
 int initialize_static_materialized_numeric(materialized_numeric* m, numeric_sign_bits sign_bits, int16_t exponent, uint64_t* digits_array, uint32_t digits_count)
@@ -24,17 +28,18 @@ int initialize_static_materialized_numeric(materialized_numeric* m, numeric_sign
 
 int initialize_from_materialized_numeric(materialized_numeric* dest, uint64_t* digits_array, uint32_t digits_capacity, const materialized_numeric* src)
 {
-	int inited = 0;
 	if(digits_array == NULL)
-		inited = initialize_digits_list(&(dest->digits), get_digits_count_for_materialized_numeric(src));
+	{
+		if(!initialize_digits_list(&(dest->digits), get_digits_count_for_materialized_numeric(src)))
+			exit(-1);
+	}
 	else
 	{
 		if(digits_capacity < get_digits_count_for_materialized_numeric(src))
 			return 0;
-		inited = initialize_digits_list_with_memory(&(dest->digits), digits_capacity, digits_array);
+		if(!initialize_digits_list_with_memory(&(dest->digits), digits_capacity, digits_array))
+			exit(-1);
 	}
-	if(inited == 0)
-		return 0;
 	dest->sign_bits = src->sign_bits;
 	dest->exponent = src->exponent;
 	for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(src); i++)
