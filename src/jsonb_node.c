@@ -141,5 +141,114 @@ void delete_jsonb_node(jsonb_node* node_p)
 
 int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
 {
-	// TODO
+	uint32_t total_size_temp;
+	if(total_size == NULL)
+		total_size = &total_size_temp;
+
+	if(node_p == NULL)
+	{
+		// no need to set skip_size, it does not exist in null node
+		(*total_size) = 1;
+		return 1;
+	}
+
+	switch(node_p->type)
+	{
+		case JSONB_NULL :
+		case JSONB_TRUE :
+		case JSONB_FALSE :
+		{
+			// no need to set skip_size, it does not exist in these nodes
+			(*total_size) = 1;
+			return 1;
+		}
+		case JSONB_STRING :
+		{
+			if(get_char_count_dstring(&(node_p->jsonb_string)) > UINT32_MAX)
+				return 0;
+
+			node_p->skip_size = get_char_count_dstring(&(node_p->jsonb_string));
+
+			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 5))
+				return 0;
+			(*total_size) = node_p->skip_size + 5;
+			return 1;
+		}
+		case JSONB_NUMERIC :
+		{
+			node_p->skip_size = get_digits_count_for_materialized_numeric(&(node_p->jsonb_numeric));
+			if(will_unsigned_mul_overflow(uint32_t, node_p->skip_size, 5))
+				return 0;
+			node_p->skip_size *= 5;
+
+			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 3))
+				return 0;
+			node_p->skip_size += 3;
+
+			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 5))
+				return 0;
+			(*total_size) = node_p->skip_size + 5;
+			return 1;
+		}
+		case JSONB_ARRAY :
+		{
+			node_p->skip_size = 4; // 4 bytes for element count
+
+			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
+			{
+				uint32_t t = 0;
+				jsonb_node* n = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
+				int res = finalize_jsonb(n, &t);
+				if(!res)
+					return 0;
+
+				if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, t))
+					return 0;
+				node_p->skip_size += t;
+			}
+
+			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 5))
+				return 0;
+			(*total_size) = node_p->skip_size + 5;
+			return 1;
+		}
+		case JSONB_OBJECT :
+		{
+			node_p->skip_size = 4; // 4 bytes for element count
+
+			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+			{
+				// process key
+				{
+					if(get_char_count_dstring(&(e->key)) > UINT32_MAX)
+						return 0;
+					uint32_t t = get_char_count_dstring(&(e->key));
+					if(will_unsigned_sum_overflow(uint32_t, t, 4))
+						return 0;
+					t += 4;
+					if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, t))
+						return 0;
+					node_p->skip_size += t;
+				}
+
+				// process value
+				{
+					uint32_t t = 0;
+					int res = finalize_jsonb(e->value, &t);
+					if(!res)
+						return 0;
+					if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, t))
+						return 0;
+					node_p->skip_size += t;
+				}
+			}
+
+			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 5))
+				return 0;
+			(*total_size) = node_p->skip_size + 5;
+			return 1;
+		}
+	}
+
+	return 0;
 }
