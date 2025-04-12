@@ -8,6 +8,8 @@ jsonb_node jsonb_false = (jsonb_node){.type = JSONB_FALSE};
 jsonb_node* get_jsonb_string_node(const dstring* str)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
 	node_p->type = JSONB_STRING;
 
 	cy_uint size = get_char_count_dstring(str);
@@ -23,6 +25,8 @@ jsonb_node* get_jsonb_string_node(const dstring* str)
 jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
 	node_p->type = JSONB_NUMERIC;
 
 	cy_uint size = 3 + get_digits_count_for_materialized_numeric(m) * 5;
@@ -38,6 +42,8 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
 jsonb_node* get_jsonb_array_node(uint32_t capacity)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
 	node_p->type = JSONB_ARRAY;
 	node_p->size = 4; // 4 bytes to store element_count
 	if(!initialize_arraylist(&(node_p->jsonb_array), capacity))
@@ -53,6 +59,8 @@ static int compare_jsonb_object_entries(const void* e1, const void* e2)
 jsonb_node* get_jsonb_object_node()
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
 	node_p->type = JSONB_OBJECT;
 	node_p->size = 4; // 4 bytes to store element_count
 	node_p->element_count = 0;
