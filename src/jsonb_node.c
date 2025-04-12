@@ -11,12 +11,6 @@ jsonb_node* get_jsonb_string_node(const dstring* str)
 	if(node_p == NULL)
 		exit(-1);
 	node_p->type = JSONB_STRING;
-
-	cy_uint size = get_char_count_dstring(str);
-	if(size > UINT32_MAX)
-		return NULL;
-	node_p->size = size;
-
 	if(!init_copy_dstring(&(node_p->jsonb_string), str))
 		exit(-1);
 	return node_p;
@@ -28,12 +22,6 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
 	if(node_p == NULL)
 		exit(-1);
 	node_p->type = JSONB_NUMERIC;
-
-	cy_uint size = 3 + get_digits_count_for_materialized_numeric(m) * 5;
-	if(size > UINT32_MAX)
-		return NULL;
-	node_p->size = size;
-
 	if(!initialize_from_materialized_numeric(&(node_p->jsonb_numeric), NULL, 0, m))
 		exit(-1);
 	return node_p;
@@ -45,7 +33,6 @@ jsonb_node* get_jsonb_array_node(uint32_t capacity)
 	if(node_p == NULL)
 		exit(-1);
 	node_p->type = JSONB_ARRAY;
-	node_p->size = 4; // 4 bytes to store element_count
 	if(!initialize_arraylist(&(node_p->jsonb_array), capacity))
 		exit(-1);
 	return node_p;
@@ -62,7 +49,6 @@ jsonb_node* get_jsonb_object_node()
 	if(node_p == NULL)
 		exit(-1);
 	node_p->type = JSONB_OBJECT;
-	node_p->size = 4; // 4 bytes to store element_count
 	node_p->element_count = 0;
 	initialize_bst(&(node_p->jsonb_object), RED_BLACK_TREE, &simple_comparator(compare_jsonb_object_entries), offsetof(jsonb_object_entry, jsonb_object_embed_node));
 	return node_p;
@@ -73,10 +59,6 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
 	if(array_p == NULL || array_p->type != JSONB_ARRAY)
 		return 0;
 
-	// TODO check size
-
-	// TODO manage size
-
 	if(is_full_arraylist(&(array_p->jsonb_array)) && !expand_arraylist(&(array_p->jsonb_array))) // if full and the expand fails
 		exit(-1);
 	return push_back_to_arraylist(&(array_p->jsonb_array), node_p);
@@ -86,10 +68,6 @@ int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_nod
 {
 	if(object_p == NULL || object_p->type != JSONB_OBJECT)
 		return 0;
-
-	// TODO check size
-
-	// TODO manage size
 
 	object_p->element_count++;
 

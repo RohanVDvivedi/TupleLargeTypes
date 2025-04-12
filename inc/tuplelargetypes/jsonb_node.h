@@ -69,7 +69,10 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 // key is cloned for internal use
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
 
-uint32_t get_jsonb_skip_size(jsonb_node* node_p);
+// computes skip sizes all the way from root to leaf
+// you may use this json node only after this function succeeds
+// returns 0, if any of the skip_sizes overflows
+int finalize_jsonb(jsonb_node* node_p);
 
 void delete_jsonb_node(jsonb_node* node_p);
 
