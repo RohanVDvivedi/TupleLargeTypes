@@ -1,8 +1,5 @@
 PICKED TASKS
 
-* build function to add key-value into jsonb_object
-* build function to push value to jsonb_array
-
 * build functions to clone jsonb_node
 * build function to parse jsonb using binary_reader_interface
 * build function to write jsonb over to a binary_write_iterator, using a helper function
