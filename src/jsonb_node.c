@@ -64,16 +64,8 @@ jsonb_node* get_jsonb_object_node()
 	node_p->type = JSONB_OBJECT;
 	node_p->size = 4; // 4 bytes to store element_count
 	node_p->element_count = 0;
-	initialize_bst(&(node_p->jsonb_object), RED_BLACK_TREE, &simple_comparator(compare_jsonb_object_entries), offsetof(jsonb_object_entry, jsonb_object_node));
+	initialize_bst(&(node_p->jsonb_object), RED_BLACK_TREE, &simple_comparator(compare_jsonb_object_entries), offsetof(jsonb_object_entry, jsonb_object_embed_node));
 	return node_p;
-}
-
-static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* data_p)
-{
-	jsonb_object_entry* e = (jsonb_object_entry*) data_p;
-	deinit_dstring(&(e->key));
-	delete_jsonb_node(e->value);
-	free(e);
 }
 
 int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
@@ -99,7 +91,25 @@ int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_nod
 
 	// TODO manage size
 
-	// TODO
+	jsonb_object_entry* e = malloc(sizeof(jsonb_object_entry));
+	if(e == NULL)
+		exit(-1);
+
+	// initialize the object entry
+	if(!init_copy_dstring(&(e->key), key))
+		exit(-1);
+	e->value = node_p;
+	initialize_bstnode(&(e->jsonb_object_embed_node));
+
+	return insert_in_bst(&(object_p->jsonb_object), e);
+}
+
+static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* data_p)
+{
+	jsonb_object_entry* e = (jsonb_object_entry*) data_p;
+	deinit_dstring(&(e->key));
+	delete_jsonb_node(e->value);
+	free(e);
 }
 
 void delete_jsonb_node(jsonb_node* node_p)

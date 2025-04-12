@@ -47,7 +47,7 @@ struct jsonb_object_entry
 	dstring key;
 	jsonb_node* value;
 
-	bstnode jsonb_object_node;
+	bstnode jsonb_object_embed_node;
 };
 
 // a JSONB_NULL node itself may be a NULL pointer
