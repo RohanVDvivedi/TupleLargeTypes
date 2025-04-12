@@ -61,6 +61,14 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
 jsonb_node* get_jsonb_array_node(uint32_t capacity);
 jsonb_node* get_jsonb_object_node();
 
+// fails if the size exceeds UINT32_MAX
+// node_p and not its clone is pushed at the end of the arraylist
+int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
+
+// node_p and not its clone is pushed at the end of the arraylist
+// key is cloned for internal use
+int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
+
 void delete_jsonb_node(jsonb_node* node_p);
 
 #endif

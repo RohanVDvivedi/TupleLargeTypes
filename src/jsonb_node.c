@@ -68,6 +68,30 @@ static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* d
 	free(e);
 }
 
+int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
+{
+	if(array_p->type != JSONB_ARRAY)
+		return 0;
+
+	// TODO check size
+
+	// TODO manage size
+
+	// TODO
+}
+
+int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p)
+{
+	if(array_p->type != JSONB_ARRAY)
+		return 0;
+
+	// TODO check size
+
+	// TODO manage size
+
+	// TODO
+}
+
 void delete_jsonb_node(jsonb_node* node_p)
 {
 	if(node_p == NULL)

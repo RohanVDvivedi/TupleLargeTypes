@@ -85,7 +85,9 @@ int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 	if(push_front_to_digits_list(&(m->digits), &digit))
 		return 1;
 
-	expand_digits_list(&(m->digits));
+	if(!expand_digits_list(&(m->digits))) // expand fails -> allocation fails -> exit(-1)
+		exit(-1);
+
 	return push_front_to_digits_list(&(m->digits), &digit);
 }
 
@@ -97,7 +99,9 @@ int push_lsd_in_materialized_numeric(materialized_numeric* m, uint64_t digit)
 	if(push_back_to_digits_list(&(m->digits), &digit))
 		return 1;
 
-	expand_digits_list(&(m->digits));
+	if(!expand_digits_list(&(m->digits))) // expand fails -> allocation fails -> exit(-1)
+		exit(-1);
+
 	return push_back_to_digits_list(&(m->digits), &digit);
 }
 
