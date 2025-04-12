@@ -166,7 +166,6 @@ int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
 		{
 			if(get_char_count_dstring(&(node_p->jsonb_string)) > UINT32_MAX)
 				return 0;
-
 			node_p->skip_size = get_char_count_dstring(&(node_p->jsonb_string));
 
 			if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, 5))
@@ -198,8 +197,7 @@ int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
 			{
 				uint32_t t = 0;
 				jsonb_node* n = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
-				int res = finalize_jsonb(n, &t);
-				if(!res)
+				if(!finalize_jsonb(n, &t))
 					return 0;
 
 				if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, t))
@@ -234,8 +232,7 @@ int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
 				// process value
 				{
 					uint32_t t = 0;
-					int res = finalize_jsonb(e->value, &t);
-					if(!res)
+					if(!finalize_jsonb(e->value, &t))
 						return 0;
 					if(will_unsigned_sum_overflow(uint32_t, node_p->skip_size, t))
 						return 0;
