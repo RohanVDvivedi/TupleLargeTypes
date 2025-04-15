@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* print beside the hash of the actual data prior to all the setup
-
 * build function to write jsonb over to a binary_write_iterator, using a helper function
 
 * build function to parse jsonb using binary_reader_interface
