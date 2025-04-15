@@ -113,6 +113,15 @@ uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_read
 	return data_size;
 }
 
+const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error)
+{
+	user_value_binary_reader_interface_context* cntxt = bri_p->context;
+
+	(*data_size) = (cntxt->uval.string_or_blob_size - cntxt->bytes_read);
+	const char* data = (cntxt->uval.string_or_blob_value + cntxt->bytes_read);
+	return data;
+}
+
 void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
 {
 }
