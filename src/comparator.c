@@ -1,7 +1,5 @@
 #include<tuplelargetypes/comparator.h>
 
-#define BUFFER_CAPACITY 1024
-
 int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p, int* is_prefix)
 {
 	(*is_prefix) = 0;
@@ -23,11 +21,11 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 
 	// if both are not NULL
 
-	char buffer_size1 = 0;
-	char buffer_size2 = 0;
+	uint32_t buffer_size1 = 0;
+	uint32_t buffer_size2 = 0;
 
-	char* data1 = NULL; uint32_t data_size1 = 0;
-	char* data2 = NULL; uint32_t data_size2 = 0;
+	const char* data1 = NULL; uint32_t data_size1 = 0;
+	const char* data2 = NULL; uint32_t data_size2 = 0;
 
 	int cmp = 0;
 	while(cmp == 0)
@@ -42,7 +40,7 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 				goto ON_ERROR1;
 
 			// peek new bytes
-			data1 = bri1_p->peek_bytes_as_stream(bri1_p, &data_size1, BUFFER_CAPACITY, &error);
+			data1 = bri1_p->peek_bytes_as_stream(bri1_p, &data_size1, &error);
 			if(error)
 				goto ON_ERROR1;
 			// set bytes to be skipped next
@@ -67,7 +65,7 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 				goto ON_ERROR2;
 
 			// peek new bytes
-			data2 = bri2_p->peek_bytes_as_stream(bri2_p, &data_size2, BUFFER_CAPACITY, &error);
+			data2 = bri2_p->peek_bytes_as_stream(bri2_p, &data_size2, &error);
 			if(error)
 				goto ON_ERROR2;
 			// set bytes to be skipped next
@@ -116,6 +114,8 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 	bri2_p->close_bytes_stream(bri2_p);
 	return cmp;
 }
+
+#define BUFFER_CAPACITY 1024
 
 int compare_numeric(numeric_reader_interface* nri1_p, numeric_reader_interface* nri2_p, int* is_prefix)
 {
