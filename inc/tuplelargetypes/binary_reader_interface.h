@@ -17,6 +17,8 @@ struct binary_reader_interface
 
 	uint32_t (*read_bytes_as_stream)(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
 
+	const char* (*peek_bytes_as_stream)(binary_reader_interface* bri_p, uint32_t* data_size, int* error);
+
 	// to be called on an error OR EOF OR when you do not need to read any more data
 	void (*close_bytes_stream)(binary_reader_interface* bri_p);
 };
