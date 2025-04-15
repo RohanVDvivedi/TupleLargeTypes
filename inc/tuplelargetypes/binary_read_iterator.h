@@ -42,6 +42,10 @@ void delete_binary_read_iterator(binary_read_iterator* bri_p, const void* transa
 
 uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
 
+// does not move the iterator forward but allows you to peek some non-zero bytes into the future
+// if (*data_size) returns 0, then you are at the end of the data
+const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* data_size, const void* transaction_id, int* abort_error);
+
 binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
 #endif
