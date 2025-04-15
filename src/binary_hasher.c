@@ -3,8 +3,6 @@
 #include<tuplelargetypes/common_extended.h>
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-#define BUFFER_CAPACITY 1024
-
 uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor inline_accessor, tuple_hasher* th, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error)
 {
 	// check for the attribute being valid and not null
@@ -32,8 +30,8 @@ uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor 
 	if(extension_head_page_id == pam_p->pas.NULL_PAGE_ID)
 		return th->hash;
 
-	char buffer[BUFFER_CAPACITY];
-	uint32_t buffer_size;
+	const char* buffer = NULL;
+	uint32_t buffer_size = 0;
 
 	worm_read_iterator* wri_p = get_new_worm_read_iterator(extension_head_page_id, wtd_p, pam_p, transaction_id, abort_error);
 	if(*abort_error)
@@ -41,7 +39,7 @@ uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor 
 
 	while(1)
 	{
-		buffer_size = read_from_worm(wri_p, buffer, BUFFER_CAPACITY, transaction_id, abort_error);
+		buffer = peek_in_worm(wri_p, &buffer_size, transaction_id, abort_error);
 		if(*abort_error)
 		{
 			delete_worm_read_iterator(wri_p, transaction_id, abort_error);
@@ -51,6 +49,14 @@ uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor 
 			break;
 
 		tuple_hash_bytes(th, (const uint8_t*)buffer, buffer_size);
+
+		// now skip buffer size number of bytes
+		read_from_worm(wri_p, NULL, buffer_size, transaction_id, abort_error);
+		if(*abort_error)
+		{
+			delete_worm_read_iterator(wri_p, transaction_id, abort_error);
+			return 0;
+		}
 	}
 
 	delete_worm_read_iterator(wri_p, transaction_id, abort_error);
