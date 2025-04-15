@@ -1,7 +1,11 @@
 PICKED TASKS
 
-* build function to parse jsonb using binary_reader_interface
 * build function to write jsonb over to a binary_write_iterator, using a helper function
+
+* implement peek for binary_read_iterator and binary_reader_interface
+  * use this peek functionality for binary_hasher.c and comparator.c
+
+* build function to parse jsonb using binary_reader_interface
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * build functions to clone jsonb_node
