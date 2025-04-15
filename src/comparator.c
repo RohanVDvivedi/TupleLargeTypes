@@ -23,11 +23,11 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 
 	// if both are not NULL
 
-	char buffer1[BUFFER_CAPACITY];
-	char buffer2[BUFFER_CAPACITY];
+	char buffer_size1 = 0;
+	char buffer_size2 = 0;
 
-	char* data1 = buffer1; uint32_t data_size1 = 0;
-	char* data2 = buffer2; uint32_t data_size2 = 0;
+	char* data1 = NULL; uint32_t data_size1 = 0;
+	char* data2 = NULL; uint32_t data_size2 = 0;
 
 	int cmp = 0;
 	while(cmp == 0)
@@ -35,8 +35,20 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 		if(data_size1 == 0) // if there are no more bytes in the data1 then read it
 		{
 			int error = 0;
-			data1 = buffer1;
-			data_size1 = bri1_p->read_bytes_as_stream(bri1_p, data1, BUFFER_CAPACITY, &error);
+
+			// skip the bytes processed from the previous peek
+			bri1_p->read_bytes_as_stream(bri1_p, NULL, buffer_size1, &error);
+			if(error)
+				goto ON_ERROR1;
+
+			// peek new bytes
+			data1 = bri1_p->peek_bytes_as_stream(bri1_p, &data_size1, BUFFER_CAPACITY, &error);
+			if(error)
+				goto ON_ERROR1;
+			// set bytes to be skipped next
+			buffer_size1 = data_size1;
+
+			ON_ERROR1:;
 			if(error)
 			{
 				bri1_p->close_bytes_stream(bri1_p);
@@ -48,8 +60,20 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 		if(data_size2 == 0) // if there are no more bytes in the data2 then read it
 		{
 			int error = 0;
-			data2 = buffer2;
-			data_size2 = bri2_p->read_bytes_as_stream(bri2_p, data2, BUFFER_CAPACITY, &error);
+
+			// skip the bytes processed from the previous peek
+			bri2_p->read_bytes_as_stream(bri2_p, NULL, buffer_size2, &error);
+			if(error)
+				goto ON_ERROR2;
+
+			// peek new bytes
+			data2 = bri2_p->peek_bytes_as_stream(bri2_p, &data_size2, BUFFER_CAPACITY, &error);
+			if(error)
+				goto ON_ERROR2;
+			// set bytes to be skipped next
+			buffer_size2 = data_size2;
+
+			ON_ERROR2:;
 			if(error)
 			{
 				bri1_p->close_bytes_stream(bri1_p);
