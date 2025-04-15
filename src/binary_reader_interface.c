@@ -51,6 +51,31 @@ uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_
 	return data_size;
 }
 
+const char* peek_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error)
+{
+	intuple_binary_reader_interface_context* cntxt = bri_p->context;
+
+	if((*(cntxt->abort_error)))
+	{
+		(*error) = (*cntxt->abort_error);
+		return 0;
+	}
+
+	if(cntxt->bri_p == NULL)
+		cntxt->bri_p = get_new_binary_read_iterator(cntxt->tupl, cntxt->tpl_d, cntxt->inline_accessor, cntxt->wtd_p, cntxt->pam_p);
+
+	const char* data = peek_in_binary_read_iterator(cntxt->bri_p, data_size, cntxt->transaction_id, cntxt->abort_error);
+	(*error) = (*cntxt->abort_error);
+	if((*(cntxt->abort_error)))
+	{
+		delete_binary_read_iterator(cntxt->bri_p, cntxt->transaction_id, cntxt->abort_error);
+		cntxt->bri_p = NULL;
+		return 0;
+	}
+
+	return data;
+}
+
 void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
