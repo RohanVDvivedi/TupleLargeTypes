@@ -116,7 +116,7 @@ uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data,
 				memory_move(data, prefix.string_or_blob_value + bri_p->bytes_read_from_prefix, bytes_read_this_iteration);
 			bri_p->bytes_read_from_prefix += bytes_read_this_iteration;
 		}
-		else if(!(bri_p->is_inline)) // go here only if it is a large text or blob
+		else if(!(bri_p->is_inline)) // go here only if it is a extended text or blob
 		{
 			// initialize worm read iterator if not done already
 			if(bri_p->wri_p == NULL)
@@ -205,7 +205,7 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 		(*data_size) = (prefix.string_or_blob_size - bri_p->bytes_read_from_prefix);
 		data = prefix.string_or_blob_value + bri_p->bytes_read_from_prefix;
 	}
-	else if(!(bri_p->is_inline)) // go here only if it is a large text or blob
+	else if(!(bri_p->is_inline)) // go here only if it is a extended text or blob
 	{
 		// initialize worm read iterator if not done already
 		if(bri_p->wri_p == NULL)
