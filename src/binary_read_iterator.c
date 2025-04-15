@@ -155,3 +155,80 @@ uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data,
 
 	return bytes_read;
 }
+
+const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* data_size, const void* transaction_id, int* abort_error)
+{
+	// cache the prefix and the extension_head_page_id in local variables
+	user_value prefix = (*EMPTY_USER_VALUE);
+	uint64_t extension_head_page_id = bri_p->pam_p->pas.NULL_PAGE_ID;
+	{
+		relative_positional_accessor child_relative_accessor;
+		initialize_relative_positional_accessor(&child_relative_accessor, &(bri_p->inline_accessor), 1 * (!(bri_p->is_inline)));
+
+		if(bri_p->is_inline)
+		{
+			point_to_prefix(&child_relative_accessor, bri_p->is_inline);
+			int valid_prefix = get_value_from_element_from_tuple(&prefix, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
+			if((!valid_prefix) || is_user_value_NULL(&prefix)) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
+				prefix = (*EMPTY_USER_VALUE);
+		}
+		else
+		{
+			point_to_prefix(&child_relative_accessor, bri_p->is_inline);
+			int valid_prefix = get_value_from_element_from_tuple(&prefix, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
+			if((!valid_prefix) || is_user_value_NULL(&prefix)) // this means it is an uninitialized large text or blob, so treat it as if it is empty, with no worm following it
+			{
+				prefix = (*EMPTY_USER_VALUE);
+				extension_head_page_id = bri_p->pam_p->pas.NULL_PAGE_ID;
+			}
+			else // else you need to read the extension_head_page_id
+			{
+				if(bri_p->wri_p == NULL) // you will need extension_head_page_id set to valid value only if the worm_read_iterator is not initialized
+				{
+					user_value worm_head_page_id;
+					point_to_extension_head_page_id(&child_relative_accessor, bri_p->is_inline);
+					int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
+					if(valid_worm_head_page_id && !is_user_value_NULL(&worm_head_page_id)) // if valid and not NULL
+						extension_head_page_id = worm_head_page_id.uint_value;
+				}
+			}
+		}
+
+		deinitialize_relative_positional_accessor(&child_relative_accessor);
+	}
+
+	const char* data = NULL;
+	(*data_size) = 0;
+
+	if(bri_p->bytes_read_from_prefix < prefix.string_or_blob_size) // peek from prefix until it is not completely read
+	{
+		(*data_size) = (prefix.string_or_blob_size - bri_p->bytes_read_from_prefix);
+		data = prefix.string_or_blob_value + bri_p->bytes_read_from_prefix;
+	}
+	else if(!(bri_p->is_inline)) // go here only if it is a large text or blob
+	{
+		// initialize worm read iterator if not done already
+		if(bri_p->wri_p == NULL)
+		{
+			if(extension_head_page_id == bri_p->pam_p->pas.NULL_PAGE_ID)
+				return NULL;
+
+			bri_p->wri_p = get_new_worm_read_iterator(extension_head_page_id, bri_p->wtd_p, bri_p->pam_p, transaction_id, abort_error);
+			if(*abort_error) // on abort error, do nothing
+			{
+				bri_p->wri_p = NULL;
+				return NULL;
+			}
+		}
+
+		data = peek_in_worm(bri_p->wri_p, data_size, transaction_id, abort_error);
+		if(*abort_error) // on abort error, delete worm iterator and set it to NULL
+		{
+			delete_worm_read_iterator(bri_p->wri_p, transaction_id, abort_error);
+			bri_p->wri_p = NULL;
+			return NULL;
+		}
+	}
+
+	return data;
+}
