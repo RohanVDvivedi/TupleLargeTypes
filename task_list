@@ -1,7 +1,6 @@
 PICKED TASKS
 
-* implement peek for binary_read_iterator and binary_reader_interface
-  * use this peek functionality for binary_hasher.c and comparator.c
+* print beside the hash of the actual data prior to all the setup
 
 * build function to write jsonb over to a binary_write_iterator, using a helper function
 
