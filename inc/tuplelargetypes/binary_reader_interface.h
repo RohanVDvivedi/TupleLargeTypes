@@ -49,6 +49,7 @@ struct intuple_binary_reader_interface_context
 int is_valid_for_intuple_binary_reader_interface(binary_reader_interface* bri_p);
 int is_null_for_intuple_binary_reader_interface(binary_reader_interface* bri_p);
 uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
+const char* peek_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error);
 void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p);
 
 #define init_intuple_binary_reader_interface(tpl_d_v, tupl_v, inline_accessor_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v) \
@@ -57,6 +58,7 @@ void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interf
 	is_valid_for_intuple_binary_reader_interface, \
 	is_null_for_intuple_binary_reader_interface, \
 	read_bytes_as_stream_for_intuple_binary_reader_interface, \
+	peek_bytes_as_stream_for_intuple_binary_reader_interface, \
 	close_bytes_stream_for_intuple_binary_reader_interface, \
 };
 
@@ -75,6 +77,7 @@ struct user_value_binary_reader_interface_context
 int is_valid_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
 int is_null_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
 uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
+const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error);
 void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p);
 
 #define init_user_value_binary_reader_interface(uval_v) \
@@ -83,6 +86,7 @@ void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_int
 	is_valid_for_user_value_binary_reader_interface, \
 	is_null_for_user_value_binary_reader_interface, \
 	read_bytes_as_stream_for_user_value_binary_reader_interface, \
+	peek_bytes_as_stream_for_user_value_binary_reader_interface, \
 	close_bytes_stream_for_user_value_binary_reader_interface, \
 };
 
