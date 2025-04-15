@@ -159,6 +159,16 @@ void compare_tests();
 
 int main()
 {
+	{
+		tuple_hasher th = *FNV_64_TUPLE_HASHER;
+		int test_data_len = strlen(test_data);
+		for(int i = 0; i < 3; i++)
+		{
+			uint64_t h = tuple_hash_bytes(&th, test_data, test_data_len);
+			printf("hash %d of test data -> %"PRIu64"\n", i, h);
+		}
+		printf("\n");
+	}
 	/* SETUP STARTED */
 
 	// construct an in-memory data store
