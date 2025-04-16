@@ -1,6 +1,6 @@
 #include<tuplelargetypes/comparator.h>
 
-int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p, int* is_prefix)
+int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interface* bri2_p, int* is_prefix)
 {
 	(*is_prefix) = 0;
 
@@ -117,7 +117,7 @@ int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p,
 
 #define BUFFER_CAPACITY 1024
 
-int compare_numeric(numeric_reader_interface* nri1_p, numeric_reader_interface* nri2_p, int* is_prefix)
+int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix)
 {
 	(*is_prefix) = 0;
 

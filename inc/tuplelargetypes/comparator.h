@@ -3,14 +3,14 @@
 
 #include<tuplelargetypes/binary_reader_interface.h>
 
-int compare_tb(binary_reader_interface* bri1_p, binary_reader_interface* bri2_p, int* is_prefix);
+int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interface* bri2_p, int* is_prefix);
 
 #define compare_text compare_tb
 #define compare_blob compare_tb
 
 #include<tuplelargetypes/numeric_reader_interface.h>
 
-int compare_numeric(numeric_reader_interface* nri1_p, numeric_reader_interface* nri2_p, int* is_prefix);
+int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix);
 
 /*
 	if first parameter is prefix of another then (is_prefix & 1) returns true

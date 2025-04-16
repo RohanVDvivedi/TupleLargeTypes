@@ -4,7 +4,7 @@
 	implementation for a text/blob inside a tuple (extended or inline)
 */
 
-int is_valid_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
+int is_valid_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -14,7 +14,7 @@ int is_valid_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
 	return is_valid;
 }
 
-int is_null_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
+int is_null_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -26,7 +26,7 @@ int is_null_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
 	return is_user_value_NULL(&uval);
 }
 
-uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error)
+uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -51,7 +51,7 @@ uint32_t read_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_
 	return data_size;
 }
 
-const char* peek_bytes_as_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error)
+const char* peek_bytes_as_stream_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p, uint32_t* data_size, int* error)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -76,7 +76,7 @@ const char* peek_bytes_as_stream_for_intuple_binary_reader_interface(binary_read
 	return data;
 }
 
-void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interface* bri_p)
+void close_bytes_stream_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 	intuple_binary_reader_interface_context* cntxt = bri_p->context;
 	if(cntxt->bri_p != NULL)
@@ -90,18 +90,18 @@ void close_bytes_stream_for_intuple_binary_reader_interface(binary_reader_interf
 	implementation for a text/blob inside a user_value (extended or inline)
 */
 
-int is_valid_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+int is_valid_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 	return 1;
 }
 
-int is_null_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+int is_null_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 	user_value_binary_reader_interface_context* cntxt = bri_p->context;
 	return is_user_value_NULL(&(cntxt->uval));
 }
 
-uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error)
+uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error)
 {
 	user_value_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -113,7 +113,7 @@ uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(binary_read
 	return data_size;
 }
 
-const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p, uint32_t* data_size, int* error)
+const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p, uint32_t* data_size, int* error)
 {
 	user_value_binary_reader_interface_context* cntxt = bri_p->context;
 
@@ -122,6 +122,6 @@ const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(binary_r
 	return data;
 }
 
-void close_bytes_stream_for_user_value_binary_reader_interface(binary_reader_interface* bri_p)
+void close_bytes_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p)
 {
 }

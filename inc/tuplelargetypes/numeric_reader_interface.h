@@ -12,18 +12,18 @@ struct numeric_reader_interface
 {
 	void* context;
 
-	int (*is_valid)(numeric_reader_interface* nri_p);
+	int (*is_valid)(const numeric_reader_interface* nri_p);
 	// call below functions only if the above one returns 1
 
-	int (*is_null)(numeric_reader_interface* nri_p);
+	int (*is_null)(const numeric_reader_interface* nri_p);
 	// call below functions only if the above one returns 1
 
-	void (*extract_sign_bits_and_exponent)(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
+	void (*extract_sign_bits_and_exponent)(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
 
-	uint32_t (*read_digits_as_stream)(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+	uint32_t (*read_digits_as_stream)(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
 
 	// to be called on an error OR EOF OR when you do not need to read any more data
-	void (*close_digits_stream)(numeric_reader_interface* nri_p);
+	void (*close_digits_stream)(const numeric_reader_interface* nri_p);
 };
 
 /*
@@ -46,11 +46,11 @@ struct intuple_numeric_reader_interface_context
 	digit_read_iterator* dri_p;
 };
 
-int is_valid_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p);
-int is_null_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p);
-void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
-uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
-void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p);
+int is_valid_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p);
+int is_null_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p);
+void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
+uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+void close_digits_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p);
 
 #define init_intuple_numeric_reader_interface(tpl_d_v, tupl_v, inline_accessor_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v) \
 (numeric_reader_interface){ \
@@ -74,11 +74,11 @@ struct materialized_numeric_reader_interface_context
 	uint32_t digits_read;
 };
 
-int is_valid_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
-int is_null_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
-void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
-uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
-void close_digits_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p);
+int is_valid_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p);
+int is_null_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p);
+void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent);
+uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
+void close_digits_stream_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p);
 
 #define init_materialized_numeric_reader_interface(m_v) \
 (numeric_reader_interface){ \

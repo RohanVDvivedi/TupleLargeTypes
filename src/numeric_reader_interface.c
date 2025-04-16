@@ -4,7 +4,7 @@
 	implementation for a text/blob inside a tuple (extended or inline)
 */
 
-int is_valid_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p)
+int is_valid_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
@@ -23,7 +23,7 @@ int is_valid_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_
 	return 1;
 }
 
-int is_null_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p)
+int is_null_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
@@ -34,14 +34,14 @@ int is_null_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p
 	return is_user_value_NULL(&uval);
 }
 
-void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
+void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
 	extract_sign_bits_and_exponent_from_numeric(sign_bits, exponent, cntxt->tupl, cntxt->tpl_d, cntxt->inline_accessor);
 }
 
-uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
+uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
@@ -66,7 +66,7 @@ uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(numeric_read
 	return digits_size;
 }
 
-void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_interface* nri_p)
+void close_digits_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 	if(cntxt->dri_p != NULL)
@@ -80,24 +80,24 @@ void close_digits_stream_for_intuple_numeric_reader_interface(numeric_reader_int
 	implementation for a materialized_numeric
 */
 
-int is_valid_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+int is_valid_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 	return 1;
 }
 
-int is_null_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+int is_null_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
 	return (cntxt->m == NULL);
 }
 
-void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
+void extract_sign_bits_and_exponent_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
 {
 	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
 	get_sign_bits_and_exponent_for_materialized_numeric(cntxt->m, sign_bits, exponent);
 }
 
-uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
+uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
 {
 	materialized_numeric_reader_interface_context* cntxt = nri_p->context;
 
@@ -116,6 +116,6 @@ uint32_t read_digits_as_stream_for_materialized_numeric_reader_interface(numeric
 	return digits_to_read;
 }
 
-void close_digits_stream_for_materialized_numeric_reader_interface(numeric_reader_interface* nri_p)
+void close_digits_stream_for_materialized_numeric_reader_interface(const numeric_reader_interface* nri_p)
 {
 }
