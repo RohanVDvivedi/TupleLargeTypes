@@ -1,6 +1,5 @@
 PICKED TASKS
 
-* build a function to construct a static jsonb_writer_interface for a binary_write_iterator
 * build function to write jsonb over to a binary_write_iterator, using a helper function
 
 * build function to parse jsonb using binary_reader_interface
