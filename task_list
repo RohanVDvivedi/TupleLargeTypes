@@ -1,12 +1,5 @@
 PICKED TASKS
 
-* define and declare a jsonb_writer_interface as follows
-typedef struct jsonb_writer_interface jsonb_writer_interface;
-struct jsonb_writer_interface
-{
-  void* context_p;
-  void (*write_jsonb_bytes)(void* context_p, const char* bytes, uint32_t bytes_size, int* error);
-};
 * build a function to construct a static jsonb_writer_interface for a binary_write_iterator
 * build function to write jsonb over to a binary_write_iterator, using a helper function
 
