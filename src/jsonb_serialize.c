@@ -41,7 +41,10 @@ int jsonb_serialize(const jsonb_writer_interface* jwi_p, jsonb_node* node_p)
 			if(error)
 				goto EXIT;
 
-			// TODO
+			jwi_p->write_jsonb_bytes(jwi_p, get_byte_array_dstring(&(node_p->jsonb_string)), get_char_count_dstring(&(node_p->jsonb_string)), &error);
+			if(error)
+				goto EXIT;
+
 			break;
 		}
 		case JSONB_NUMERIC :
