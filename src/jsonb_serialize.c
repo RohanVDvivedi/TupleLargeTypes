@@ -15,6 +15,13 @@ static inline void jsonb_writer_interface_write_uint32(const jsonb_writer_interf
 	jwi_p->write_jsonb_bytes(jwi_p, bytes, 4, error);
 }
 
+static inline void jsonb_writer_interface_write_int16(const jsonb_writer_interface* jwi_p, int16_t b, int* error)
+{
+	char bytes[2];
+	serialize_int16(bytes, 2, b);
+	jwi_p->write_jsonb_bytes(jwi_p, bytes, 2, error);
+}
+
 int jsonb_serialize(const jsonb_writer_interface* jwi_p, const jsonb_node* node_p)
 {
 	int error = 0;
@@ -53,7 +60,28 @@ int jsonb_serialize(const jsonb_writer_interface* jwi_p, const jsonb_node* node_
 			if(error)
 				goto EXIT;
 
-			// TODO
+			numeric_sign_bits sign_bits;
+			int16_t exponent;
+			get_sign_bits_and_exponent_for_materialized_numeric(&(node_p->jsonb_numeric), &sign_bits, &exponent);
+
+			jsonb_writer_interface_write_uint8(jwi_p, sign_bits, &error);
+			if(error)
+				goto EXIT;
+
+			jsonb_writer_interface_write_int16(jwi_p, exponent, &error);
+			if(error)
+				goto EXIT;
+
+			for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(&(node_p->jsonb_numeric)); i++)
+			{
+				uint64_t digit = get_nth_digit_from_materialized_numeric(&(node_p->jsonb_numeric), i);
+				char bytes[5];
+				serialize_uint64(bytes, 5, digit);
+				jwi_p->write_jsonb_bytes(jwi_p, bytes, 5, &error);
+				if(error)
+					goto EXIT;
+			}
+
 			break;
 		}
 		case JSONB_ARRAY :
