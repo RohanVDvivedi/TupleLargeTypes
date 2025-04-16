@@ -85,7 +85,20 @@ int jsonb_serialize(const jsonb_writer_interface* jwi_p, const jsonb_node* node_
 			if(error)
 				goto EXIT;
 
-			// TODO
+			for(const jsonb_object_entry* e = find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+			{
+				jsonb_writer_interface_write_uint32(jwi_p, get_char_count_dstring(&(e->key)), &error);
+				if(error)
+					goto EXIT;
+
+				jwi_p->write_jsonb_bytes(jwi_p, get_byte_array_dstring(&(e->key)), get_char_count_dstring(&(e->key)), &error);
+				if(error)
+					goto EXIT;
+
+				if(!jsonb_serialize(jwi_p, e->value))
+					return 0;
+			}
+
 			break;
 		}
 	}
