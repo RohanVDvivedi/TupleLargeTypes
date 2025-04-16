@@ -7,7 +7,7 @@ typedef struct jsonb_writer_interface jsonb_writer_interface;
 struct jsonb_writer_interface
 {
 	void* context;
-	void (*write_jsonb_bytes)(jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error);
+	void (*write_jsonb_bytes)(const jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error);
 };
 
 /*
@@ -24,7 +24,7 @@ struct jsonb_to_binary_write_iterator_context
 	int* abort_error;
 };
 
-void jsonb_to_binary_write_iterator_write_jsonb_bytes(jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error);
+void jsonb_to_binary_write_iterator_write_jsonb_bytes(const jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error);
 
 #define init_jsonb_to_binary_write_iterator_interface(bwi_p_v, transaction_id_v, abort_error_v) \
 (binary_reader_interface){ \

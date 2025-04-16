@@ -4,7 +4,7 @@
 	implementation for writing to a binary_write_iterator
 */
 
-void jsonb_to_binary_write_iterator_write_jsonb_bytes(jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error)
+void jsonb_to_binary_write_iterator_write_jsonb_bytes(const jsonb_writer_interface* jwi_p, const char* bytes, uint32_t bytes_size, int* error)
 {
 	// no bytes to write
 	if(bytes_size == 0)
