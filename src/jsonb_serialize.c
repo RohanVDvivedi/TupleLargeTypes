@@ -15,7 +15,7 @@ static inline void jsonb_writer_interface_write_uint32(const jsonb_writer_interf
 	jwi_p->write_jsonb_bytes(jwi_p, bytes, 4, error);
 }
 
-int jsonb_serialize(const jsonb_writer_interface* jwi_p, jsonb_node* node_p)
+int jsonb_serialize(const jsonb_writer_interface* jwi_p, const jsonb_node* node_p)
 {
 	int error = 0;
 
@@ -62,11 +62,17 @@ int jsonb_serialize(const jsonb_writer_interface* jwi_p, jsonb_node* node_p)
 			if(error)
 				goto EXIT;
 
-			jsonb_writer_interface_write_uint32(jwi_p, node_p->element_count, &error);
+			jsonb_writer_interface_write_uint32(jwi_p, get_element_count_arraylist(&(node_p->jsonb_array)), &error);
 			if(error)
 				goto EXIT;
 
-			// TODO
+			for(uint32_t i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
+			{
+				const jsonb_node* n_p = get_from_front_of_arraylist(&(node_p->jsonb_array), i);
+				if(!jsonb_serialize(jwi_p, n_p))
+					return 0;
+			}
+
 			break;
 		}
 		case JSONB_OBJECT :
@@ -75,7 +81,7 @@ int jsonb_serialize(const jsonb_writer_interface* jwi_p, jsonb_node* node_p)
 			if(error)
 				goto EXIT;
 
-			jsonb_writer_interface_write_uint32(jwi_p, get_element_count_arraylist(&(node_p->jsonb_array)), &error);
+			jsonb_writer_interface_write_uint32(jwi_p, node_p->element_count, &error);
 			if(error)
 				goto EXIT;
 
