@@ -59,6 +59,10 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
 	if(array_p == NULL || array_p->type != JSONB_ARRAY)
 		return 0;
 
+	// fail if you are at the maximum possible element count
+	if(get_element_count_arraylist(&(array_p->jsonb_array)) == UINT32_MAX)
+		return 0;
+
 	if(is_full_arraylist(&(array_p->jsonb_array)) && !expand_arraylist(&(array_p->jsonb_array))) // if full and the expand fails
 		exit(-1);
 	return push_back_to_arraylist(&(array_p->jsonb_array), node_p);
@@ -67,6 +71,10 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p)
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p)
 {
 	if(object_p == NULL || object_p->type != JSONB_OBJECT)
+		return 0;
+
+	// fail if you are at the maximum possible element count
+	if(object_p->element_count == UINT32_MAX)
 		return 0;
 
 	object_p->element_count++;
