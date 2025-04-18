@@ -1,5 +1,8 @@
 PICKED TASKS
 
+* turn jsonb_reader/writer_interface into stream
+* provide functions to build stream over binary_read_iterator and binary_write_iterator
+
 * test serialize_json
 
 * build function to parse jsonb using binary_reader_interface
