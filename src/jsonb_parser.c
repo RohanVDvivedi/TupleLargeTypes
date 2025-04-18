@@ -69,9 +69,19 @@ jsonb_node* jsonb_parse(stream* rs)
 			if(error)
 				return NULL;
 
-			// TODO
-			// intiialize node_p and
-			// parse string and put it here
+			dstring str;
+			if(!init_empty_dstring(&str, skip_size))
+				exit(-1);
+
+			jsonb_read_fixed_number_of_bytes(rs, get_byte_array_dstring(&str), skip_size, &error);
+			if(error)
+			{
+				deinit_dstring(&str);
+				return NULL;
+			}
+			increment_char_count_dstring(&str, skip_size);
+
+			node_p = get_jsonb_string_node2(str);
 			break;
 		}
 		case JSONB_NUMERIC :
