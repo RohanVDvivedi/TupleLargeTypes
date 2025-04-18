@@ -2,6 +2,7 @@
 
 #include<stdlib.h>
 
+jsonb_node jsonb_null = (jsonb_node){.type = JSONB_NULL};
 jsonb_node jsonb_true = (jsonb_node){.type = JSONB_TRUE};
 jsonb_node jsonb_false = (jsonb_node){.type = JSONB_FALSE};
 
@@ -108,11 +109,10 @@ void delete_jsonb_node(jsonb_node* node_p)
 	switch(node_p->type)
 	{
 		case JSONB_NULL :
-			break;
 		case JSONB_TRUE :
 		case JSONB_FALSE :
 		{
-			if(node_p == &jsonb_true || node_p == &jsonb_false)
+			if(node_p == &jsonb_true || node_p == &jsonb_false || node_p == &jsonb_null)
 				return;
 			break;
 		}

@@ -52,6 +52,7 @@ struct jsonb_object_entry
 };
 
 // a JSONB_NULL node itself may be a NULL pointer
+extern jsonb_node jsonb_null;
 extern jsonb_node jsonb_true;
 extern jsonb_node jsonb_false;
 
