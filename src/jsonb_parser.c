@@ -108,6 +108,8 @@ jsonb_node* jsonb_parse(stream* rs)
 			// TODO
 			// intiialize node_p and
 			// read digits and put it here
+
+			node_p->skip_size = skip_size;
 			break;
 		}
 		case JSONB_ARRAY :
