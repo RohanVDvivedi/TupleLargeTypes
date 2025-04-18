@@ -70,6 +70,7 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 // node_p and not its clone is pushed at the end of the arraylist
 // key is cloned for internal use
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
+int put_in_jsonb_object_node2(jsonb_node* object_p, dstring key_consumed, jsonb_node* node_p);
 
 // computes skip sizes all the way from root to leaf
 // you may use this json node only after this function succeeds (after skip_sizes are set accordingly)

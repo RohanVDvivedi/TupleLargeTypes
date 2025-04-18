@@ -93,6 +93,29 @@ int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_nod
 	return insert_in_bst(&(object_p->jsonb_object), e);
 }
 
+int put_in_jsonb_object_node2(jsonb_node* object_p, dstring key_consumed, jsonb_node* node_p)
+{
+	if(object_p == NULL || object_p->type != JSONB_OBJECT)
+		return 0;
+
+	// fail if you are at the maximum possible element count
+	if(object_p->element_count == UINT32_MAX)
+		return 0;
+
+	object_p->element_count++;
+
+	jsonb_object_entry* e = malloc(sizeof(jsonb_object_entry));
+	if(e == NULL)
+		exit(-1);
+
+	// initialize the object entry
+	e->key = key_consumed;
+	e->value = node_p;
+	initialize_bstnode(&(e->jsonb_object_embed_node));
+
+	return insert_in_bst(&(object_p->jsonb_object), e);
+}
+
 static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* data_p)
 {
 	jsonb_object_entry* e = (jsonb_object_entry*) data_p;
