@@ -1,6 +1,7 @@
 PICKED TASKS
 
 * change jsonb parse and serialize function to use the jsonparser like api, with error header file describing header
+* review all jsonb functions
 * test serialize_jsonb
 * test parse_jsonb
 
