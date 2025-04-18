@@ -1,8 +1,8 @@
 PICKED TASKS
 
-* test serialize_json
-
-* build function to parse jsonb using binary_reader_interface
+* change jsonb parse and serialize function to use the jsonparser like api, with error header file describing header
+* test serialize_jsonb
+* test parse_jsonb
 
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 

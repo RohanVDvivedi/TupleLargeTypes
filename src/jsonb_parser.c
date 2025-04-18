@@ -48,7 +48,7 @@ static inline int16_t jsonb_read_int16(stream* rs, int* error)
 	return deserialize_int16(bytes, 2);
 }
 
-jsonb_node* jsonb_parse(stream* rs)
+jsonb_node* parse_jsonb(stream* rs)
 {
 	int error = 0;
 	jsonb_node* node_p = NULL;

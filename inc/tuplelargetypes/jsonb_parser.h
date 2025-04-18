@@ -5,6 +5,6 @@
 #include<tuplelargetypes/jsonb_node.h>
 
 // only on error returns in NULL
-jsonb_node* jsonb_parse(stream* rs);
+jsonb_node* parse_jsonb(stream* rs);
 
 #endif
