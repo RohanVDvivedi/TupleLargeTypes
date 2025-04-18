@@ -52,23 +52,82 @@ jsonb_node* jsonb_parse(jsonb_reader_interface* jri_p)
 			return &jsonb_false;
 		case JSONB_STRING :
 		{
+			uint32_t skip_size = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
 			// TODO
+			// intiialize node_p and
+			// parse string and put it here
 			break;
 		}
 		case JSONB_NUMERIC :
 		{
+			uint32_t skip_size = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
+			if((skip_size % 5) != 3) // make sure that there are 5 * N + 3 bytes in the numeric
+				return NULL;
+
+			uint8_t sign_bits = jsonb_reader_interface_read_uint8(jri_p, &error);
+			if(error)
+				return NULL;
+
+			int16_t exponent = jsonb_reader_interface_read_int16(jri_p, &error);
+			if(error)
+				return NULL;
+
 			// TODO
+			// intiialize node_p and
+			// read digits and put it here
 			break;
 		}
 		case JSONB_ARRAY :
 		{
+			uint32_t skip_size = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
+			uint32_t element_count = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
 			// TODO
+			// intiialize node_p
+
+			// read element_count jsonb_node-s and insert them
+			for(uint32_t i = 0; i < element_count; i++)
+			{
+				// TODO
+			}
+
 			break;
 		}
 		case JSONB_OBJECT :
 		{
+			uint32_t skip_size = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
+			uint32_t element_count = jsonb_reader_interface_read_uint32(jri_p, &error);
+			if(error)
+				return NULL;
+
 			// TODO
+			// intiialize node_p
+
+			// read element_count jsonb_object_entry-s and insert them
+			for(uint32_t i = 0; i < element_count; i++)
+			{
+				// TODO
+				// parse string
+				// parse value as jsonb_node
+			}
+
 			break;
 		}
 	}
+
+	return node_p;
 }
