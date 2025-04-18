@@ -3,7 +3,7 @@
 
 /*
 	provides a wrapper stream over the binary_write_iterator
-	you the user needs to provide a binary_write_iterator, transaction_id and an error pointer
+	you the user needs to provide a binary_write_iterator, transaction_id and an abort_error pointer
 	An error of BINARY_WRITER_OVERFLOW is thrown if bytes can not be written to it
 */
 
@@ -20,7 +20,7 @@ struct binary_write_iterator_stream_context
 	int* abort_error;
 };
 
-int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwi_p);
+int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p);
 
 #define initialize_stream_for_binary_write_iterator_static(strm, bwi_p_v, transaction_id_v, abort_error_v) \
 	initialize_stream_for_binary_write_iterator(strm, &(binary_write_iterator_stream_context){bwi_p_v, transaction_id_v, abort_error_v})

@@ -32,7 +32,7 @@ int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_itera
 {
 	if(!initialize_stream(strm, bwisc_p, NULL, write_to_stream_context, close_stream_context, destroy_stream_context, NULL, DEFAULT_MAX_UNFLUSHED_BYTES_COUNT))
 	{
-		// since we never opened this stream_context (i.e. the fd), so we do not close it
+		// since we never opened this stream_context, so we do not close it
 		destroy_stream_context(NULL);
 		return 0;
 	}
