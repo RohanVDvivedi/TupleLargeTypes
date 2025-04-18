@@ -84,6 +84,8 @@ jsonb_node* jsonb_parse(stream* rs)
 			increment_char_count_dstring(&str, skip_size);
 
 			node_p = get_jsonb_string_node2(str);
+
+			node_p->skip_size = skip_size;
 			break;
 		}
 		case JSONB_NUMERIC :
@@ -139,6 +141,7 @@ jsonb_node* jsonb_parse(stream* rs)
 				}
 			}
 
+			node_p->skip_size = skip_size;
 			break;
 		}
 		case JSONB_OBJECT :
@@ -151,19 +154,56 @@ jsonb_node* jsonb_parse(stream* rs)
 			if(error)
 				return NULL;
 
-			// TODO
 			// intiialize node_p
+			node_p = get_jsonb_object_node();
 
 			// read element_count jsonb_object_entry-s and insert them
 			for(uint32_t i = 0; i < element_count; i++)
 			{
-				// TODO
 				// parse string
+				uint32_t key_size = jsonb_read_uint32(rs, &error);
+				if(error)
+				{
+					delete_jsonb_node(node_p);
+					return NULL;
+				}
+
+				dstring key;
+				if(!init_empty_dstring(&key, key_size))
+					exit(-1);
+
+				jsonb_read_fixed_number_of_bytes(rs, get_byte_array_dstring(&key), key_size, &error);
+				if(error)
+				{
+					delete_jsonb_node(node_p);
+					deinit_dstring(&key);
+					return NULL;
+				}
+				increment_char_count_dstring(&key, key_size);
+
 				// parse value as jsonb_node
+				jsonb_node* n_p = jsonb_parse(rs);
+				if(n_p == NULL)
+				{
+					delete_jsonb_node(node_p);
+					deinit_dstring(&key);
+					return NULL;
+				}
+
+				if(!put_in_jsonb_object_node2(node_p, key, n_p))
+				{
+					delete_jsonb_node(node_p);
+					deinit_dstring(&key);
+					delete_jsonb_node(n_p);
+					return NULL;
+				}
 			}
 
+			node_p->skip_size = skip_size;
 			break;
 		}
+		default : // unidentified type
+			return NULL;
 	}
 
 	return node_p;
