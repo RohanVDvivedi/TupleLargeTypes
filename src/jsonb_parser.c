@@ -1,5 +1,7 @@
 #include<tuplelargetypes/jsonb_parser.h>
 
+#include<stdlib.h>
+
 // below function reads fixed number of bytes from stream
 // else error will be set
 static inline void jsonb_read_fixed_number_of_bytes(stream* rs, char* data, uint32_t data_size, int* error)
@@ -116,13 +118,25 @@ jsonb_node* jsonb_parse(stream* rs)
 			if(error)
 				return NULL;
 
-			// TODO
 			// intiialize node_p
+			node_p = get_jsonb_array_node(element_count);
 
 			// read element_count jsonb_node-s and insert them
 			for(uint32_t i = 0; i < element_count; i++)
 			{
-				// TODO
+				jsonb_node* n_p = jsonb_parse(rs);
+				if(n_p == NULL)
+				{
+					delete_jsonb_node(node_p);
+					return NULL;
+				}
+
+				if(!push_in_jsonb_array_node(node_p, n_p))
+				{
+					delete_jsonb_node(node_p);
+					delete_jsonb_node(n_p);
+					return NULL;
+				}
 			}
 
 			break;
