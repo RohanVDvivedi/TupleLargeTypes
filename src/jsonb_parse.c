@@ -35,5 +35,40 @@ static inline int16_t jsonb_reader_interface_read_int16(const jsonb_reader_inter
 
 jsonb_node* jsonb_parse(jsonb_reader_interface* jri_p)
 {
-	// TODO
+	int error = 0;
+	jsonb_node* node_p = NULL;
+
+	uint8_t type = jsonb_reader_interface_read_uint8(jri_p, &error);
+	if(error)
+		return NULL;
+
+	switch(type)
+	{
+		case JSONB_NULL :
+			return &jsonb_null;
+		case JSONB_TRUE :
+			return &jsonb_true;
+		case JSONB_FALSE :
+			return &jsonb_false;
+		case JSONB_STRING :
+		{
+			// TODO
+			break;
+		}
+		case JSONB_NUMERIC :
+		{
+			// TODO
+			break;
+		}
+		case JSONB_ARRAY :
+		{
+			// TODO
+			break;
+		}
+		case JSONB_OBJECT :
+		{
+			// TODO
+			break;
+		}
+	}
 }
