@@ -105,9 +105,27 @@ jsonb_node* jsonb_parse(stream* rs)
 			if(error)
 				return NULL;
 
-			// TODO
-			// intiialize node_p and
+			materialized_numeric m;
+			if(!initialize_materialized_numeric(&m, skip_size/5))
+				exit(-1);
+			set_sign_bits_and_exponent_for_materialized_numeric(&m, sign_bits, exponent);
+
 			// read digits and put it here
+			for(uint32_t i = 0; i < skip_size/5; i++)
+			{
+				char bytes[5];
+				jsonb_read_fixed_number_of_bytes(rs, bytes, 5, &error);
+				if(error)
+				{
+					deinitialize_materialized_numeric(&m);
+					return NULL;
+				}
+				uint64_t digit = deserialize_uint32(bytes, 5);
+
+				push_lsd_in_materialized_numeric(&m, digit);
+			}
+
+			node_p = get_jsonb_numeric_node2(m);
 
 			node_p->skip_size = skip_size;
 			break;
