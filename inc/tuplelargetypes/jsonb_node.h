@@ -60,6 +60,9 @@ extern jsonb_node jsonb_false;
 jsonb_node* get_jsonb_string_node(const dstring* str);
 jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
 
+jsonb_node* get_jsonb_string_node2(dstring str_consumed);
+jsonb_node* get_jsonb_numeric_node2(materialized_numeric m_consumed);
+
 jsonb_node* get_jsonb_array_node(uint32_t capacity);
 jsonb_node* get_jsonb_object_node();
 

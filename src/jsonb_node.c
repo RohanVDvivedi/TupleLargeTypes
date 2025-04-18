@@ -28,6 +28,26 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
 	return node_p;
 }
 
+jsonb_node* get_jsonb_string_node2(dstring str_consumed)
+{
+	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
+	node_p->type = JSONB_STRING;
+	node_p->jsonb_string = str_consumed;
+	return node_p;
+}
+
+jsonb_node* get_jsonb_numeric_node2(materialized_numeric m_consumed)
+{
+	jsonb_node* node_p = malloc(sizeof(jsonb_node));
+	if(node_p == NULL)
+		exit(-1);
+	node_p->type = JSONB_NUMERIC;
+	node_p->jsonb_numeric = m_consumed;
+	return node_p;
+}
+
 jsonb_node* get_jsonb_array_node(uint32_t capacity)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
