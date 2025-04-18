@@ -8,22 +8,10 @@ PICKED TASKS
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * build functions to clone jsonb_node
+* implement function to check exits in jsonb object
+* implement function to check if two jsonb's are equal
 
 * JSONB
-  * first byte says type
-    0 -> NULL  -> no futher bytes -> skip_size = 0
-    1 -> true  -> no further bytes -> skip_size = 0
-    2 -> false -> no further bytes -> skip_size = 0
-    3 -> string -> 4 byte skip_size, and then the bytes
-    4 -> numeric -> 4 byte skip_size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
-    5 -> json array -> 4 byte skip_size (>= 4), 4 byte element count, then elements
-    6 -> json object -> 4 byte skip_size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
-  * allows opening a binary_read_iterator on it using a json_accessor (from JSONparser library), which is first sorted and then elements with are prefixes to some other json_accessor, then some other are eliminated
-   * we will allow partial parsing
-   * function to check if the current object being pointed to is of what type using the first byte
-   * generates text_reader_interface and numeric_reader_interface on text and numeric types
-   * allows materializing the current object being pointer to into a json_node
-   * json_node then allows equality, contains, union, intersection and difference
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
 
