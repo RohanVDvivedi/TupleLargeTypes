@@ -129,7 +129,7 @@ int main()
 	// destory page_modification_methods
 	delete_unWALed_page_modification_methods(pmm_p);
 
-	free(large_dti);
 	free(large_dti->containees[0].al.type_info);
+	free(large_dti);
 	return 0;
 }
