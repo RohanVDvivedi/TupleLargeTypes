@@ -50,4 +50,6 @@ void delete_binary_write_iterator(binary_write_iterator* bwi_p, const void* tran
 
 uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const char* data, uint32_t data_size, const void* transaction_id, int* abort_error);
 
+#include<tuplelargetypes/binary_write_iterator_stream.h>
+
 #endif
