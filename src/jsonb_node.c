@@ -148,6 +148,46 @@ int put_in_jsonb_object_node2(jsonb_node* object_p, dstring key_consumed, jsonb_
 	return insert_in_bst(&(object_p->jsonb_object), e);
 }
 
+jsonb_node* fetch_jsonb_from_jsonb(const jsonb_node* node_p, json_accessor acs, int* non_existing)
+{
+	(*non_existing) = 0;
+
+	while(node_p != NULL && acs.keys_length > 0)
+	{
+		json_key k = acs.keys_list[0];
+
+		if(k.is_array_index && node_p->type == JSONB_ARRAY)
+		{
+			if(k.index >= get_element_count_arraylist(&(node_p->jsonb_array)))
+			{
+				(*non_existing) = 1;
+				return NULL;
+			}
+			node_p = (const jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), k.index);
+		}
+		else if((!k.is_array_index) && node_p->type == JSONB_OBJECT)
+		{
+			const jsonb_object_entry* e = (const jsonb_object_entry*) find_equals_in_bst(&(node_p->jsonb_object), &(const jsonb_object_entry){.key = (k.key)}, FIRST_OCCURENCE);
+			if(e == NULL)
+			{
+				(*non_existing) = 1;
+				return NULL;
+			}
+			node_p = e->value;
+		}
+		else
+		{
+			(*non_existing) = 1;
+			return NULL;
+		}
+
+		acs.keys_list++;
+		acs.keys_length--;
+	}
+
+	return (jsonb_node*) node_p;
+}
+
 static void notify_and_delete_jsonb_object_entry(void* resource_p, const void* data_p)
 {
 	jsonb_object_entry* e = (jsonb_object_entry*) data_p;

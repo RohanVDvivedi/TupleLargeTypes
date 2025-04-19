@@ -75,6 +75,9 @@ int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
 int put_in_jsonb_object_node2(jsonb_node* object_p, dstring key_consumed, jsonb_node* node_p);
 
+#include<jsonparser/json_accessor.h>
+jsonb_node* fetch_jsonb_from_jsonb(const jsonb_node* node_p, json_accessor acs, int* non_existing);
+
 // computes skip sizes all the way from root to leaf
 // you may use this json node only after this function succeeds (after skip_sizes are set accordingly)
 // returns 0, if any of the skip_sizes or total_size overflows
