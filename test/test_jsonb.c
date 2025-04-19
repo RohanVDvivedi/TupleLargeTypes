@@ -200,15 +200,16 @@ int main()
 
 	serialize_in_to_tuple_column(tpl_d, inline_tuple, n1_p, &wtd, pam_p, pmm_p);
 
-	delete_jsonb_node(n1_p);
-
 	jsonb_node* n2_p = read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
 	finalized = finalize_jsonb(n2_p, &total_size);
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
 	print_jsonb(n2_p, 0);printf("\n\n");
 
+	printf("is node serialized same as that is parsed = %d\n\n", are_equal_jsonb(n1_p, n2_p));
+
 	delete_jsonb_node(n2_p);
+	delete_jsonb_node(n1_p);
 
 	/* TESTS ENDED */
 
