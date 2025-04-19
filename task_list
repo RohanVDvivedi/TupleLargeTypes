@@ -6,6 +6,8 @@ PICKED TASKS
   * parse it again from worm using a stream over binary_read_iterator
   * compare parsed jsonb-s
 
+* print jsonb_access and exists fuinction, also implement the likes of it in JsonParser
+
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * build functions to clone jsonb_node
