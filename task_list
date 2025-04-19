@@ -1,12 +1,6 @@
 PICKED TASKS
 
-* test serialize_jsonb and parse_jsonb
-  * create a local jsonb object
-  * serialize it over to a worm using a stream over binary_write_iterator
-  * parse it again from worm using a stream over binary_read_iterator
-  * compare parsed jsonb-s
-
-* print jsonb_access and exists fuinction, also implement the likes of it in JsonParser
+* print jsonb_access and exists function, also implement the likes of it in JsonParser
 
 * build function to skip the stream to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
