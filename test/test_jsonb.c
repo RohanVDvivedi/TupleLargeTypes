@@ -165,6 +165,17 @@ jsonb_node* read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple,
 	return node_p;
 }
 
+void print_worm_as_is(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
+{
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	print_worm(head_page_id, wtd_p, pam_p, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("abort error printing worm\n");
+		exit(-1);
+	}
+}
+
 int main()
 {
 	// construct an in-memory data store
@@ -201,6 +212,8 @@ int main()
 	print_jsonb(n1_p, 0);printf("\n\n");
 
 	serialize_in_to_tuple_column(tpl_d, inline_tuple, n1_p, &wtd, pam_p, pmm_p);
+
+	print_worm_as_is(tpl_d, inline_tuple, &wtd, pam_p);
 
 	jsonb_node* n2_p = read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
