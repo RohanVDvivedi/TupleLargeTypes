@@ -116,7 +116,7 @@ void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const js
 	flush_all_from_stream(&strm, &error);
 	if(error)
 	{
-		printf("error flushing bwi strea -> error = %d\n", error);
+		printf("error flushing bwi stream -> error = %d\n", error);
 		exit(-1);
 	}
 	close_stream(&strm, &error);
@@ -150,12 +150,6 @@ jsonb_node* read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple,
 	}
 
 	int error = 0;
-	flush_all_from_stream(&strm, &error);
-	if(error)
-	{
-		printf("error flushing bwi stream -> error = %d\n", error);
-		exit(-1);
-	}
 	close_stream(&strm, &error);
 	if(error)
 	{
@@ -165,6 +159,8 @@ jsonb_node* read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple,
 	deinitialize_stream(&strm);
 
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
+
+	return node_p;
 }
 
 int main()
