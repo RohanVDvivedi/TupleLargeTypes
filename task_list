@@ -1,13 +1,17 @@
 PICKED TASKS
 
-* test serialize_jsonb
-* test parse_jsonb
+* implement function to check if two jsonb's are equal
+
+* test serialize_jsonb and parse_jsonb
+  * create a local jsonb object
+  * serialize it over to a worm using a stream over binary_write_iterator
+  * parse it again from worm using a stream over binary_read_iterator
+  * compare parsed jsonb-s
 
 * build function to skip the binary_reader_interface to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * build functions to clone jsonb_node
 * implement function to check exits in jsonb object
-* implement function to check if two jsonb's are equal
 
 * JSONB
   * build jsonb_node from json_node and viceversa
