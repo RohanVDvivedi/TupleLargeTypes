@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* implement function to print jsonb object
-
 * test serialize_jsonb and parse_jsonb
   * create a local jsonb object
   * serialize it over to a worm using a stream over binary_write_iterator
