@@ -314,7 +314,23 @@ int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p)
 		return 1;
 
 	if(n1_p == NULL || n2_p == NULL) // if any one is NULL
+	{
+		// both NULL case need not be handled here
+		// only one of them can be NULL here
+		if(n1_p != NULL)
+		{
+			if(n1_p->type == JSONB_NULL)
+				return 1;
+			return 0;
+		}
+		else if(n2_p != NULL)
+		{
+			if(n2_p->type == JSONB_NULL)
+				return 1;
+			return 0;
+		}
 		return 0;
+	}
 
 	if(n1_p->type != n2_p->type) // not equal if they have different types
 		return 0;
