@@ -406,7 +406,7 @@ void print_jsonb(const jsonb_node* node_p)
 				print_jsonb(n_p);
 				printf(",\n");
 			}
-			printf("]\n");
+			printf("]");
 			break;
 		}
 		case JSONB_OBJECT :
@@ -418,7 +418,7 @@ void print_jsonb(const jsonb_node* node_p)
 				print_jsonb(e->value);
 				printf(",\n");
 			}
-			printf("}\n");
+			printf("}");
 			break;
 		}
 		default :
