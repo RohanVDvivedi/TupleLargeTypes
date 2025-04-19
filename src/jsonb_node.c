@@ -365,59 +365,82 @@ int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p)
 	}
 }
 
-void print_jsonb(const jsonb_node* node_p)
+static inline void print_tabs(uint32_t tabs)
+{
+	while(tabs > 0)
+	{
+		printf("\t");
+		tabs--;
+	}
+}
+
+void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 {
 	if(node_p == NULL)
+	{
+		print_tabs(tabs);
 		printf("NULL");
+	}
 
 	switch(node_p->type)
 	{
 		case JSONB_NULL :
 		{
+			print_tabs(tabs);
 			printf("NULL");
 			break;
 		}
 		case JSONB_TRUE :
 		{
+			print_tabs(tabs);
 			printf("true");
 			break;
 		}
 		case JSONB_FALSE :
 		{
+			print_tabs(tabs);
 			printf("false");
 			break;
 		}
 		case JSONB_STRING :
 		{
+			print_tabs(tabs);
 			printf(printf_dstring_format"", printf_dstring_params(&(node_p->jsonb_string)));
 			break;
 		}
 		case JSONB_NUMERIC :
 		{
+			print_tabs(tabs);
 			print_materialized_numeric(&(node_p->jsonb_numeric));
 			break;
 		}
 		case JSONB_ARRAY :
 		{
+			print_tabs(tabs);
 			printf("[\n");
 			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
 			{
+				print_tabs(tabs);
 				jsonb_node* n_p = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
-				print_jsonb(n_p);
+				print_jsonb(n_p, tabs+1);
 				printf(",\n");
 			}
+			print_tabs(tabs);
 			printf("]");
 			break;
 		}
 		case JSONB_OBJECT :
 		{
+			print_tabs(tabs);
 			printf("{\n");
 			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
 			{
+				print_tabs(tabs);
 				printf(printf_dstring_format" : ", printf_dstring_params(&(e->key)));
-				print_jsonb(e->value);
+				print_jsonb(e->value, tabs+1);
 				printf(",\n");
 			}
+			print_tabs(tabs);
 			printf("}");
 			break;
 		}
