@@ -91,6 +91,45 @@ jsonb_node* generate_test_data()
 	return o;
 }
 
+void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const jsonb_node* node_p, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+{
+	printf("INLINE TUPLE (before init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	binary_write_iterator* bwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+
+	printf("INLINE TUPLE (after init-ing write_iterator) : ");
+	print_tuple(inline_tuple, tpl_d);
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+
+	stream strm;
+	initialize_stream_for_binary_write_iterator_static(&strm, bwi_p, transaction_id, &abort_error);
+
+	if(!serialize_jsonb(&strm, node_p))
+	{
+		printf("error serializing jsonb node -> abort_error = %d\n", abort_error);
+		exit(-1);
+	}
+
+	int error = 0;
+	flush_all_from_stream(&strm, &error);
+	if(error)
+	{
+		printf("error flushing bwi strea -> error = %d\n", error);
+		exit(-1);
+	}
+	close_stream(&strm, &error);
+	if(error)
+	{
+		printf("error closing bwi stream -> error = %d\n", error);
+		exit(-1);
+	}
+	deinitialize_stream(&strm);
+
+	delete_binary_write_iterator(bwi_p, transaction_id, &abort_error);
+}
+
 int main()
 {
 	// construct an in-memory data store
@@ -125,6 +164,8 @@ int main()
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
 
 	print_jsonb(n1_p, 0);printf("\n\n");
+
+	serialize_in_to_tuple_column(tpl_d, inline_tuple, n1_p, &wtd, pam_p, pmm_p);
 
 	delete_jsonb_node(n1_p);
 
