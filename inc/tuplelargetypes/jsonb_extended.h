@@ -12,9 +12,9 @@ data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_
 
 #include<tuplelargetypes/common_extended.h>
 
-#include<jsonb_node.h>
-#include<jsonb_parser.h>
-#include<jsonb_serializer.h>
+#include<tuplelargetypes/jsonb_node.h>
+#include<tuplelargetypes/jsonb_parser.h>
+#include<tuplelargetypes/jsonb_serializer.h>
 
 #include<tuplelargetypes/binary_read_iterator.h>
 #include<tuplelargetypes/binary_write_iterator.h>
