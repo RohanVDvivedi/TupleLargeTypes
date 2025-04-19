@@ -88,6 +88,8 @@ jsonb_node* generate_test_data()
 
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("projects"), a);
 
+	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("name"), NULL);
+
 	return o;
 }
 
