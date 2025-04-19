@@ -17,7 +17,7 @@ struct binary_read_iterator_stream_context
 	int* abort_error;
 };
 
-int initialize_stream_for_binary_write_iterator(stream* strm, binary_read_iterator_stream_context* brisc_p);
+int initialize_stream_for_binary_read_iterator(stream* strm, binary_read_iterator_stream_context* brisc_p);
 
 #define initialize_stream_for_binary_read_iterator_static(strm, bri_p_v, transaction_id_v, abort_error_v) \
 	initialize_stream_for_binary_read_iterator(strm, &(binary_read_iterator_stream_context){bri_p_v, transaction_id_v, abort_error_v})
