@@ -6,7 +6,7 @@ jsonb_node jsonb_null = (jsonb_node){.type = JSONB_NULL};
 jsonb_node jsonb_true = (jsonb_node){.type = JSONB_TRUE};
 jsonb_node jsonb_false = (jsonb_node){.type = JSONB_FALSE};
 
-jsonb_node* get_jsonb_string_node(const dstring* str)
+jsonb_node* new_jsonb_string_node(const dstring* str)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)
@@ -17,7 +17,7 @@ jsonb_node* get_jsonb_string_node(const dstring* str)
 	return node_p;
 }
 
-jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
+jsonb_node* new_jsonb_numeric_node(const materialized_numeric* m)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)
@@ -28,7 +28,7 @@ jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m)
 	return node_p;
 }
 
-jsonb_node* get_jsonb_string_node2(dstring str_consumed)
+jsonb_node* new_jsonb_string_node2(dstring str_consumed)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)
@@ -38,7 +38,7 @@ jsonb_node* get_jsonb_string_node2(dstring str_consumed)
 	return node_p;
 }
 
-jsonb_node* get_jsonb_numeric_node2(materialized_numeric m_consumed)
+jsonb_node* new_jsonb_numeric_node2(materialized_numeric m_consumed)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)
@@ -48,7 +48,7 @@ jsonb_node* get_jsonb_numeric_node2(materialized_numeric m_consumed)
 	return node_p;
 }
 
-jsonb_node* get_jsonb_array_node(uint32_t capacity)
+jsonb_node* new_jsonb_array_node(uint32_t capacity)
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)
@@ -64,7 +64,7 @@ static int compare_jsonb_object_entries(const void* e1, const void* e2)
 	return compare_dstring(&(((const jsonb_object_entry*)e1)->key), &(((const jsonb_object_entry*)e2)->key));
 }
 
-jsonb_node* get_jsonb_object_node()
+jsonb_node* new_jsonb_object_node()
 {
 	jsonb_node* node_p = malloc(sizeof(jsonb_node));
 	if(node_p == NULL)

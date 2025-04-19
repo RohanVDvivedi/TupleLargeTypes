@@ -83,7 +83,7 @@ jsonb_node* parse_jsonb(stream* rs)
 			}
 			increment_char_count_dstring(&str, skip_size);
 
-			node_p = get_jsonb_string_node2(str);
+			node_p = new_jsonb_string_node2(str);
 
 			node_p->skip_size = skip_size;
 			break;
@@ -125,7 +125,7 @@ jsonb_node* parse_jsonb(stream* rs)
 				push_lsd_in_materialized_numeric(&m, digit);
 			}
 
-			node_p = get_jsonb_numeric_node2(m);
+			node_p = new_jsonb_numeric_node2(m);
 
 			node_p->skip_size = skip_size;
 			break;
@@ -141,7 +141,7 @@ jsonb_node* parse_jsonb(stream* rs)
 				return NULL;
 
 			// intiialize node_p
-			node_p = get_jsonb_array_node(element_count);
+			node_p = new_jsonb_array_node(element_count);
 
 			// read element_count jsonb_node-s and insert them
 			for(uint32_t i = 0; i < element_count; i++)
@@ -175,7 +175,7 @@ jsonb_node* parse_jsonb(stream* rs)
 				return NULL;
 
 			// intiialize node_p
-			node_p = get_jsonb_object_node();
+			node_p = new_jsonb_object_node();
 
 			// read element_count jsonb_object_entry-s and insert them
 			for(uint32_t i = 0; i < element_count; i++)

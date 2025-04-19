@@ -57,14 +57,14 @@ extern jsonb_node jsonb_true;
 extern jsonb_node jsonb_false;
 
 // below 2 functions clone internally
-jsonb_node* get_jsonb_string_node(const dstring* str);
-jsonb_node* get_jsonb_numeric_node(const materialized_numeric* m);
+jsonb_node* new_jsonb_string_node(const dstring* str);
+jsonb_node* new_jsonb_numeric_node(const materialized_numeric* m);
 
-jsonb_node* get_jsonb_string_node2(dstring str_consumed);
-jsonb_node* get_jsonb_numeric_node2(materialized_numeric m_consumed);
+jsonb_node* new_jsonb_string_node2(dstring str_consumed);
+jsonb_node* new_jsonb_numeric_node2(materialized_numeric m_consumed);
 
-jsonb_node* get_jsonb_array_node(uint32_t capacity);
-jsonb_node* get_jsonb_object_node();
+jsonb_node* new_jsonb_array_node(uint32_t capacity);
+jsonb_node* new_jsonb_object_node();
 
 // fails if the size exceeds UINT32_MAX
 // node_p and not its clone is pushed at the end of the arraylist
