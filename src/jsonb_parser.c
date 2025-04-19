@@ -146,7 +146,7 @@ jsonb_node* parse_jsonb(stream* rs)
 			// read element_count jsonb_node-s and insert them
 			for(uint32_t i = 0; i < element_count; i++)
 			{
-				jsonb_node* n_p = jsonb_parse(rs);
+				jsonb_node* n_p = parse_jsonb(rs);
 				if(n_p == NULL)
 				{
 					delete_jsonb_node(node_p);
@@ -202,7 +202,7 @@ jsonb_node* parse_jsonb(stream* rs)
 				increment_char_count_dstring(&key, key_size);
 
 				// parse value as jsonb_node
-				jsonb_node* n_p = jsonb_parse(rs);
+				jsonb_node* n_p = parse_jsonb(rs);
 				if(n_p == NULL)
 				{
 					delete_jsonb_node(node_p);

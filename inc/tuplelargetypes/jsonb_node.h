@@ -82,6 +82,8 @@ int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size);
 
 void delete_jsonb_node(jsonb_node* node_p);
 
+int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p);
+
 #endif
 
 /*

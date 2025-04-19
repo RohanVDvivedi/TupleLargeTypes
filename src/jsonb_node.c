@@ -300,3 +300,61 @@ int finalize_jsonb(jsonb_node* node_p, uint32_t* total_size)
 
 	return 0;
 }
+
+int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p)
+{
+	// if both are NULL, same, jsonb_true, jsonb_false or jsonb_null, then this case is covered here
+	if(n1_p == n2_p)
+		return 1;
+
+	if(n1_p == NULL || n2_p == NULL) // if any one is NULL
+		return 0;
+
+	if(n1_p->type != n2_p->type) // not equal if they have different types
+		return 0;
+
+	switch(n1_p->type)
+	{
+		case JSONB_NULL :
+		case JSONB_TRUE :
+		case JSONB_FALSE : // only being of the sae type is important for the above 3 types
+			return 1;
+		case JSONB_STRING :
+			return compare_dstring(&(n1_p->jsonb_string), &(n2_p->jsonb_string)) == 0;
+		case JSONB_NUMERIC :
+			return compare_materialized_numeric(&(n1_p->jsonb_numeric), &(n2_p->jsonb_numeric)) == 0;
+		case JSONB_ARRAY :
+		{
+			if(get_element_count_arraylist(&(n1_p->jsonb_array)) != get_element_count_arraylist(&(n2_p->jsonb_array)))
+				return 0;
+
+			for(cy_uint i = 0; i < get_element_count_arraylist(&(n1_p->jsonb_array)); i++)
+			{
+				jsonb_node* n1 = (jsonb_node*) get_from_front_of_arraylist(&(n1_p->jsonb_array), i);
+				jsonb_node* n2 = (jsonb_node*) get_from_front_of_arraylist(&(n2_p->jsonb_array), i);
+				if(!are_equal_jsonb(n1, n2))
+					return 0;
+			}
+
+			return 1;
+		}
+		case JSONB_OBJECT :
+		{
+			if(n1_p->element_count != n2_p->element_count)
+				return 0;
+
+			for(jsonb_object_entry* e1 = (jsonb_object_entry*) find_smallest_in_bst(&(n1_p->jsonb_object)); e1 != NULL; e1 = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(n1_p->jsonb_object), e1))
+			{
+				jsonb_object_entry* e2 = (jsonb_object_entry*) find_equals_in_bst(&(n2_p->jsonb_object), e1, FIRST_OCCURENCE);
+				if(e2 == NULL)
+					return 0;
+				if(!are_equal_jsonb(e1->value, e2->value))
+					return 0;
+			}
+
+			return 1;
+		}
+		default :
+			return 0;
+	}
+}
