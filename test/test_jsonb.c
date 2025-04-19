@@ -57,34 +57,34 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 
 jsonb_node* generate_test_data()
 {
-	jsonb_node* o = get_jsonb_object_node();
-	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("name"), get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("Rohan")));
+	jsonb_node* o = new_jsonb_object_node();
+	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("name"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("Rohan")));
 	materialized_numeric age_val;
 	initialize_static_materialized_numeric(&age_val, POSITIVE_NUMERIC, 10, (uint64_t[]){10,12,13}, 3);
-	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("age"), get_jsonb_numeric_node(&age_val));
+	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("age"), new_jsonb_numeric_node(&age_val));
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("pass"), &jsonb_false);
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("votes-right"), &jsonb_true);
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("nick-name"), NULL);
 
-	jsonb_node* o2 = get_jsonb_object_node();
-	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("what?"), get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("An extended library to build larger than page types for any datadata")));
+	jsonb_node* o2 = new_jsonb_object_node();
+	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("what?"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("An extended library to build larger than page types for any datadata")));
 	materialized_numeric version_val;
 	initialize_static_materialized_numeric(&version_val, NEGATIVE_NUMERIC, -10, (uint64_t[]){1,0,1,5}, 4);
-	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("version?"), get_jsonb_numeric_node(&version_val));
-	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("why?"), get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("To make things going as per the MinTxEngine and BeeDB")));
+	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("version?"), new_jsonb_numeric_node(&version_val));
+	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("why?"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("To make things going as per the MinTxEngine and BeeDB")));
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("built"), &jsonb_false);
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("working"), &jsonb_true);
-	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("project-name"), get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleLargeTypes")));
+	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("project-name"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleLargeTypes")));
 
-	jsonb_node* a = get_jsonb_array_node(10);
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleLargeTypes")));
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleIndexer")));
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleStore")));
+	jsonb_node* a = new_jsonb_array_node(10);
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleLargeTypes")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleIndexer")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("TupleStore")));
 	push_in_jsonb_array_node(a, o2);
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("Cutlery")));
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("MinTxEngine")));
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("VolatilePageStore")));
-	push_in_jsonb_array_node(a, get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("BeeDB")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("Cutlery")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("MinTxEngine")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("VolatilePageStore")));
+	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("BeeDB")));
 
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("projects"), a);
 
