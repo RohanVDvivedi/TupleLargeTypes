@@ -82,6 +82,20 @@ int main()
 		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
 	#endif
 
+	// generate test jsonb
+	jsonb_node* n1_p = get_jsonb_object_node();
+	put_in_jsonb_object_node(n1_p, &get_dstring_pointing_to_literal_cstring("name"), get_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("Rohan")));
+	materialized_numeric age_val;
+	initialize_static_materialized_numeric(&age_val, POSITIVE_NUMERIC, 10, (uint64_t[]){10,12,13}, 3);
+	put_in_jsonb_object_node(n1_p, &get_dstring_pointing_to_literal_cstring("age"), get_jsonb_numeric_node(&age_val));
+	put_in_jsonb_object_node(n1_p, &get_dstring_pointing_to_literal_cstring("pass"), &jsonb_false);
+	put_in_jsonb_object_node(n1_p, &get_dstring_pointing_to_literal_cstring("votes-right"), &jsonb_true);
+	put_in_jsonb_object_node(n1_p, &get_dstring_pointing_to_literal_cstring("nick-name"), NULL);
+
+	print_jsonb(n1_p, 0);printf("\n\n");
+
+	delete_jsonb_node(n1_p);
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
