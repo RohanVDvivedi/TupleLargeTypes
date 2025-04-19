@@ -1,9 +1,5 @@
 PICKED TASKS
 
-* implement jsonb_node* fetch_jsonb_from_jsonb(const jsonb_node* node_p, json_accessor acs, int* non_existing);
-  * no individual functions for array and object
-  * implement a function to print the most nested value in jsonb in test case
-
 * build function to skip the stream to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * build functions to clone jsonb_node
