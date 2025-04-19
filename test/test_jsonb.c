@@ -248,6 +248,7 @@ int main()
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR());
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("nick-name")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("nick-names")));
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects")));
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(2)));
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(10)));
