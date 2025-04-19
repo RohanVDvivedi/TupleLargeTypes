@@ -165,6 +165,28 @@ jsonb_node* read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple,
 	return node_p;
 }
 
+void print_json_attribute(const jsonb_node* node_p, json_accessor acs)
+{
+	int non_existing = 0;
+	const jsonb_node* attr = fetch_jsonb_from_jsonb(node_p, acs, &non_existing);
+	printf("jsonb");
+	for(uint64_t i = 0; i < acs.keys_length; i++)
+	{
+		printf("[");
+		if(acs.keys_list[i].is_array_index)
+			printf("%"PRIu_cy_uint, acs.keys_list[i].index);
+		else
+			printf("\""printf_dstring_format"\"", printf_dstring_params(&(acs.keys_list[i].key)));
+		printf("]");
+	}
+	printf("\n");
+	if(non_existing)
+		printf("non_existing");
+	else
+		print_jsonb(attr, 0);
+	printf("\n\n");
+}
+
 void print_worm_as_is(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
 	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
@@ -222,6 +244,19 @@ int main()
 	print_jsonb(n2_p, 0);printf("\n\n");
 
 	printf("is node serialized same as that is parsed = %d\n\n", are_equal_jsonb(n1_p, n2_p));
+
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR());
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("nick-name")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(2)));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(10)));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3)));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("version?")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-name")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-names")));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-name"), JSON_ARRAY_INDEX(0)));
+	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-name"), JSON_OBJECT_KEY_literal("none")));
 
 	delete_jsonb_node(n2_p);
 	delete_jsonb_node(n1_p);
