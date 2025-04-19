@@ -84,6 +84,8 @@ void delete_jsonb_node(jsonb_node* node_p);
 
 int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p);
 
+void print_jsonb(const jsonb_node* node_p);
+
 #endif
 
 /*

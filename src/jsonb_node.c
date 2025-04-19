@@ -364,3 +364,64 @@ int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p)
 			return 0;
 	}
 }
+
+void print_jsonb(const jsonb_node* node_p)
+{
+	if(node_p == NULL)
+		printf("NULL");
+
+	switch(node_p->type)
+	{
+		case JSONB_NULL :
+		{
+			printf("NULL");
+			break;
+		}
+		case JSONB_TRUE :
+		{
+			printf("true");
+			break;
+		}
+		case JSONB_FALSE :
+		{
+			printf("false");
+			break;
+		}
+		case JSONB_STRING :
+		{
+			printf(printf_dstring_format"", printf_dstring_params(&(node_p->jsonb_string)));
+			break;
+		}
+		case JSONB_NUMERIC :
+		{
+			print_materialized_numeric(&(node_p->jsonb_numeric));
+			break;
+		}
+		case JSONB_ARRAY :
+		{
+			printf("[\n");
+			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
+			{
+				jsonb_node* n_p = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
+				print_jsonb(n_p);
+				printf(",\n");
+			}
+			printf("]\n");
+			break;
+		}
+		case JSONB_OBJECT :
+		{
+			printf("{\n");
+			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+			{
+				printf(printf_dstring_format" : ", printf_dstring_params(&(e->key)));
+				print_jsonb(e->value);
+				printf(",\n");
+			}
+			printf("}\n");
+			break;
+		}
+		default :
+			break;
+	}
+}
