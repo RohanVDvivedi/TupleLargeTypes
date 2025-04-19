@@ -406,7 +406,7 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 		case JSONB_STRING :
 		{
 			print_tabs(tabs);
-			printf(printf_dstring_format"", printf_dstring_params(&(node_p->jsonb_string)));
+			printf("\""printf_dstring_format"\"", printf_dstring_params(&(node_p->jsonb_string)));
 			break;
 		}
 		case JSONB_NUMERIC :
@@ -421,7 +421,6 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 			printf("[\n");
 			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
 			{
-				print_tabs(tabs);
 				jsonb_node* n_p = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
 				print_jsonb(n_p, tabs+1);
 				printf(",\n");
@@ -436,9 +435,9 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 			printf("{\n");
 			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
 			{
-				print_tabs(tabs);
-				printf(printf_dstring_format" : ", printf_dstring_params(&(e->key)));
-				print_jsonb(e->value, tabs+1);
+				print_tabs(tabs+1);
+				printf("\""printf_dstring_format"\" : \n", printf_dstring_params(&(e->key)));
+				print_jsonb(e->value, tabs+2);
 				printf(",\n");
 			}
 			print_tabs(tabs);
