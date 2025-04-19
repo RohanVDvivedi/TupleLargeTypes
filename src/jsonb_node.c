@@ -380,6 +380,7 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 	{
 		print_tabs(tabs);
 		printf("NULL");
+		return;
 	}
 
 	switch(node_p->type)
