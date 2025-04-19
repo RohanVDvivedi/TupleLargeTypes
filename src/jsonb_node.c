@@ -98,6 +98,12 @@ int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_nod
 	if(object_p->element_count == UINT32_MAX)
 		return 0;
 
+	// make sure element with same key does not exists
+	{
+		if(find_equals_in_bst(&(object_p->jsonb_object), &(const jsonb_object_entry){.key = key_consumed}, FIRST_OCCURENCE))
+			return 0;
+	}
+
 	object_p->element_count++;
 
 	jsonb_object_entry* e = malloc(sizeof(jsonb_object_entry));
