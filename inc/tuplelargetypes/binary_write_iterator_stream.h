@@ -20,9 +20,9 @@ struct binary_write_iterator_stream_context
 	int* abort_error;
 };
 
-int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p);
+int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p, uint32_t write_buffer_size);
 
-#define initialize_stream_for_binary_write_iterator_static(strm, bwi_p_v, transaction_id_v, abort_error_v) \
-	initialize_stream_for_binary_write_iterator(strm, &(binary_write_iterator_stream_context){bwi_p_v, transaction_id_v, abort_error_v})
+#define initialize_stream_for_binary_write_iterator_static(strm, bwi_p_v, transaction_id_v, abort_error_v, write_buffer_size) \
+	initialize_stream_for_binary_write_iterator(strm, &(binary_write_iterator_stream_context){bwi_p_v, transaction_id_v, abort_error_v}, write_buffer_size)
 
 #endif

@@ -28,9 +28,9 @@ static void destroy_stream_context(void* stream_context)
 	// NOP
 }
 
-int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p)
+int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p, uint32_t write_buffer_size)
 {
-	if(!initialize_stream(strm, bwisc_p, NULL, write_to_stream_context, close_stream_context, destroy_stream_context, NULL, DEFAULT_MAX_UNFLUSHED_BYTES_COUNT))
+	if(!initialize_stream(strm, bwisc_p, NULL, write_to_stream_context, close_stream_context, destroy_stream_context, NULL, write_buffer_size))
 	{
 		// since we never opened this stream_context, so we do not close it
 		destroy_stream_context(NULL);
