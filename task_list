@@ -6,6 +6,11 @@ PICKED TASKS
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
 
-(*future)
 materialized_numeric
-  * write a complete briefcase of functions to perform add, sub, multiplication and division
+  * is_integral
+  * get_integer
+  * add
+  * sub
+  * multiplication
+  * division
+  * modulus ()
