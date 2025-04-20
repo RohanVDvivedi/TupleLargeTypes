@@ -427,6 +427,42 @@ int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p)
 	}
 }
 
+jsonb_node* clone_jsonb(const jsonb_node* node_p)
+{
+	if(node_p == NULL)
+		return NULL;
+
+	switch(node_p->type)
+	{
+		case JSONB_NULL :
+			return &jsonb_null;
+		case JSONB_TRUE :
+			return &jsonb_true;
+		case JSONB_FALSE :
+			return &jsonb_false;
+		case JSONB_STRING :
+			return new_jsonb_string_node(&(node_p->jsonb_string));
+		case JSONB_NUMERIC :
+			return new_jsonb_numeric_node(&(node_p->jsonb_numeric));
+		case JSONB_ARRAY :
+		{
+			jsonb_node* clone_p = new_jsonb_array_node(get_element_count_arraylist(&(node_p->jsonb_array)));
+			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
+				push_in_jsonb_array_node(clone_p, clone_jsonb(get_from_front_of_arraylist(&(node_p->jsonb_array), i)));
+			return clone_p;
+		}
+		case JSONB_OBJECT :
+		{
+			jsonb_node* clone_p = new_jsonb_array_node(get_element_count_arraylist(&(node_p->jsonb_array)));
+			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+				put_in_jsonb_object_node(clone_p, &(e->key), clone_jsonb(e->value));
+			return clone_p;
+		}
+		default :
+			return NULL;
+	}
+}
+
 static inline void print_tabs(uint32_t tabs)
 {
 	while(tabs > 0)

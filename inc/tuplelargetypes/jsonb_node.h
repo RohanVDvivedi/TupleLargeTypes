@@ -87,6 +87,9 @@ void delete_jsonb_node(jsonb_node* node_p);
 
 int are_equal_jsonb(const jsonb_node* n1_p, const jsonb_node* n2_p);
 
+// you need to call finalize_jsonb on the return value of the below function before serializing it
+jsonb_node* clone_jsonb(const jsonb_node* node_p);
+
 void print_jsonb(const jsonb_node* node_p, uint32_t tabs);
 
 #endif
