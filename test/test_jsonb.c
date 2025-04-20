@@ -106,7 +106,7 @@ void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const js
 	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
 
 	stream strm;
-	initialize_stream_for_binary_write_iterator_static(&strm, bwi_p, transaction_id, &abort_error);
+	initialize_stream_for_binary_write_iterator_static(&strm, bwi_p, transaction_id, &abort_error, 100); // write in chunks of 100 bytes at once to worm/binary_write_iterator
 
 	if(!serialize_jsonb(&strm, node_p))
 	{
