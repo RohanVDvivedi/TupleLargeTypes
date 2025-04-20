@@ -446,15 +446,15 @@ jsonb_node* clone_jsonb(const jsonb_node* node_p)
 			return new_jsonb_numeric_node(&(node_p->jsonb_numeric));
 		case JSONB_ARRAY :
 		{
-			jsonb_node* clone_p = new_jsonb_array_node(get_element_count_arraylist(&(node_p->jsonb_array)));
+			const jsonb_node* clone_p = new_jsonb_array_node(get_element_count_arraylist(&(node_p->jsonb_array)));
 			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
 				push_in_jsonb_array_node(clone_p, clone_jsonb(get_from_front_of_arraylist(&(node_p->jsonb_array), i)));
 			return clone_p;
 		}
 		case JSONB_OBJECT :
 		{
-			jsonb_node* clone_p = new_jsonb_object_node();
-			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+			const jsonb_node* clone_p = new_jsonb_object_node();
+			for(const jsonb_object_entry* e = (const jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (const jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
 				put_in_jsonb_object_node(clone_p, &(e->key), clone_jsonb(e->value));
 			return clone_p;
 		}
@@ -519,7 +519,7 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 			printf("[\n");
 			for(cy_uint i = 0; i < get_element_count_arraylist(&(node_p->jsonb_array)); i++)
 			{
-				jsonb_node* n_p = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
+				const jsonb_node* n_p = (jsonb_node*) get_from_front_of_arraylist(&(node_p->jsonb_array), i);
 				print_jsonb(n_p, tabs+1);
 				printf(",\n");
 			}
@@ -531,7 +531,7 @@ void print_jsonb(const jsonb_node* node_p, uint32_t tabs)
 		{
 			print_tabs(tabs);
 			printf("{\n");
-			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
+			for(const jsonb_object_entry* e = (const jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (const jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
 			{
 				print_tabs(tabs+1);
 				printf("\""printf_dstring_format"\" : \n", printf_dstring_params(&(e->key)));
