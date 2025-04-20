@@ -1,8 +1,8 @@
 PICKED TASKS
 
-* build function to skip the stream to a specific json_accessor, fail if already passed by it in the past OR does not exist
-
 * build functions to clone jsonb_node
+
+* build function to skip the stream to a specific json_accessor, fail if already passed by it in the past OR does not exist
 
 * JSONB
   * build jsonb_node from json_node and viceversa
