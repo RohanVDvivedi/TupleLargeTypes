@@ -227,11 +227,12 @@ int main()
 
 	// generate test jsonb
 	jsonb_node* n1_p = generate_test_data();
+
 	uint32_t total_size = 0;
 	int finalized = finalize_jsonb(n1_p, &total_size);
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
-
 	print_jsonb(n1_p, 0);printf("\n\n");
+	printf("----------------------------------------------------\n\n");
 
 	serialize_in_to_tuple_column(tpl_d, inline_tuple, n1_p, &wtd, pam_p, pmm_p);
 
@@ -242,6 +243,7 @@ int main()
 	finalized = finalize_jsonb(n2_p, &total_size);
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
 	print_jsonb(n2_p, 0);printf("\n\n");
+	printf("----------------------------------------------------\n\n");
 
 	printf("is node serialized same as that is parsed = %d\n\n", are_equal_jsonb(n1_p, n2_p));
 
@@ -250,6 +252,7 @@ int main()
 	finalized = finalize_jsonb(n3_p, &total_size);
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
 	print_jsonb(n3_p, 0);printf("\n\n");
+	printf("----------------------------------------------------\n\n");
 
 	printf("is node after clone the same = %d\n\n", are_equal_jsonb(n1_p, n3_p));
 
