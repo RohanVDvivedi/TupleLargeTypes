@@ -246,6 +246,7 @@ int main()
 	printf("----------------------------------------------------\n\n");
 
 	printf("is node serialized same as that is parsed = %d\n\n", are_equal_jsonb(n1_p, n2_p));
+	printf("----------------------------------------------------\n\n");
 
 	jsonb_node* n3_p = clone_jsonb(n1_p);
 
@@ -255,6 +256,7 @@ int main()
 	printf("----------------------------------------------------\n\n");
 
 	printf("is node after clone the same = %d\n\n", are_equal_jsonb(n1_p, n3_p));
+	printf("----------------------------------------------------\n\n");
 
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR());
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
