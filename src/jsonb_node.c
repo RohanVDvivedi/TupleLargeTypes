@@ -453,7 +453,7 @@ jsonb_node* clone_jsonb(const jsonb_node* node_p)
 		}
 		case JSONB_OBJECT :
 		{
-			jsonb_node* clone_p = new_jsonb_array_node(get_element_count_arraylist(&(node_p->jsonb_array)));
+			jsonb_node* clone_p = new_jsonb_object_node();
 			for(jsonb_object_entry* e = (jsonb_object_entry*) find_smallest_in_bst(&(node_p->jsonb_object)); e != NULL; e = (jsonb_object_entry*) get_inorder_next_of_in_bst(&(node_p->jsonb_object), e))
 				put_in_jsonb_object_node(clone_p, &(e->key), clone_jsonb(e->value));
 			return clone_p;
