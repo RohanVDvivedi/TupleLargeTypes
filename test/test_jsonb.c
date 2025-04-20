@@ -132,7 +132,7 @@ void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const js
 	delete_binary_write_iterator(bwi_p, transaction_id, &abort_error);
 }
 
-jsonb_node* read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
+jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -237,13 +237,21 @@ int main()
 
 	print_worm_as_is(tpl_d, inline_tuple, &wtd, pam_p);
 
-	jsonb_node* n2_p = read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	jsonb_node* n2_p = parse_from_tuple_column(tpl_d, inline_tuple, &wtd, pam_p);
 
 	finalized = finalize_jsonb(n2_p, &total_size);
 	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
 	print_jsonb(n2_p, 0);printf("\n\n");
 
 	printf("is node serialized same as that is parsed = %d\n\n", are_equal_jsonb(n1_p, n2_p));
+
+	jsonb_node* n3_p = clone_jsonb(n1_p);
+
+	finalized = finalize_jsonb(n3_p, &total_size);
+	printf("finalized = %d, total_size %"PRIu32"\n\n", finalized, total_size);
+	print_jsonb(n3_p, 0);printf("\n\n");
+
+	printf("is node after clone the same = %d\n\n", are_equal_jsonb(n1_p, n3_p));
 
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR());
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
@@ -259,6 +267,7 @@ int main()
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-name"), JSON_ARRAY_INDEX(0)));
 	print_json_attribute(n1_p, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3), JSON_OBJECT_KEY_literal("project-name"), JSON_OBJECT_KEY_literal("none")));
 
+	delete_jsonb_node(n3_p);
 	delete_jsonb_node(n2_p);
 	delete_jsonb_node(n1_p);
 
