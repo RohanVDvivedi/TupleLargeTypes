@@ -13,4 +13,4 @@ materialized_numeric
   * sub
   * multiplication
   * division
-  * modulus ()
+  * modulus (only if is_integral return true on quotient and )
