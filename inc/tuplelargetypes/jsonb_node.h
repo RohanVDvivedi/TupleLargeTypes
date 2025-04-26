@@ -60,6 +60,8 @@ extern jsonb_node jsonb_false;
 jsonb_node* new_jsonb_string_node(const dstring* str);
 jsonb_node* new_jsonb_numeric_node(const materialized_numeric* m);
 
+// below 2 functions do not clone the parameters, instead a shallow copy of the passed parameters is made
+// essentially stealing the resources
 jsonb_node* new_jsonb_string_node2(dstring str_consumed);
 jsonb_node* new_jsonb_numeric_node2(materialized_numeric m_consumed);
 
@@ -70,9 +72,10 @@ jsonb_node* new_jsonb_object_node();
 // node_p and not its clone is pushed at the end of the arraylist
 int push_in_jsonb_array_node(jsonb_node* array_p, jsonb_node* node_p);
 
-// node_p and not its clone is pushed at the end of the arraylist
+// node_p and not its clone is pushed at the right location in the jsonb_object bst
 // key is cloned for internal use
 int put_in_jsonb_object_node(jsonb_node* object_p, const dstring* key, jsonb_node* node_p);
+// the below variant of the above function, transfers the key_consumed's ownership using a shallow copy
 int put_in_jsonb_object_node2(jsonb_node* object_p, dstring key_consumed, jsonb_node* node_p);
 
 #include<jsonparser/json_accessor.h>
