@@ -13,7 +13,6 @@ PICKED TASKS
       else
         skip_trailing_element(jri_p); // skip the last most element that bri_p is pointing to
     }
-  * to return a cloned bri_p of jri_p to users
 
 * JSONB
   * build jsonb_node from json_node and viceversa
