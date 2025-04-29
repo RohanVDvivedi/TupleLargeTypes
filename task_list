@@ -1,21 +1,41 @@
 PICKED TASKS
 
 * build jsonb_read_iterator over only valid non-null binary_read_iterator
+  struct jsonb_key
+  {
+    int is_array_index;
+    uint32_t index;
+    uint32_t total_siblings_count; // index < total_siblings_count
+    dstring key; // valid, if is_array_index is not set
+  };
+  struct jsonb_accessor
+  {
+    uint32_t keys_capacity;
+    uint32_t keys_count;
+    jsonb_keys* keys;
+  };
+  implement push/pop and top of jsonb_accessor
   struct jsonb_read_iterator
   {
-    uint32_t curr_acs_keys_capacity;
-    json_accessor curr_acs; // contains dynamically allocated keys for the current position
+    jsonb_accessor curr_acs; // contains dynamically allocated keys for the current position
     binary_read_iterator* bri_p; // actual position in the iterator
   };
+  need an implementation for the below function
+  int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs, int* is_prefix);
   int point_to_accessor(jsonb_read_iterator* jri_p, const json_accessor* acs);
     * fails with 0, if the acs is lesser than curr_acs
     * fails with 0, if not found
     * succeeds with 1, only if the bri_p currently points to it
     * please ensure that you call point_to_accessor, always in increasing order for correct access
-    * TODO figure out an algorithm to do this
+    * while(jri_p->curr_acs < acs) {
+      if(curr_acs is prefix of acs && get_type of acs is JSONB_OBJECT or JSONB_ARRAY)
+        enter_into_first_element(jri_p); // enter into the first element that bri_p is pointing to
+      else
+        skip_trailing_element(jri_p); // skip the last most element that bri_p is pointing to
+    }
   * simple functions
-    * to return a cloned bri_p to users
-    * to return a const curr_acs to the user for the users to realize what jri_p is pointing to
+    * to return a cloned bri_p of jri_p to users
+    * to return a const curr_acs to the user for the users to realize, what jri_p is pointing to?
 
 * JSONB
   * build jsonb_node from json_node and viceversa
@@ -28,4 +48,4 @@ materialized_numeric
   * sub
   * multiplication
   * division
-  * modulus (only if is_integral return true on quotient and )
+  * modulus (only if is_integral returns true on divisor and dividend)
