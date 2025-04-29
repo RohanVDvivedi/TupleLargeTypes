@@ -40,6 +40,6 @@ void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transact
 
 uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* digits, uint32_t digits_size, const void* transaction_id, int* abort_error);
 
-digit_read_iterator* clone_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error);
+digit_read_iterator* clone_digit_read_iterator(const digit_read_iterator* dri_p, const void* transaction_id, int* abort_error);
 
 #endif

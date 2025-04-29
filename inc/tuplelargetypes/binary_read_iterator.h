@@ -46,7 +46,7 @@ uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data,
 // if (*data_size) returns 0, then you are at the end of the data
 const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* data_size, const void* transaction_id, int* abort_error);
 
-binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
+binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
 #include<tuplelargetypes/binary_read_iterator_stream.h>
 

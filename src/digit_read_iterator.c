@@ -40,7 +40,7 @@ void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transact
 	free(dri_p);
 }
 
-digit_read_iterator* clone_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error)
+digit_read_iterator* clone_digit_read_iterator(const digit_read_iterator* dri_p, const void* transaction_id, int* abort_error)
 {
 	digit_read_iterator* clone_p = malloc(sizeof(digit_read_iterator));
 	if(clone_p == NULL)

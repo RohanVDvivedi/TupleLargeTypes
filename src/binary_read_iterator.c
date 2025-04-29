@@ -38,7 +38,7 @@ void delete_binary_read_iterator(binary_read_iterator* bri_p, const void* transa
 	free(bri_p);
 }
 
-binary_read_iterator* clone_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error)
+binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri_p, const void* transaction_id, int* abort_error)
 {
 	binary_read_iterator* clone_p = malloc(sizeof(binary_read_iterator));
 	if(clone_p == NULL)
