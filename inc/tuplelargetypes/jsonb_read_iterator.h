@@ -48,7 +48,7 @@ struct jsonb_read_iterator
 // returns 1 only if the json_read_iterator now exactly points to the acs accessor passed
 int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error);
 
-binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error);
+binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const void* transaction_id, int* abort_error);
 
 #define deinit_jsonb_read_iterator(jri_p) if(jri_p->curr_acs.keys_list != NULL){free(jri_p->curr_acs.keys_list);}
 

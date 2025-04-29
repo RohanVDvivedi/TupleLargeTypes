@@ -26,7 +26,7 @@ int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const 
 	// TODO
 }
 
-binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
+binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const void* transaction_id, int* abort_error)
 {
-	// TODO
+	return clone_binary_read_iterator(jri_p->bri_p, transaction_id, abort_error);
 }
