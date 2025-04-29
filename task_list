@@ -3,7 +3,8 @@ PICKED TASKS
 * build jsonb_read_iterator over only valid non-null binary_read_iterator
   struct jsonb_read_iterator
   {
-    json_accessor* curr_acs; // dynamically allocated value for the current position
+    uint32_t curr_acs_keys_capacity;
+    json_accessor curr_acs; // contains dynamically allocated keys for the current position
     binary_read_iterator* bri_p; // actual position in the iterator
   };
   int point_to_accessor(jsonb_read_iterator* jri_p, const json_accessor* acs);
@@ -12,6 +13,9 @@ PICKED TASKS
     * succeeds with 1, only if the bri_p currently points to it
     * please ensure that you call point_to_accessor, always in increasing order for correct access
     * TODO figure out an algorithm to do this
+  * simple functions
+    * to return a cloned bri_p to users
+    * to return a const curr_acs to the user for the users to realize what jri_p is pointing to
 
 * JSONB
   * build jsonb_node from json_node and viceversa
