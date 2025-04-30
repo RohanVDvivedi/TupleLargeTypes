@@ -16,6 +16,11 @@ static inline int overwrite_top_key_in_jsonb_accessor(jsonb_accessor* jb_acs, ds
 	// TODO
 }
 
+static int are_incompatible_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs)
+{
+	// TODO
+}
+
 static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs, int* is_prefix)
 {
 	// TODO
