@@ -69,7 +69,7 @@ jsonb_node* generate_test_data()
 	jsonb_node* o2 = new_jsonb_object_node();
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("what?"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("An extended library to build larger than page types for any datadata")));
 	materialized_numeric version_val;
-	initialize_static_materialized_numeric(&version_val, NEGATIVE_NUMERIC, -10, (uint64_t[]){1,0,1,5}, 4);
+	initialize_static_materialized_numeric(&version_val, NEGATIVE_NUMERIC, -10, (uint64_t[]){1,0,1,888888888888}, 4);
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("version?"), new_jsonb_numeric_node(&version_val));
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("why?"), new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("To make things going as per the MinTxEngine and BeeDB")));
 	put_in_jsonb_object_node(o2, &get_dstring_pointing_to_literal_cstring("built"), &jsonb_false);
