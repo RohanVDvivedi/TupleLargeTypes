@@ -2,50 +2,54 @@
 
 #include<stdlib.h>
 
-// below function reads fixed number of bytes from stream
-// else error will be set
-static inline void jsonb_read_fixed_number_of_bytes(stream* rs, char* data, uint32_t data_size, int* error)
+#include<cutlery/stream_util.h>
+
+// below function reads fixed sized dstring from stream
+static inline dstring jsonb_read_fixed_sized_dstring(stream* rs, uint32_t bytes_to_read, int* error)
 {
-	uint32_t bytes_read = 0;
-	while(bytes_read < data_size)
+	dstring res = read_dstring_from_stream(rs, bytes_to_read, error);
+	if(*error)
+		return res;
+
+	// make sure we read as many bytes as expected
+	if(get_char_count_dstring(&res) != bytes_to_read)
 	{
-		uint32_t bytes_read_this_iteration = read_from_stream(rs, data + bytes_read, data_size - bytes_read, error);
-		if(*error)
-			return;
-		if(bytes_read_this_iteration == 0)
-		{
-			(*error) = 1;
-			return;
-		}
-		bytes_read += bytes_read_this_iteration;
+		(*error) = 1; // force a fake error in stream, because an EOF encountered before our expected bytes could be read
+		deinit_dstring(&res);
+		return res;
 	}
+
+	return res;
 }
 
 static inline uint8_t jsonb_read_uint8(stream* rs, int* error)
 {
-	char byte;
-	jsonb_read_fixed_number_of_bytes(rs, &byte, 1, error);
+	dstring res = jsonb_read_fixed_sized_dstring(rs, 1, error);
 	if(*error)
 		return 0;
-	return (uint8_t)byte;
+	uint8_t uint8_val = (uint8_t)(get_byte_array_dstring(&res)[0]);
+	deinit_dstring(&res);
+	return uint8_val;
 }
 
 static inline uint32_t jsonb_read_uint32(stream* rs, int* error)
 {
-	char bytes[4];
-	jsonb_read_fixed_number_of_bytes(rs, bytes, 4, error);
+	dstring res = jsonb_read_fixed_sized_dstring(rs, 4, error);
 	if(*error)
 		return 0;
-	return deserialize_uint32(bytes, 4);
+	uint32_t uint32_val = deserialize_uint32(get_byte_array_dstring(&res), 4);
+	deinit_dstring(&res);
+	return uint32_val;
 }
 
 static inline int16_t jsonb_read_int16(stream* rs, int* error)
 {
-	char bytes[2];
-	jsonb_read_fixed_number_of_bytes(rs, bytes, 2, error);
+	dstring res = jsonb_read_fixed_sized_dstring(rs, 2, error);
 	if(*error)
 		return 0;
-	return deserialize_int16(bytes, 2);
+	int16_t int16_val = deserialize_int16(get_byte_array_dstring(&res), 2);
+	deinit_dstring(&res);
+	return int16_val;
 }
 
 jsonb_node* parse_jsonb(stream* rs)
@@ -71,19 +75,11 @@ jsonb_node* parse_jsonb(stream* rs)
 			if(error)
 				return NULL;
 
-			dstring str;
-			if(!init_empty_dstring(&str, skip_size))
-				exit(-1);
-
-			jsonb_read_fixed_number_of_bytes(rs, get_byte_array_dstring(&str), skip_size, &error);
+			dstring str = jsonb_read_fixed_sized_dstring(rs, skip_size, &error);
 			if(error)
-			{
-				deinit_dstring(&str);
 				return NULL;
-			}
-			increment_char_count_dstring(&str, skip_size);
 
-			node_p = new_jsonb_string_node2(str);
+			node_p = new_jsonb_string_node2(str); // str is consumed hence no need to deinitialize it
 
 			node_p->skip_size = skip_size;
 			break;
@@ -113,14 +109,14 @@ jsonb_node* parse_jsonb(stream* rs)
 			// read digits and put it here
 			for(uint32_t i = 0; i < skip_size/5; i++)
 			{
-				char bytes[5];
-				jsonb_read_fixed_number_of_bytes(rs, bytes, 5, &error);
+				dstring s_digit = jsonb_read_fixed_sized_dstring(rs, 5, &error);
 				if(error)
 				{
 					deinitialize_materialized_numeric(&m);
 					return NULL;
 				}
-				uint64_t digit = deserialize_uint32(bytes, 5);
+				uint64_t digit = deserialize_uint64(get_byte_array_dstring(&s_digit), 5);
+				deinit_dstring(&s_digit);
 
 				push_lsd_in_materialized_numeric(&m, digit);
 			}
@@ -188,18 +184,12 @@ jsonb_node* parse_jsonb(stream* rs)
 					return NULL;
 				}
 
-				dstring key;
-				if(!init_empty_dstring(&key, key_size))
-					exit(-1);
-
-				jsonb_read_fixed_number_of_bytes(rs, get_byte_array_dstring(&key), key_size, &error);
+				dstring key = jsonb_read_fixed_sized_dstring(rs, key_size, &error);
 				if(error)
 				{
 					delete_jsonb_node(node_p);
-					deinit_dstring(&key);
 					return NULL;
 				}
-				increment_char_count_dstring(&key, key_size);
 
 				// parse value as jsonb_node
 				jsonb_node* n_p = parse_jsonb(rs);
