@@ -2,6 +2,8 @@
 #define JSONB_READ_ITERATOR_H
 
 #include<stdint.h>
+#include<stdlib.h>
+
 #include<cutlery/dstring.h>
 
 // similar to json_key
@@ -23,6 +25,8 @@ struct jsonb_accessor
 	uint32_t keys_capacity; // number of available elements at keys_list
 
 	uint32_t keys_count; // number of elements at keys_list
+
+	// the depth of jsonb_accessor can never cross a 32 bit integer, as the skip_size of jsonb object or array is going to be lesser than 32 bit
 
 	jsonb_key* keys_list;
 };
