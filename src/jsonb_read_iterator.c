@@ -41,7 +41,7 @@ static inline int overwrite_top_key_in_jsonb_accessor(jsonb_accessor* jb_acs, ds
 }
 
 // checks if the accessors are validly accessible on the same object
-static int are_incompatible_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs)
+static int are_compatible_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs)
 {
 	for(uint32_t i = 0; i < min(jb_acs->keys_count, j_acs->keys_length); i++)
 	{
@@ -63,9 +63,35 @@ static int are_incompatible_jsonb_N_json_accessors(const jsonb_accessor* jb_acs,
 	return 1;
 }
 
+// comparison works only with compatible accessors, i.e. above function returning 1
 static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs, int* is_prefix)
 {
-	// TODO
+	int cmp = 0;
+	(*is_prefix) = 0;
+
+	for(uint32_t i = 0; i < min(jb_acs->keys_count, j_acs->keys_length) && (cmp == 0); i++)
+	{
+		jsonb_key* k1 = jb_acs->keys_list + i;
+		json_key* k2 = j_acs->keys_list + i;
+
+		if(k1->is_array_index)
+			cmp = compare_numbers(k1->index, k2->index);
+		else
+			cmp = compare_dstring(&(k1->key), &(k2->key));
+	}
+
+	if(cmp == 0) // min length comparison returned 0, i.e. they have a common prefix, with one being a prefix of another
+	{
+		cmp = compare_numbers(jb_acs->keys_count, j_acs->keys_length); // shorted one comes before longer one
+		if(cmp == 0) // equal lengths, so both are prefixes of one another
+			(*is_prefix) = 1 | 2;
+		else if(cmp == -1) // 1st element is smaller, so it is prefix of the second one
+			(*is_prefix) = 1;
+		else // else second one is the prefic of the first one
+			(*is_prefix) = 2;
+	} // else we found a mistmatching element, so is_prefix = 0, none is prefix of another one
+
+	return cmp;
 }
 
 int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
