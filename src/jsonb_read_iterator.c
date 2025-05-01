@@ -97,7 +97,7 @@ static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const js
 #include<tuplelargetypes/jsonb_node.h>
 
 // if no bytes could be peeked, then (*end_reached) = 1 will be set
-static inline jsonb_type get_type_for_next_jsonb_read(const jsonb_read_iterator* jri_p, int* end_reached, const void* transaction_id, int* abort_error)
+static inline jsonb_type get_type_for_curr_jsonb_read(const jsonb_read_iterator* jri_p, int* end_reached, const void* transaction_id, int* abort_error)
 {
 	(*end_reached) = 0;
 	uint32_t data_size = 0;
@@ -114,9 +114,62 @@ static inline jsonb_type get_type_for_next_jsonb_read(const jsonb_read_iterator*
 	return data[0];
 }
 
-int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
+// if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
+static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
 {
 	// TODO
+}
+
+// if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
+static void skip_trailing_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
+{
+	// TODO
+}
+
+int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
+{
+	if(!are_compatible_jsonb_N_json_accessors(&(jri_p->curr_acs), acs))
+		return 0;
+
+	while(1)
+	{
+		int is_prefix_acs = 0;
+		int cmp_acs = compare_jsonb_N_json_accessors(&(jri_p->curr_acs), acs, &is_prefix_acs);
+
+		if(cmp_acs > 0) // curr_acs is after the acs then we already surpassed it, so fail
+			return 0;
+
+		if(cmp_acs == 0) // we are already as desired place so break
+			return 1;
+
+		int end_reached = 0;
+		jsonb_type curr_element_type = get_type_for_curr_jsonb_read(jri_p, &end_reached, transaction_id, abort_error);
+		if(*abort_error)
+			return 0;
+		if(end_reached)
+			return 0;
+
+		if(is_prefix_acs == 1 && (curr_element_type == JSONB_ARRAY || curr_element_type == JSONB_OBJECT)) // is_prefix_acs can never be 1 | 2, as they are not equal
+		{
+			int unexpected_end_reached = 0;
+			enter_into_first_element(jri_p, &unexpected_end_reached, transaction_id, abort_error); // enter into the first element that bri_p is pointing to
+			if(*abort_error)
+				return 0;
+			if(unexpected_end_reached)
+				return 0;
+			if(!are_compatible_jsonb_N_json_accessors(&(jri_p->curr_acs), acs))
+				return 0;
+		}
+		else
+		{
+			int unexpected_end_reached = 0;
+			skip_trailing_element(jri_p, &unexpected_end_reached, transaction_id, abort_error); // skip the last most element that bri_p is pointing to
+			if(*abort_error)
+				return 0;
+			if(unexpected_end_reached)
+				return 0;
+		}
+	}
 }
 
 binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const void* transaction_id, int* abort_error)
