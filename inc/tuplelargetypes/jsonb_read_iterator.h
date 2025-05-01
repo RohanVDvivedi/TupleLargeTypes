@@ -50,6 +50,8 @@ struct jsonb_read_iterator
 #include<jsonparser/json_accessor.h>
 
 // returns 1 only if the json_read_iterator now exactly points to the acs accessor passed
+// please ensure that you call point_to_accessor_for_jsonb_read_iterator, always in increasing order of acs, for correct access
+// fails immediately if the acs is lesser than jri_p->curr_acs
 int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error);
 
 binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const void* transaction_id, int* abort_error);

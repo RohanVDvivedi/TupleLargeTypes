@@ -1,10 +1,7 @@
 PICKED TASKS
 
 * int point_to_accessor(jsonb_read_iterator* jri_p, const json_accessor* acs);
-    * fails with 0, if the acs is lesser than curr_acs
-    * fails with 0, if not found
     * succeeds with 1, only if the bri_p currently points to it
-    * please ensure that you call point_to_accessor, always in increasing order for correct access
     * while(jri_p->curr_acs < acs) {
       if(curr_acs is prefix of acs && get_type of acs is JSONB_OBJECT or JSONB_ARRAY)
         enter_into_first_element(jri_p); // enter into the first element that bri_p is pointing to
