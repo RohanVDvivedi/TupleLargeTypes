@@ -2,9 +2,11 @@ PICKED TASKS
 
 * int point_to_accessor(jsonb_read_iterator* jri_p, const json_accessor* acs);
     * succeeds with 1, only if the bri_p currently points to it
+    * if acs and jri_p->curr_acs are incompatible then quit
     * while(jri_p->curr_acs < acs) {
       if(curr_acs is prefix of acs && get_type of acs is JSONB_OBJECT or JSONB_ARRAY)
         enter_into_first_element(jri_p); // enter into the first element that bri_p is pointing to
+        if acs and jri_p->curr_acs are incompatible then quit
       else
         skip_trailing_element(jri_p); // skip the last most element that bri_p is pointing to
     }
