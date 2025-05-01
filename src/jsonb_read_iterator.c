@@ -94,6 +94,26 @@ static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const js
 	return cmp;
 }
 
+#include<tuplelargetypes/jsonb_node.h>
+
+// if no bytes could be peeked, then (*end_reached) = 1 will be set
+static inline jsonb_type get_type_for_next_jsonb_read(const jsonb_read_iterator* jri_p, int* end_reached, const void* transaction_id, int* abort_error)
+{
+	(*end_reached) = 0;
+	uint32_t data_size = 0;
+	const char* data = peek_in_binary_read_iterator(jri_p->bri_p, &data_size, transaction_id, abort_error);
+	if(*abort_error) // we have to return something
+		return JSONB_NULL;
+
+	if(data_size == 0)
+	{
+		(*end_reached) = 1;
+		return JSONB_NULL;
+	}
+
+	return data[0];
+}
+
 int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
 {
 	// TODO
