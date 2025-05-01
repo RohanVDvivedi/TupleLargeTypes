@@ -40,9 +40,27 @@ static inline int overwrite_top_key_in_jsonb_accessor(jsonb_accessor* jb_acs, ds
 	return 1;
 }
 
+// checks if the accessors are validly accessible on the same object
 static int are_incompatible_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs)
 {
-	// TODO
+	for(uint32_t i = 0; i < min(jb_acs->keys_count, j_acs->keys_length); i++)
+	{
+		jsonb_key* k1 = jb_acs->keys_list + i;
+		json_key* k2 = j_acs->keys_list + i;
+
+		// if they attempt to index one with an array_index and another one with object_key, then this check fails
+		if(k1->is_array_index != k2->is_array_index)
+			return 0;
+
+		// if they point to different chldren within an array or an object, then break
+		if(
+			(k1->is_array_index && k1->index != k2->index) ||
+			(!(k1->is_array_index) && 0 != compare_dstring(&(k1->key), &(k2->key)))
+		)
+			break;
+	}
+
+	return 1;
 }
 
 static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const json_accessor* j_acs, int* is_prefix)
