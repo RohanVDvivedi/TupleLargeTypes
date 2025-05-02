@@ -23,6 +23,13 @@ static inline void push_to_jsonb_accessor(jsonb_accessor* jb_acs, int is_array_i
 	jb_acs->keys_list[jb_acs->keys_count++] = (jsonb_key){.is_array_index = is_array_index, .index = index, .total_siblings_count = total_siblings_count, .key = key_consumed};
 }
 
+static inline jsonb_key* get_top_from_jsonb_accessor(const jsonb_accessor* jb_acs)
+{
+	if(jb_acs->keys_count == 0)
+		return NULL;
+	return jb_acs->keys_list + (jb_acs->keys_count-1);
+}
+
 static inline int pop_from_jsonb_accessor(jsonb_accessor* jb_acs)
 {
 	if(jb_acs->keys_count == 0)
@@ -179,7 +186,58 @@ static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected
 // if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
 static void skip_trailing_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
 {
-	// TODO
+	jsonb_type type = read_uint8(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return ;
+
+	// no need to skip these (NULL, TRUE and FALSE, as they only occupy a byte and never have skip_size) types
+	if(type != JSONB_NULL && type != JSONB_TRUE && type != JSONB_FALSE)
+	{
+		uint32_t skip_size = read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+		if((*unexpected_end_reached) || (*abort_error))
+			return ;
+
+		uint32_t bytes_skipped = read_from_binary_read_iterator(jri_p->bri_p, NULL, skip_size, transaction_id, abort_error);
+		if(bytes_skipped < skip_size)
+		{
+			(*unexpected_end_reached) = 1;
+			return;
+		}
+	}
+
+	// now we are at the beginning of the next element, we need to pop all the elements that are finished
+	while(1)
+	{
+		const jsonb_key* k = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
+		if(k == NULL || k->index == (k->total_siblings_count - 1))
+			break;
+		pop_from_jsonb_accessor(&(jri_p->curr_acs));
+	}
+
+	if(get_top_from_jsonb_accessor(&(jri_p->curr_acs)) == NULL) // if we are at the end of the jsonb_node in its serialized form, we can not go to the next jsonb_node
+	{
+		(*unexpected_end_reached) = 1;
+		return;
+	}
+
+	jsonb_key* k_top = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
+
+	k_top->index++;
+
+	if(!(k_top->is_array_index)) // if it is part of a jsonb_object, we need to read the next key
+	{
+		uint32_t key_size = read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+		if((*unexpected_end_reached) || (*abort_error))
+			return;
+
+		dstring key = read_fixed_sized_dstring(jri_p->bri_p, key_size, unexpected_end_reached, transaction_id, abort_error);
+		if((*unexpected_end_reached) || (*abort_error))
+			return;
+
+		overwrite_top_key_in_jsonb_accessor(&(jri_p->curr_acs), key);
+
+		return;
+	}
 }
 
 int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const json_accessor* acs, const void* transaction_id, int* abort_error)
