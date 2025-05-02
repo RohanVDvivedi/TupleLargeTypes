@@ -344,6 +344,7 @@ int main()
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(5)));
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
 
+	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
 	/* TESTS ENDED */
