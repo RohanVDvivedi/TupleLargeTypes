@@ -181,7 +181,81 @@ static inline uint32_t read_uint32(binary_read_iterator* bri_p, int* unexpected_
 // if there are no elements in the jsonb_array or jsonb_object, then this function is equivalent to skip_trailing_element
 static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
 {
-	// TODO
+	jsonb_type type = read_uint8(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return ;
+
+	if(type != JSONB_ARRAY && type != JSONB_OBJECT)
+	{
+		printf("BUG in tuplelargetypes :: enter_into_first_element called for %d jsonb_type\n", type);
+		exit(-1);
+	}
+
+	read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return ;
+
+	uint32_t element_count = read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return ;
+
+	if(element_count == 0) // if there are no elements, then the effect of this function call is equivalent to a skip
+	{
+		// now we are at the beginning of the next element, we need to pop all the elements that are finished
+		while(1)
+		{
+			const jsonb_key* k = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
+			if(k == NULL || k->index == (k->total_siblings_count - 1))
+				break;
+			pop_from_jsonb_accessor(&(jri_p->curr_acs));
+		}
+
+		if(get_top_from_jsonb_accessor(&(jri_p->curr_acs)) == NULL) // if we are at the end of the jsonb_node in its serialized form, we can not go to the next jsonb_node
+		{
+			(*unexpected_end_reached) = 1;
+			return;
+		}
+
+		jsonb_key* k_top = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
+
+		k_top->index++;
+
+		if(!(k_top->is_array_index)) // if it is part of a jsonb_object, we need to read the next key
+		{
+			uint32_t key_size = read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+			if((*unexpected_end_reached) || (*abort_error))
+				return;
+
+			dstring key = read_fixed_sized_dstring(jri_p->bri_p, key_size, unexpected_end_reached, transaction_id, abort_error);
+			if((*unexpected_end_reached) || (*abort_error))
+				return;
+
+			overwrite_top_key_in_jsonb_accessor(&(jri_p->curr_acs), key);
+		}
+
+		return;
+	}
+
+	// else we are at the start of the first element
+	// so extract its key if we are at the first element of the jsonb_object
+	dstring key;
+	if(type == JSONB_OBJECT)
+	{
+		uint32_t key_size = read_uint32(jri_p->bri_p, unexpected_end_reached, transaction_id, abort_error);
+		if((*unexpected_end_reached) || (*abort_error))
+			return;
+
+		key = read_fixed_sized_dstring(jri_p->bri_p, key_size, unexpected_end_reached, transaction_id, abort_error);
+		if((*unexpected_end_reached) || (*abort_error))
+			return;
+	}
+	else
+	{
+		if(!init_empty_dstring(&key, 0))
+			exit(-1);
+	}
+
+	push_to_jsonb_accessor(&(jri_p->curr_acs), (type == JSONB_ARRAY), 0, element_count, key);
 }
 
 // if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
@@ -236,8 +310,6 @@ static void skip_trailing_element(jsonb_read_iterator* jri_p, int* unexpected_en
 			return;
 
 		overwrite_top_key_in_jsonb_accessor(&(jri_p->curr_acs), key);
-
-		return;
 	}
 }
 
