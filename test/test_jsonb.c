@@ -198,6 +198,61 @@ void print_worm_as_is(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd
 	}
 }
 
+void jsonb_read_iterator_parse_for_accessor(jsonb_read_iterator* jri_p, const json_accessor acs)
+{
+	int got_pointed_to = point_to_accessor_for_jsonb_read_iterator(jri_p, &acs, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("abort error pointing_to\n");
+		exit(-1);
+	}
+
+	binary_read_iterator* bri_p = get_cloned_iterator_for_jsonb_read_iterator(jri_p, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("abort error get_cloned_iterator\n");
+		exit(-1);
+	}
+
+	stream strm;
+	initialize_stream_for_binary_read_iterator_static(&strm, bri_p, transaction_id, &abort_error);
+
+	jsonb_node* node_p = parse_jsonb(&strm);
+	if(node_p == NULL)
+	{
+		printf("jsonb parser errored -> abort_error = %d\n", abort_error);
+		exit(-1);
+	}
+
+	int error = 0;
+	close_stream(&strm, &error);
+	if(error)
+	{
+		printf("error closing bwi stream -> error = %d\n", error);
+		exit(-1);
+	}
+	deinitialize_stream(&strm);
+
+	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
+
+	printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n");
+	printf("jsonb");
+	for(uint64_t i = 0; i < acs.keys_length; i++)
+	{
+		printf("[");
+		if(acs.keys_list[i].is_array_index)
+			printf("%"PRIu_cy_uint, acs.keys_list[i].index);
+		else
+			printf("\""printf_dstring_format"\"", printf_dstring_params(&(acs.keys_list[i].key)));
+		printf("]");
+	}
+	printf("\n");
+	print_jsonb(node_p, 0);printf("\n\n");
+	printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n");
+
+	delete_jsonb_node(node_p);
+}
+
 int main()
 {
 	// construct an in-memory data store
@@ -275,6 +330,8 @@ int main()
 	delete_jsonb_node(n3_p);
 	delete_jsonb_node(n2_p);
 	delete_jsonb_node(n1_p);
+
+	/* TEST JSONB READ ITERATOR */
 
 	/* TESTS ENDED */
 
