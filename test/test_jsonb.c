@@ -209,7 +209,10 @@ void jsonb_read_iterator_parse_for_accessor(jsonb_read_iterator* jri_p, const js
 
 	printf("jsonb pointing_to = %d\n", got_pointed_to);
 	if(!got_pointed_to)
+	{
+		printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n");
 		return;
+	}
 
 	binary_read_iterator* bri_p = get_cloned_iterator_for_jsonb_read_iterator(jri_p, transaction_id, &abort_error);
 	if(abort_error)
@@ -239,7 +242,6 @@ void jsonb_read_iterator_parse_for_accessor(jsonb_read_iterator* jri_p, const js
 
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	printf("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n");
 	printf("jsonb");
 	for(uint64_t i = 0; i < acs.keys_length; i++)
 	{
