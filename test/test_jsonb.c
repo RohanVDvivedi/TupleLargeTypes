@@ -155,7 +155,7 @@ jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, worm_t
 	close_stream(&strm, &error);
 	if(error)
 	{
-		printf("error closing bwi stream -> error = %d\n", error);
+		printf("error closing bri stream -> error = %d\n", error);
 		exit(-1);
 	}
 	deinitialize_stream(&strm);
@@ -228,7 +228,7 @@ void jsonb_read_iterator_parse_for_accessor(jsonb_read_iterator* jri_p, const js
 	close_stream(&strm, &error);
 	if(error)
 	{
-		printf("error closing bwi stream -> error = %d\n", error);
+		printf("error closing bri stream -> error = %d\n", error);
 		exit(-1);
 	}
 	deinitialize_stream(&strm);
