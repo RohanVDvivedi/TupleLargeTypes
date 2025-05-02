@@ -7,7 +7,7 @@ PICKED TASKS
   * add hasher to hash some attribute nestedly
 
 materialized_numeric
-  * is_integral
+  * is_integral // compare exponent with number of digits
   * get_integer
   * add
   * sub
