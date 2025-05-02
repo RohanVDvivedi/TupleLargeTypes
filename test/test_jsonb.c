@@ -358,9 +358,11 @@ int main()
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR());
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects")));
-	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(2)));
-	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(12)));
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(3)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(2)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(4)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(12)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_ARRAY_INDEX(5)));
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("votes-right")));
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("age")));
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("zzz"))); // make it reach end of the object
