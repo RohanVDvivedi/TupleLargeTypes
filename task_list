@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* test jsonb_read_iterator
-
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
