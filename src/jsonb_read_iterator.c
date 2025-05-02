@@ -152,6 +152,14 @@ static inline dstring read_fixed_sized_dstring(binary_read_iterator* bri_p, uint
 
 		if(!concatenate_dstring(&res, &get_dstring_pointing_to(data, data_size)))
 			exit(-1);
+
+		// skip those bytes
+		read_from_binary_read_iterator(bri_p, NULL, data_size, transaction_id, abort_error);
+		if(*abort_error)
+		{
+			deinit_dstring(&res);
+			return res;
+		}
 	}
 
 	return res;
@@ -205,7 +213,7 @@ static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected
 		while(1)
 		{
 			const jsonb_key* k = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
-			if(k == NULL || k->index == (k->total_siblings_count - 1))
+			if(k == NULL || k->index != (k->total_siblings_count - 1))
 				break;
 			pop_from_jsonb_accessor(&(jri_p->curr_acs));
 		}
@@ -284,7 +292,7 @@ static void skip_trailing_element(jsonb_read_iterator* jri_p, int* unexpected_en
 	while(1)
 	{
 		const jsonb_key* k = get_top_from_jsonb_accessor(&(jri_p->curr_acs));
-		if(k == NULL || k->index == (k->total_siblings_count - 1))
+		if(k == NULL || k->index != (k->total_siblings_count - 1))
 			break;
 		pop_from_jsonb_accessor(&(jri_p->curr_acs));
 	}
