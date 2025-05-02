@@ -178,6 +178,7 @@ static inline uint32_t read_uint32(binary_read_iterator* bri_p, int* unexpected_
 }
 
 // if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
+// if there are no elements in the jsonb_array or jsonb_object, then this function is equivalent to skip_trailing_element
 static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
 {
 	// TODO
