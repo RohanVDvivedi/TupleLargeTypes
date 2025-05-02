@@ -56,6 +56,6 @@ int point_to_accessor_for_jsonb_read_iterator(jsonb_read_iterator* jri_p, const 
 
 binary_read_iterator* get_cloned_iterator_for_jsonb_read_iterator(const jsonb_read_iterator* jri_p, const void* transaction_id, int* abort_error);
 
-#define deinit_jsonb_read_iterator(jri_p) if(jri_p->curr_acs.keys_list != NULL){free(jri_p->curr_acs.keys_list);}
+#define deinit_jsonb_read_iterator(jri_p) if((jri_p)->curr_acs.keys_list != NULL){free((jri_p)->curr_acs.keys_list);}
 
 #endif
