@@ -207,6 +207,10 @@ void jsonb_read_iterator_parse_for_accessor(jsonb_read_iterator* jri_p, const js
 		exit(-1);
 	}
 
+	printf("jsonb pointing_to = %d\n", got_pointed_to);
+	if(!got_pointed_to)
+		return;
+
 	binary_read_iterator* bri_p = get_cloned_iterator_for_jsonb_read_iterator(jri_p, transaction_id, &abort_error);
 	if(abort_error)
 	{
