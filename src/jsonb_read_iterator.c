@@ -89,7 +89,7 @@ static int compare_jsonb_N_json_accessors(const jsonb_accessor* jb_acs, const js
 			(*is_prefix) = 1;
 		else // else second one is the prefic of the first one
 			(*is_prefix) = 2;
-	} // else we found a mistmatching element, so is_prefix = 0, none is prefix of another one
+	} // else we found a mismatching element, so is_prefix = 0, none is prefix of another one
 
 	return cmp;
 }
