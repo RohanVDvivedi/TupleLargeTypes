@@ -114,6 +114,62 @@ static inline jsonb_type get_type_for_curr_jsonb_read(const jsonb_read_iterator*
 	return data[0];
 }
 
+// below function reads fixed sized dstring
+// no need to call deinit_dstring on the return value if either of unexpected_end_reached OR abort_error is set
+static inline dstring read_fixed_sized_dstring(binary_read_iterator* bri_p, uint32_t bytes_to_read, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
+{
+	dstring res;
+	if(!init_empty_dstring(&res, bytes_to_read))
+		exit(-1);
+
+	if(bytes_to_read == 0)
+		return res;
+
+	while(get_char_count_dstring(&res) < bytes_to_read)
+	{
+		uint32_t data_size = 0;
+		const char* data = peek_in_binary_read_iterator(bri_p, &data_size, transaction_id, abort_error);
+		if(*abort_error)
+		{
+			deinit_dstring(&res);
+			return res;
+		}
+		if(data_size == 0) // no more bytes to read
+		{
+			(*unexpected_end_reached) = 1;
+			deinit_dstring(&res);
+			return res;
+		}
+
+		data_size = min(data_size, bytes_to_read - get_char_count_dstring(&res));
+
+		if(!concatenate_dstring(&res, &get_dstring_pointing_to(data, data_size)))
+			exit(-1);
+	}
+
+	return res;
+}
+
+static inline uint8_t read_uint8(binary_read_iterator* bri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
+{
+	dstring res = read_fixed_sized_dstring(bri_p, 1, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return 0;
+	uint8_t uint8_val = (uint8_t)(get_byte_array_dstring(&res)[0]);
+	deinit_dstring(&res);
+	return uint8_val;
+}
+
+static inline uint32_t read_uint32(binary_read_iterator* bri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
+{
+	dstring res = read_fixed_sized_dstring(bri_p, 4, unexpected_end_reached, transaction_id, abort_error);
+	if((*unexpected_end_reached) || (*abort_error))
+		return 0;
+	uint32_t uint32_val = deserialize_uint32(get_byte_array_dstring(&res), 4);
+	deinit_dstring(&res);
+	return uint32_val;
+}
+
 // if we need more data to be read/peeked but the binary_read_iterator has reached its end, then unexpected_end_reached will be set to 1
 static void enter_into_first_element(jsonb_read_iterator* jri_p, int* unexpected_end_reached, const void* transaction_id, int* abort_error)
 {
