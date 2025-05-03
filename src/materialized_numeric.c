@@ -219,3 +219,8 @@ void print_materialized_numeric(const materialized_numeric* m)
 	if(m->exponent != 0)
 		printf(" (10^12)^(%"PRId16")", m->exponent);
 }
+
+int is_integral_materialized_numeric(const materialized_numeric* m)
+{
+	return (m->sign_bits == ZERO_NUMERIC) || (((m->sign_bits == NEGATIVE_NUMERIC) || (m->sign_bits == POSITIVE_NUMERIC)) && (m->exponent >= (get_digits_count_for_materialized_numeric(m) - 1)));
+}

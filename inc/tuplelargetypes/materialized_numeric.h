@@ -49,4 +49,7 @@ void deinitialize_materialized_numeric(materialized_numeric* m);
 
 void print_materialized_numeric(const materialized_numeric* m);
 
+// is_zero OR if exponent >= (number of digits - 1)
+int is_integral_materialized_numeric(const materialized_numeric* m);
+
 #endif
