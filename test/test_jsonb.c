@@ -85,6 +85,8 @@ jsonb_node* generate_test_data()
 	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("MinTxEngine")));
 	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("VolatilePageStore")));
 	push_in_jsonb_array_node(a, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("BeeDB")));
+	push_in_jsonb_array_node(a, new_jsonb_array_node(3));
+	push_in_jsonb_array_node(a, new_jsonb_object_node());
 
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("projects"), a);
 
@@ -94,6 +96,9 @@ jsonb_node* generate_test_data()
 	push_in_jsonb_array_node(v, new_jsonb_string_node(&get_dstring_pointing_to_literal_cstring("1000000000")));
 
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("aAa_revenues"), v);
+
+	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("empty_array"), new_jsonb_array_node(3));
+	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("empty_object"), new_jsonb_object_node());
 
 	put_in_jsonb_object_node(o, &get_dstring_pointing_to_literal_cstring("name"), NULL); // this insertion should fail jsonb only allows unique keys in objects
 
