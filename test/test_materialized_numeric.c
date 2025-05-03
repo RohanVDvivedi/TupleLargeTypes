@@ -252,5 +252,75 @@ int main()
 		printf("\n -> %d\n\n", cmp);
 	}
 
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_INFINITY_NUMERIC, 0, ((uint64_t[]){}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, NEGATIVE_INFINITY_NUMERIC, 0, ((uint64_t[]){}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, ZERO_NUMERIC, 0, ((uint64_t[]){}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, -3, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, -1, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, 0, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, 1, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, 2, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, 3, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
+	{
+		materialized_numeric m;
+		init_static_mat_num(&m, POSITIVE_NUMERIC, 5, ((uint64_t[]){1,2,3}));
+		print_materialized_numeric(&m);
+		printf(" ==> is_integral => %d\n\n", is_integral_materialized_numeric(&m));
+	}
+
 	return 0;
 }
