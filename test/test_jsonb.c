@@ -405,6 +405,24 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
+	bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	jri = init_jsonb_read_iterator(bri_p);
+
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_array")));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_array"), JSON_ARRAY_INDEX(0)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_array"), JSON_ARRAY_INDEX(1)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_object")));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_object"), JSON_OBJECT_KEY_literal("none")));
+
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_OBJECT_KEY_literal("empty_array")));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_OBJECT_KEY_literal("empty_array"), JSON_ARRAY_INDEX(0)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_OBJECT_KEY_literal("empty_array"), JSON_ARRAY_INDEX(1)));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_OBJECT_KEY_literal("empty_object")));
+	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("projects"), JSON_OBJECT_KEY_literal("empty_object"), JSON_OBJECT_KEY_literal("none")));
+
+	deinit_jsonb_read_iterator(&jri);
+	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
