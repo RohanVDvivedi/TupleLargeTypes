@@ -5,8 +5,6 @@ PICKED TASKS
   * add hasher to hash some attribute nestedly
 
 materialized_numeric
-  * is_integral // is zero OR when exponent >= (number of digits - 1)
-  * get_integer
   * add
   * sub
   * multiplication
