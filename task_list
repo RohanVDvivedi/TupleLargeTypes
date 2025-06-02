@@ -1,11 +1,9 @@
 PICKED TASKS
 
 * REFACTORING
-* formalize what is iterator, and what is an interface
-* who ever creates an iterator are allowed to delete them
-* interfaces are not allowed to delete iterator passed to them as input parameters
-* jsonb_read_iterator should be an interface instead
-* fix the api, fix tests and test accordingly, and make sure they pass and not cause double free
+* binary_read_iterator_stream becomes binary_reader_stream
+* binary_write_iterator_stream becomes binary_writer_stream
+* jsonb_read_iterator becomes jsonb_read_helper
 
 * JSONB
   * build jsonb_node from json_node and viceversa
