@@ -1,5 +1,5 @@
-#ifndef BINARY_WRITE_ITERATOR_STREAM_H
-#define BINARY_WRITE_ITERATOR_STREAM_H
+#ifndef BINARY_WRITER_STREAM_H
+#define BINARY_WRITER_STREAM_H
 
 /*
 	provides a wrapper stream over the binary_write_iterator
@@ -12,17 +12,17 @@
 
 #define BINARY_WRITER_OVERFLOW -177 // chosen arbitrarily
 
-typedef struct binary_write_iterator_stream_context binary_write_iterator_stream_context;
-struct binary_write_iterator_stream_context
+typedef struct binary_writer_stream_context binary_writer_stream_context;
+struct binary_writer_stream_context
 {
 	binary_write_iterator* bwi_p;
 	const void* transaction_id;
 	int* abort_error;
 };
 
-int initialize_stream_for_binary_write_iterator(stream* strm, binary_write_iterator_stream_context* bwisc_p, uint32_t write_buffer_size);
+int initialize_stream_for_binary_write_iterator(stream* strm, binary_writer_stream_context* bwisc_p, uint32_t write_buffer_size);
 
 #define initialize_stream_for_binary_write_iterator_static(strm, bwi_p_v, transaction_id_v, abort_error_v, write_buffer_size) \
-	initialize_stream_for_binary_write_iterator(strm, &(binary_write_iterator_stream_context){bwi_p_v, transaction_id_v, abort_error_v}, write_buffer_size)
+	initialize_stream_for_binary_write_iterator(strm, &(binary_writer_stream_context){bwi_p_v, transaction_id_v, abort_error_v}, write_buffer_size)
 
 #endif

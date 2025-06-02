@@ -1,4 +1,4 @@
-#include<tuplelargetypes/binary_write_iterator_stream.h>
+#include<tuplelargetypes/binary_writer_stream.h>
 
 static cy_uint write_to_stream_context(void* stream_context, const void* data, cy_uint data_size, int* error)
 {
