@@ -1,4 +1,4 @@
-#include<tuplelargetypes/binary_read_iterator_stream.h>
+#include<tuplelargetypes/binary_reader_stream.h>
 
 static cy_uint read_from_stream_context(void* stream_context, void* data, cy_uint data_size, int* error)
 {
