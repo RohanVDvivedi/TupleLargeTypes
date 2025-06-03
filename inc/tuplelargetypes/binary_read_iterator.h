@@ -48,6 +48,7 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 
 binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
-#include<tuplelargetypes/binary_read_iterator_stream.h>
+// below header can allow you to wrap the iterator under a stream interface
+#include<tuplelargetypes/binary_reader_stream.h>
 
 #endif
