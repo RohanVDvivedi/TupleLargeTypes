@@ -4,6 +4,11 @@
 #include<tuplestore/tuple.h>
 #include<tuplestore/tuple_def.h>
 
+/*
+	The following interface brings uniformity in the access of the user_value obtained from the user and the extended data in the inline+worm
+	They open the iterators and manage them underneath, closing them upon close_* calls
+*/
+
 typedef struct binary_reader_interface binary_reader_interface;
 struct binary_reader_interface
 {

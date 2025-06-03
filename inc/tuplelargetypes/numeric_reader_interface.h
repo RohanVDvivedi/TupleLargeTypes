@@ -8,6 +8,11 @@ typedef struct numeric_reader_interface numeric_reader_interface;
 
 #include<tuplelargetypes/numeric_extended.h>
 
+/*
+	The following interface brings uniformity in the access of the user_value obtained from the user and the extended data in the inline+worm
+	They open the iterators and manage them underneath, closing them upon close_* calls
+*/
+
 struct numeric_reader_interface
 {
 	void* context;
