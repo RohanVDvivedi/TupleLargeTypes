@@ -7,7 +7,7 @@ DOWNLOAD_DIR:=/usr/local
 # we may download all the public headers
 
 # list of public api headers (only these headers will be installed)
-PUBLIC_HEADERS:=common_extended.h blob_extended.h text_extended.h binary_read_iterator.h binary_read_iterator_stream.h binary_reader_interface.h binary_write_iterator.h binary_write_iterator_stream.h numeric_extended.h materialized_numeric.h numeric_reader_interface.h digit_read_iterator.h digit_write_iterator.h tuple_list_extended.h tuple_list_helper.h jsonb_extended.h binary_hasher.h comparator.h jsonb_extended.h jsonb_node.h jsonb_parser.h jsonb_serializer.h jsonb_read_iterator.h
+PUBLIC_HEADERS:=common_extended.h blob_extended.h text_extended.h binary_read_iterator.h binary_reader_stream.h binary_reader_interface.h binary_write_iterator.h binary_writer_stream.h numeric_extended.h materialized_numeric.h numeric_reader_interface.h digit_read_iterator.h digit_write_iterator.h tuple_list_extended.h tuple_list_helper.h jsonb_extended.h binary_hasher.h comparator.h jsonb_extended.h jsonb_node.h jsonb_parser.h jsonb_serializer.h jsonb_read_iterator.h
 # the library, which we will create
 LIBRARY:=lib${PROJECT_NAME}.a
 # the binary, which will use the created library
