@@ -40,7 +40,7 @@ struct jsonb_accessor
 typedef struct jsonb_read_iterator jsonb_read_iterator;
 struct jsonb_read_iterator
 {
-	jsonb_accessor curr_acs; // contains dynamically allocated keys for the current position
+	jsonb_accessor curr_acs; // contains dynamically allocated keys pointing to the current position
 
 	binary_read_iterator* bri_p; // actual position in the iterator
 };
