@@ -4,6 +4,8 @@
 /*
 	provides a wrapper stream over the binary_read_iterator
 	you the user needs to provide a binary_read_iterator, transaction_id and an abort_error pointer
+
+	the binary_read_iterator must be deleted only after the stream is closed and deinitialized
 */
 
 #include<cutlery/stream.h>

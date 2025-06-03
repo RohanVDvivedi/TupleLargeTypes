@@ -5,6 +5,8 @@
 	provides a wrapper stream over the binary_write_iterator
 	you the user needs to provide a binary_write_iterator, transaction_id and an abort_error pointer
 	An error of BINARY_WRITER_OVERFLOW is thrown if bytes can not be written to it
+
+	the binary_write_iterator must be deleted only after the stream is closed and deinitialized
 */
 
 #include<cutlery/stream.h>
