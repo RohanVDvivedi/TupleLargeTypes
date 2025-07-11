@@ -5,6 +5,10 @@
 #include<tuplestore/data_type_info.h>
 #include<tupleindexer/common/page_access_specification.h>
 
+// here we rely on the fact that there are 8 bits in a byte
+// our calculations to use 5 bytes to store a 10^12 radix digits for extended numeric is based on calculations done this way, shown at the end of this file
+fail_build_on((CHAR_BIT != 8));
+
 #define BYTES_PER_NUMERIC_DIGIT 5
 fail_build_on(BYTES_PER_NUMERIC_DIGIT > 8);
 
