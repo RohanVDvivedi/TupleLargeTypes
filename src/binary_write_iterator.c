@@ -153,7 +153,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			}
 
 			// append to worm
-			bytes_written_this_iteration = append_to_worm(bwi_p->wai_p, data, data_size, transaction_id, abort_error);
+			bytes_written_this_iteration = append_to_worm(bwi_p->wai_p, data, data_size, NULL, NULL, transaction_id, abort_error);
 			if(*abort_error)
 			{
 				delete_worm_append_iterator(bwi_p->wai_p, transaction_id, abort_error);

@@ -182,7 +182,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 				serialize_uint64(buffer + i * BYTES_PER_NUMERIC_DIGIT, BYTES_PER_NUMERIC_DIGIT, digits[i]);
 
 			// append to worm
-			digits_written_this_iteration = append_to_worm(dwi_p->wai_p, buffer, buffer_size, transaction_id, abort_error) / BYTES_PER_NUMERIC_DIGIT;
+			digits_written_this_iteration = append_to_worm(dwi_p->wai_p, buffer, buffer_size, NULL, NULL, transaction_id, abort_error) / BYTES_PER_NUMERIC_DIGIT;
 			// it is assumed that this return value of the above function is a multiple of BYTES_PER_NUMERIC_DIGIT
 			// and that it consumes as much data (according to current logic all of the data), as the worm can 
 			free(buffer); // we can not forget to discard the buffer after the call
