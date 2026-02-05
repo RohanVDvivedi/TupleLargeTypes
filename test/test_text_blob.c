@@ -7,7 +7,7 @@
 #include<tupleindexer/interface/unWALed_in_memory_data_store.h>
 #include<tupleindexer/interface/unWALed_page_modification_methods.h>
 
-#include<tuplelargetypes/binary_extended.h>
+#include<tuplelargetypes/blob_extended.h>
 #include<tuplelargetypes/text_extended.h>
 
 //#define USE_INLINE
