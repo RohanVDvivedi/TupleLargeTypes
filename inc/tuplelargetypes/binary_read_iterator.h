@@ -7,8 +7,8 @@
 
 /*
 	To be used solely with data_type_info-s that are structurally similar to
-	inline types like : text_inline, blob_inline, 
-	extended types like : text_extended, blob_extended,
+	inline types like : text_inline, binary_inline, 
+	extended types like : text_extended, binary_extended,
 
 	It gives you a TupleIndexer worm like interface, that means you can easily use consuming inline and overflow page contents in a stream like fashion agnostic of whether it is an inline type or an extended type
 

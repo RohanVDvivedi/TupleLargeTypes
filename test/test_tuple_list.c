@@ -85,8 +85,8 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 uint32_t build_tuple(void* res, const char* sval, double dval)
 {
 	init_tuple(&tpl_d_tlist_elements, res);
-	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(user_value){.string_value = sval, .string_size = strlen(sval)}, UINT32_MAX);
-	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(1), res, &(user_value){.double_value = dval}, UINT32_MAX);
+	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(0), res, &(datum){.string_value = sval, .string_size = strlen(sval)}, UINT32_MAX);
+	set_element_in_tuple(&tpl_d_tlist_elements, STATIC_POSITION(1), res, &(datum){.double_value = dval}, UINT32_MAX);
 	return get_tuple_size(&tpl_d_tlist_elements, res);
 }
 
@@ -198,7 +198,7 @@ int main()
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
 	#ifdef USE_NESTED
-		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
 	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});

@@ -21,7 +21,7 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
 ## Using The library
  * add `-ltuplelargetypes -ltupleindexer -ltuplestore -lcutlery` linker flag, while compiling your application
  * do not forget to include appropriate public api headers as and when needed. this includes
-   * `#include<tuplelargetypes/blob_extended.h>`
+   * `#include<tuplelargetypes/binary_extended.h>`
    * `#include<tuplelargetypes/text_extended.h>`
    * `#include<tuplelargetypes/numeric_extended.h>`
    * `#include<tuplelargetypes/tuple_list_extended.h>`

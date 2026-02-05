@@ -94,9 +94,9 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
 		else
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-		user_value sign_bits_uv;
+		datum sign_bits_uv;
 		int valid = get_value_from_element_from_tuple(&sign_bits_uv, tpl_d, rpa.exact, tupl);
-		if(valid && !is_user_value_NULL(&sign_bits_uv))
+		if(valid && !is_datum_NULL(&sign_bits_uv))
 			(*sign_bits) = sign_bits_uv.bit_field_value;
 		else
 			result = 0;
@@ -109,9 +109,9 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
 		else
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
-		user_value exponent_uv;
+		datum exponent_uv;
 		int valid = get_value_from_element_from_tuple(&exponent_uv, tpl_d, rpa.exact, tupl);
-		if(valid && !is_user_value_NULL(&exponent_uv))
+		if(valid && !is_datum_NULL(&exponent_uv))
 			(*exponent) = exponent_uv.int_value;
 		else
 			result = 0;
@@ -142,15 +142,15 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 	if(is_extended)
 	{
 		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-		user_value inline_component;
+		datum inline_component;
 		int valid = get_value_from_element_from_tuple(&inline_component, tpl_d, rpa.exact, tupl);
 		if(!valid) // this should not happen, for most cases
 		{
 			deinitialize_relative_positional_accessor(&rpa);
 			return 0;
 		}
-		if(is_user_value_NULL(&inline_component)) // set it to empty user value only if it is absent, else tht set calls to its sign bits and exponent will fail
-			set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_USER_VALUE, UINT32_MAX);
+		if(is_datum_NULL(&inline_component)) // set it to empty user value only if it is absent, else tht set calls to its sign bits and exponent will fail
+			set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_DATUM, UINT32_MAX);
 	}
 
 	int result = 1;
@@ -169,7 +169,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 					relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
 				else
 					relative_positonal_accessor_set_from_relative(&rpa, SELF);
-				result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_USER_VALUE, 0);
+				result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_DATUM, 0);
 				disallowed_setting_exponent = 1;
 			}
 		}
@@ -180,7 +180,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
 			else
 				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.bit_field_value = sign_bits}), 0);
+			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((datum){.bit_field_value = sign_bits}), 0);
 		}
 	}
 
@@ -191,7 +191,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
 		else
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
-		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((user_value){.int_value = exponent}), 0);
+		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((datum){.int_value = exponent}), 0);
 	}
 
 	deinitialize_relative_positional_accessor(&rpa);

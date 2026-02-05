@@ -76,27 +76,27 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 		if(dri_p->is_inline)
 		{
 			point_to_prefix(&child_relative_accessor, dri_p->is_inline);
-			user_value prefix;
+			datum prefix;
 			int valid_prefix = get_value_from_element_from_tuple(&prefix, dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
-			if(valid_prefix && !is_user_value_NULL(&prefix))
+			if(valid_prefix && !is_datum_NULL(&prefix))
 				prefix_digits_count = get_element_count_for_element_from_tuple(dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
 		}
 		else
 		{
 			point_to_prefix(&child_relative_accessor, dri_p->is_inline);
-			user_value prefix;
+			datum prefix;
 			int valid_prefix = get_value_from_element_from_tuple(&prefix, dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
-			if(valid_prefix && !is_user_value_NULL(&prefix))
+			if(valid_prefix && !is_datum_NULL(&prefix))
 			{
 				prefix_digits_count = get_element_count_for_element_from_tuple(dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
 
 				// this means a valid extension_head_page_id for the worm may exist
 				if(dri_p->wri_p == NULL) // you will need extension_head_page_id set to valid value only if the worm_read_iterator is not initialized
 				{
-					user_value worm_head_page_id;
+					datum worm_head_page_id;
 					point_to_extension_head_page_id(&child_relative_accessor, dri_p->is_inline);
 					int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
-					if(valid_worm_head_page_id && !is_user_value_NULL(&worm_head_page_id)) // if valid and not NULL
+					if(valid_worm_head_page_id && !is_datum_NULL(&worm_head_page_id)) // if valid and not NULL
 						extension_head_page_id = worm_head_page_id.uint_value;
 				}
 			}
@@ -122,14 +122,14 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 				for(uint32_t i = 0; i < digits_read_this_iteration; i++)
 				{
 					point_to_prefix_s_digit(&child_relative_accessor, dri_p->digits_read_from_prefix + i, dri_p->is_inline);
-					user_value digit_value;
+					datum digit_value;
 					get_value_from_element_from_tuple(&digit_value, dri_p->tpl_d, child_relative_accessor.exact, dri_p->tupl);
 					digits[i] = digit_value.uint_value;
 				}
 			}
 			dri_p->digits_read_from_prefix += digits_read_this_iteration;
 		}
-		else if(!(dri_p->is_inline)) // go here only if it is a large text or blob
+		else if(!(dri_p->is_inline)) // go here only if it is a large text or binary
 		{
 			// initialize worm read iterator if not done already
 			if(dri_p->wri_p == NULL)

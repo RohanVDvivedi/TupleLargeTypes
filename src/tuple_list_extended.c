@@ -13,7 +13,7 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 	if(dti_p == NULL)
 		exit(-1);
 
-	// the blob_inline controls the total size so we allow the blob_extended to be atmost page_size bytes large
+	// the binary_inline controls the total size so we allow the binary_extended to be atmost page_size bytes large
 	initialize_tuple_data_type_info(dti_p, "tuple_list_extended", 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "tuple_list_prefix");
@@ -22,7 +22,7 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 		if(tuple_list_inline_p == NULL)
 			exit(-1);
 
-		(*tuple_list_inline_p) = get_variable_length_blob_type("tuple_list_inline", inline_size);
+		(*tuple_list_inline_p) = get_variable_length_binary_type("tuple_list_inline", inline_size);
 
 		dti_p->containees[0].al.type_info = (data_type_info*)tuple_list_inline_p;
 	}
@@ -53,7 +53,7 @@ int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
 				if(point_to_parent_position(&parent_position))
 					parent_dti = get_type_info_for_element_from_tuple_def(tpl_d, parent_position);
 			}
-			if((dti == NULL) || (parent_dti != NULL && (parent_dti->type == ARRAY || parent_dti->type == STRING || parent_dti->type == BLOB) && absolute_position.positions[absolute_position.positions_length-1] == 1))
+			if((dti == NULL) || (parent_dti != NULL && (parent_dti->type == ARRAY || parent_dti->type == STRING || parent_dti->type == BINARY) && absolute_position.positions[absolute_position.positions_length-1] == 1))
 			{
 				if((absolute_position.positions_length >= 2) && point_to_next_uncle_position(&absolute_position))
 					continue;
@@ -62,7 +62,7 @@ int can_tuple_be_inserted_in_tuple_list_extended(const tuple_def* tpl_d)
 			}
 		}
 
-		// analyze dti and user_value
+		// analyze dti and datum
 		can_be_inserted = can_be_inserted && (!is_extended_type_info(dti));
 		if(can_be_inserted == 0)
 			break;

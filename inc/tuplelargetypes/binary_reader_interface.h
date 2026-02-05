@@ -5,7 +5,7 @@
 #include<tuplestore/tuple_def.h>
 
 /*
-	The following interface brings uniformity in the access of the user_value obtained from the user and the extended data in the inline+worm
+	The following interface brings uniformity in the access of the datum obtained from the user and the extended data in the inline+worm
 	They open the iterators and manage them underneath, closing them upon close_* calls
 */
 
@@ -29,10 +29,10 @@ struct binary_reader_interface
 };
 
 #define text_reader_interface binary_reader_interface
-#define blob_reader_interface binary_reader_interface
+#define binary_reader_interface binary_reader_interface
 
 /*
-	implementation for a text/blob inside a tuple (extended or inline)
+	implementation for a text/binary inside a tuple (extended or inline)
 */
 
 #include<tuplelargetypes/binary_read_iterator.h>
@@ -69,30 +69,30 @@ void close_bytes_stream_for_intuple_binary_reader_interface(const binary_reader_
 
 
 /*
-	implementation for a text/blob inside a user_value (extended or inline)
+	implementation for a text/binary inside a datum (extended or inline)
 */
 
-typedef struct user_value_binary_reader_interface_context user_value_binary_reader_interface_context;
-struct user_value_binary_reader_interface_context
+typedef struct datum_binary_reader_interface_context datum_binary_reader_interface_context;
+struct datum_binary_reader_interface_context
 {
-	user_value uval;
+	datum uval;
 	uint32_t bytes_read;
 };
 
-int is_valid_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p);
-int is_null_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p);
-uint32_t read_bytes_as_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
-const char* peek_bytes_as_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p, uint32_t* data_size, int* error);
-void close_bytes_stream_for_user_value_binary_reader_interface(const binary_reader_interface* bri_p);
+int is_valid_for_datum_binary_reader_interface(const binary_reader_interface* bri_p);
+int is_null_for_datum_binary_reader_interface(const binary_reader_interface* bri_p);
+uint32_t read_bytes_as_stream_for_datum_binary_reader_interface(const binary_reader_interface* bri_p, char* data, uint32_t data_size, int* error);
+const char* peek_bytes_as_stream_for_datum_binary_reader_interface(const binary_reader_interface* bri_p, uint32_t* data_size, int* error);
+void close_bytes_stream_for_datum_binary_reader_interface(const binary_reader_interface* bri_p);
 
-#define init_user_value_binary_reader_interface(uval_v) \
+#define init_datum_binary_reader_interface(uval_v) \
 (binary_reader_interface){ \
-	&(user_value_binary_reader_interface_context){uval_v, 0}, \
-	is_valid_for_user_value_binary_reader_interface, \
-	is_null_for_user_value_binary_reader_interface, \
-	read_bytes_as_stream_for_user_value_binary_reader_interface, \
-	peek_bytes_as_stream_for_user_value_binary_reader_interface, \
-	close_bytes_stream_for_user_value_binary_reader_interface, \
+	&(datum_binary_reader_interface_context){uval_v, 0}, \
+	is_valid_for_datum_binary_reader_interface, \
+	is_null_for_datum_binary_reader_interface, \
+	read_bytes_as_stream_for_datum_binary_reader_interface, \
+	peek_bytes_as_stream_for_datum_binary_reader_interface, \
+	close_bytes_stream_for_datum_binary_reader_interface, \
 };
 
 #endif

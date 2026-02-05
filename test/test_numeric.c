@@ -207,7 +207,7 @@ int main()
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
 	#ifdef USE_NESTED
-		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -474,7 +474,7 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 	// set s1 in tuple
 	if(n1 != NULL)
 	{
-		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_DATUM, UINT32_MAX);
 		set_sign_bits_and_exponent_for_numeric(n1->sb, n1->exp, tuple, tpl_d, STATIC_POSITION(0));
 
 		if(n1->digits != NULL)
@@ -502,7 +502,7 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 	// set s2 in tuple
 	if(n2 != NULL)
 	{
-		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_DATUM, UINT32_MAX);
 		set_sign_bits_and_exponent_for_numeric(n2->sb, n2->exp, tuple, tpl_d, STATIC_POSITION(1));
 
 		if(n2->digits != NULL)

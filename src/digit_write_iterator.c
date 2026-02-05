@@ -30,14 +30,14 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	if(!(dwi_p->is_inline))
 	{
 		point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
-		user_value extension_head_page;
+		datum extension_head_page;
 		int valid_extension = get_value_from_element_from_tuple(&extension_head_page, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 
 		point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
-		user_value prefix;
+		datum prefix;
 		int valid_prefix = get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 
-		if(valid_extension && valid_prefix && !is_user_value_NULL(&extension_head_page) && !is_user_value_NULL(&prefix) && extension_head_page.uint_value != pam_p->pas.NULL_PAGE_ID)
+		if(valid_extension && valid_prefix && !is_datum_NULL(&extension_head_page) && !is_datum_NULL(&prefix) && extension_head_page.uint_value != pam_p->pas.NULL_PAGE_ID)
 			digits_to_be_written_to_prefix = 0;
 	}
 
@@ -50,45 +50,45 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	dwi_p->pam_p = pam_p;
 	dwi_p->pmm_p = pmm_p;
 
-	// if the prefix is NULL in an extended numeric, set it to EMPTY_USER_VALUE and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the blob_extension to NULL_PAGE_ID
+	// if the prefix is NULL in an extended numeric, set it to EMPTY_DATUM and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the binary_extension to NULL_PAGE_ID
 	if(!(dwi_p->is_inline))
 	{
-		// if prefix_container is NULL set it to EMPTY_USER_VALUE
+		// if prefix_container is NULL set it to EMPTY_DATUM
 		{
 			point_to_prefix_container(&child_relative_accessor, dwi_p->is_inline);
-			user_value prefix_container;
+			datum prefix_container;
 			get_value_from_element_from_tuple(&prefix_container, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-			if(is_user_value_NULL(&prefix_container))
-				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
+			if(is_datum_NULL(&prefix_container))
+				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
 		}
 		
-		// if prefix is NULL set it to EMPTY_USER_VALUE
+		// if prefix is NULL set it to EMPTY_DATUM
 		point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
-		user_value prefix;
+		datum prefix;
 		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 		int reset = 0;
-		if(is_user_value_NULL(&prefix))
+		if(is_datum_NULL(&prefix))
 		{
 			reset = 1;
-			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
+			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
 		}
 		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 
 		if(reset)
 		{
 			point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
-			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((user_value){.uint_value = dwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
+			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = dwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
 		}
 	}
 	else
 	{
-		// if prefix is NULL set it to EMPTY_USER_VALUE
+		// if prefix is NULL set it to EMPTY_DATUM
 		{
 			point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
-			user_value prefix;
+			datum prefix;
 			get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-			if(is_user_value_NULL(&prefix))
-				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_USER_VALUE, UINT32_MAX);
+			if(is_datum_NULL(&prefix))
+				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
 		}
 
 		// get maximum digits you can extend it additionally by
@@ -133,7 +133,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 			for(uint32_t i = 0; i < digits_written_this_iteration; i++)
 			{
 				point_to_prefix_s_digit(&child_relative_accessor, old_element_count + i, dwi_p->is_inline);
-				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((user_value){.uint_value = digits[i]}), UINT32_MAX);
+				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = digits[i]}), UINT32_MAX);
 			}
 
 			dwi_p->digits_written_to_prefix += digits_written_this_iteration;
@@ -146,7 +146,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 				uint64_t extension_head_page_id;
 				{
 					point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
-					user_value extension_head;
+					datum extension_head;
 					get_value_from_element_from_tuple(&extension_head, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 					extension_head_page_id = extension_head.uint_value;
 				}
@@ -160,7 +160,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 						deinitialize_relative_positional_accessor(&child_relative_accessor);
 						return 0;
 					}
-					set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((user_value){.uint_value = extension_head_page_id}), UINT32_MAX);
+					set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = extension_head_page_id}), UINT32_MAX);
 				}
 
 				// open a new wai

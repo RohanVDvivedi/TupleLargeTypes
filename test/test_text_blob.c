@@ -7,7 +7,7 @@
 #include<tupleindexer/interface/unWALed_in_memory_data_store.h>
 #include<tupleindexer/interface/unWALed_page_modification_methods.h>
 
-#include<tuplelargetypes/blob_extended.h>
+#include<tuplelargetypes/binary_extended.h>
 #include<tuplelargetypes/text_extended.h>
 
 //#define USE_INLINE
@@ -127,7 +127,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_blob(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf("hash => %"PRIu64"\n\n", hash_binary(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
 
 	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
@@ -194,7 +194,7 @@ int main()
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
 	#ifdef USE_NESTED
-		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
 
@@ -220,8 +220,8 @@ int main()
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
 		{
-			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
-			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			binary_reader_interface bri2 = init_datum_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_DATUM) : ((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}));
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(&bri1, &bri2, &prefix);
@@ -229,8 +229,8 @@ int main()
 		}
 
 		{
-			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
-			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			binary_reader_interface bri2 = init_datum_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_DATUM) : ((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}));
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(&bri2, &bri1, &prefix);
@@ -245,8 +245,8 @@ int main()
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
 		{
-			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
-			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			binary_reader_interface bri2 = init_datum_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_DATUM) : ((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}));
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(&bri1, &bri2, &prefix);
@@ -254,8 +254,8 @@ int main()
 		}
 
 		{
-			blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
-			blob_reader_interface bri2 = init_user_value_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_USER_VALUE) : ((user_value){.string_or_blob_value = compare_with[i], .string_or_blob_size = strlen(compare_with[i])}));
+			binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			binary_reader_interface bri2 = init_datum_binary_reader_interface((compare_with[i] == NULL) ? (*NULL_DATUM) : ((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}));
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(&bri2, &bri1, &prefix);
@@ -304,7 +304,7 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	// set s1 in tuple
 	if(s1 != NULL)
 	{
-		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_DATUM, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
 		const char* bytes = s1;
@@ -327,7 +327,7 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	// set s2 in tuple
 	if(s2 != NULL)
 	{
-		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_DATUM, UINT32_MAX);
 		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
 		const char* bytes = s2;
@@ -354,8 +354,8 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	{
 		int cmp = 100;
 		int prefix = 100;
-		blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
-		blob_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
+		binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
+		binary_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
 		cmp = compare_tb(&bri1, &bri2, &prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
 	}
@@ -363,8 +363,8 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	{
 		int cmp = 100;
 		int prefix = 100;
-		blob_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
-		blob_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
+		binary_reader_interface bri1 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
+		binary_reader_interface bri2 = init_intuple_binary_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
 		cmp = compare_tb(&bri2, &bri1, &prefix);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
 	}

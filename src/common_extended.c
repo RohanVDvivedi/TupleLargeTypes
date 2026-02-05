@@ -38,9 +38,9 @@ uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tu
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 2));
 		else
 			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-		user_value prefix;
+		datum prefix;
 		int valid = get_value_from_element_from_tuple(&prefix, tpl_d, rpa.exact, tupl);
-		if((!valid) || is_user_value_NULL(&prefix))
+		if((!valid) || is_datum_NULL(&prefix))
 		{
 			deinitialize_relative_positional_accessor(&rpa);
 			return pas_p->NULL_PAGE_ID;
@@ -50,9 +50,9 @@ uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tu
 	uint64_t extension_head_page_id = pas_p->NULL_PAGE_ID;
 	{
 		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
-		user_value extension_head_page;
+		datum extension_head_page;
 		int valid = get_value_from_element_from_tuple(&extension_head_page, tpl_d, rpa.exact, tupl);
-		if(valid && (!is_user_value_NULL(&extension_head_page)))
+		if(valid && (!is_datum_NULL(&extension_head_page)))
 			extension_head_page_id = extension_head_page.uint_value;
 	}
 

@@ -1,4 +1,4 @@
-gcc ./test_text_blob.c -o test_tb.out -ltuplelargetypes -ltupleindexer -llockking -ltuplestore -lcutlery
+gcc ./test_text_binary.c -o test_tb.out -ltuplelargetypes -ltupleindexer -llockking -ltuplestore -lcutlery
 gcc ./test_numeric.c -o test_n.out -ltuplelargetypes -ltupleindexer -llockking -ltuplestore -lcutlery
 gcc ./test_tuple_list.c -o test_tl.out -ltuplelargetypes -ltupleindexer -llockking -ltuplestore -lcutlery
 

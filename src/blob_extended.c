@@ -18,7 +18,7 @@ data_type_info* get_blob_inline_type_info(uint32_t max_size)
 	if(dti_p == NULL)
 		exit(-1);
 
-	(*dti_p) = get_variable_length_blob_type("blob_inline", max_size);
+	(*dti_p) = get_variable_length_binary_type("blob_inline", max_size);
 
 	return dti_p;
 }

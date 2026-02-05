@@ -149,7 +149,7 @@ jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, worm_t
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_blob(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf("hash => %"PRIu64"\n\n", hash_binary(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
 
 	binary_read_iterator* bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
 
@@ -295,7 +295,7 @@ int main()
 	char inline_tuple[PAGE_SIZE];
 	init_tuple(tpl_d, inline_tuple);
 	#ifdef USE_NESTED
-		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_USER_VALUE, UINT32_MAX);
+		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
 
 	// generate test jsonb
