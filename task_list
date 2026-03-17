@@ -1,5 +1,10 @@
 PICKED TASKS
 
+* pass datum* and data_type_info* instead of tuple, tuple_def and positional_accessor
+* make literals like blob_inline and blob_extended as fixed literals
+* discard use of relative_positional_accessor, and embrace STATION_POTITION(0 or 1) instead
+
+
 * REFACTORING
 * binary_read_iterator_stream becomes binary_reader_stream
 * binary_write_iterator_stream becomes binary_writer_stream
