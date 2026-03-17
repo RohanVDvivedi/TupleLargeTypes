@@ -1,8 +1,12 @@
 PICKED TASKS
 
-* pass datum* and data_type_info* instead of tuple, tuple_def and positional_accessor
+* allow making fixed sized inline components
+* pass datum* and data_type_info* instead of tuple, tuple_def and positional_accessor in all of the binary/digit_read_iterator/interface/stream, hasher, comparators, common_extended etc
 * make literals like blob_inline and blob_extended as fixed literals
-* discard use of relative_positional_accessor, and embrace STATION_POTITION(0 or 1) instead
+* discard use of relative_positional_accessor, and embrace STATION_POSITION(0 or 1) instead for the reader side of the code
+* with this we may not need is_inline, we can just directly store the pointing to dstring, and advance it when some of it's contents is already read, and also extract the extended_head_page_id (NULL if inline), when it is empty, then we read from the worm_read_iterator, when inline dstring is completely read.
+  * this simplified the implementation to a great extent.
+* leave write size code as is, unchanged, just make the write_stream the default way to insert into extended types
 
 
 * JSONB
