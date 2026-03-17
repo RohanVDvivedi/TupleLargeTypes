@@ -5,11 +5,6 @@ PICKED TASKS
 * discard use of relative_positional_accessor, and embrace STATION_POTITION(0 or 1) instead
 
 
-* REFACTORING
-* binary_read_iterator_stream becomes binary_reader_stream
-* binary_write_iterator_stream becomes binary_writer_stream
-* jsonb_read_iterator becomes jsonb_read_helper
-
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
