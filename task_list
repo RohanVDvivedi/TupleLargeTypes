@@ -5,6 +5,7 @@ PICKED TASKS
 * for text and blob, if the data_type_info is NULL, it is a inline binary/blob type, so only access the string_or_blob_value and string_or_blob_size directly
 * make literals like blob_inline and blob_extended as fixed literals
 * discard use of relative_positional_accessor, and embrace STATION_POSITION(0 or 1) instead for the reader side of the code
+* make macros to represent the extended_head_page_id, inline_value, and other numeric's attributes
 * with this we may not need is_inline, we can just directly store the pointing to dstring, and advance it when some of it's contents is already read, and also extract the extended_head_page_id (NULL if inline), when it is empty, then we read from the worm_read_iterator, when inline dstring is completely read.
   * this simplified the implementation to a great extent.
 * leave write size code as is, unchanged, just make the write_stream the default way to insert into extended types
