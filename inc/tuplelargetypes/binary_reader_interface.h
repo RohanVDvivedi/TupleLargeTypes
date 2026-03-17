@@ -32,7 +32,7 @@ struct binary_reader_interface
 #define binary_reader_interface binary_reader_interface
 
 /*
-	implementation for a text/binary inside a tuple (extended or inline)
+	implementation for a text/blob inside a tuple (extended or inline)
 */
 
 #include<tuplelargetypes/binary_read_iterator.h>
@@ -69,7 +69,7 @@ void close_bytes_stream_for_intuple_binary_reader_interface(const binary_reader_
 
 
 /*
-	implementation for a text/binary inside a datum (extended or inline)
+	implementation for a string/binary inside a datum any size
 */
 
 typedef struct datum_binary_reader_interface_context datum_binary_reader_interface_context;

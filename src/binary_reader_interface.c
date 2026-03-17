@@ -1,7 +1,7 @@
 #include<tuplelargetypes/binary_reader_interface.h>
 
 /*
-	implementation for a text/binary inside a tuple (extended or inline)
+	implementation for a text/blob inside a tuple (extended or inline)
 */
 
 int is_valid_for_intuple_binary_reader_interface(const binary_reader_interface* bri_p)
@@ -87,7 +87,7 @@ void close_bytes_stream_for_intuple_binary_reader_interface(const binary_reader_
 }
 
 /*
-	implementation for a text/binary inside a datum (extended or inline)
+	implementation for a string/binary inside a datum any size
 */
 
 int is_valid_for_datum_binary_reader_interface(const binary_reader_interface* bri_p)
