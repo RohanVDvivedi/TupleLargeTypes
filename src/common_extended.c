@@ -14,44 +14,15 @@ int is_extended_type_info(const data_type_info* dti_p)
 	return is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
 }
 
-uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
+uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
 {
-	// ensure that it is a large type_info
-	int is_numeric = 0;
+	if(is_extended_type_info(dti) && !is_datum_NULL(uval)) // extract only when uval is not NULL && the type is the extended one
 	{
-		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pa);
-		if(!is_extended_type_info(dti_p))
-			return pas_p->NULL_PAGE_ID;
-		is_numeric = strncmp(dti_p->type_name, "numeric", sizeof("numeric")-1) == 0;
+		datum extension_head_page_id;
+		int valid = get_containee_for_datum(&extension_head_page_id, uval, dti, 1);
+		if(valid && (!is_datum_NULL(&extension_head_page_id)))
+			return extension_head_page_id.uint_value;
 	}
 
-	relative_positional_accessor rpa;
-	initialize_relative_positional_accessor(&rpa, &pa, 2);
-
-	// before a worm is created and appended to, the prefix has to be non null and valid, (it may not be full, but it must have something)
-	{
-		if(is_numeric)
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 2));
-		else
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-		datum prefix;
-		int valid = get_value_from_element_from_tuple(&prefix, tpl_d, rpa.exact, tupl);
-		if((!valid) || is_datum_NULL(&prefix))
-		{
-			deinitialize_relative_positional_accessor(&rpa);
-			return pas_p->NULL_PAGE_ID;
-		}
-	}
-
-	uint64_t extension_head_page_id = pas_p->NULL_PAGE_ID;
-	{
-		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
-		datum extension_head_page;
-		int valid = get_value_from_element_from_tuple(&extension_head_page, tpl_d, rpa.exact, tupl);
-		if(valid && (!is_datum_NULL(&extension_head_page)))
-			extension_head_page_id = extension_head_page.uint_value;
-	}
-
-	deinitialize_relative_positional_accessor(&rpa);
-	return extension_head_page_id;
+	return pas_p->NULL_PAGE_ID;
 }
