@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* make common_extended identify and find the extension head page id
-
 * pass datum* and data_type_info* instead of tuple, tuple_def and positional_accessor in all of the binary/digit_read_iterator/interface/stream, hasher, comparators, common_extended etc
 * for text and blob, if the data_type_info is NULL, it is a inline binary/blob type, so only access the string_or_blob_value and string_or_blob_size directly
 * discard use of relative_positional_accessor, and embrace STATION_POSITION(0 or 1) instead, (for the reader side of the code only)
