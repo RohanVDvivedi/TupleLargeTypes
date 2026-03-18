@@ -4,12 +4,12 @@
 
 int is_text_inline_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "text_inline") == 0;
+	return strcmp(dti_p->type_name, TEXT_TYPE_PREFIX INLINE_TYPE_SUFFIX) == 0;
 }
 
 int is_text_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "text_extended") == 0;
+	return strcmp(dti_p->type_name, TEXT_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
 }
 
 data_type_info* get_text_inline_type_info(int is_fixed, uint32_t max_size)
@@ -19,9 +19,9 @@ data_type_info* get_text_inline_type_info(int is_fixed, uint32_t max_size)
 		exit(-1);
 
 	if(is_fixed)
-		(*dti_p) = get_fixed_length_string_type("text_inline", max_size, 1 /*is_nullable*/);
+		(*dti_p) = get_fixed_length_string_type(TEXT_TYPE_PREFIX INLINE_TYPE_SUFFIX, max_size, 1 /*is_nullable*/);
 	else
-		(*dti_p) = get_variable_length_string_type("text_inline", max_size);
+		(*dti_p) = get_variable_length_string_type(TEXT_TYPE_PREFIX INLINE_TYPE_SUFFIX, max_size);
 
 	return dti_p;
 }
@@ -33,7 +33,7 @@ data_type_info* get_text_extended_type_info(uint32_t max_size, const data_type_i
 		exit(-1);
 
 	// the text_inline controls the total size so we allow the text_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "text_extended", 1, pas_p->page_size, 2);
+	initialize_tuple_data_type_info(dti_p, TEXT_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, pas_p->page_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "text_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)text_inline_p;

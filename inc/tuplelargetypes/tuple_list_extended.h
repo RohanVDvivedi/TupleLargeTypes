@@ -12,6 +12,8 @@
 	It is your responsibility to not allow any tuple in here that have any worm extended type in here, directly or nestedly
 */
 
+#define TUPLE_LIST_TYPE_PREFIX "tuple_list"
+
 // below one function only check the type_name of the dti passed
 int is_tuple_list_extended_type_info(const data_type_info* dti_p);
 

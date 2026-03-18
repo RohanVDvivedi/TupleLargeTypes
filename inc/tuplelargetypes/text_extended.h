@@ -4,6 +4,8 @@
 #include<tuplestore/data_type_info.h>
 #include<tupleindexer/common/page_access_specification.h>
 
+#define TEXT_TYPE_PREFIX "text"
+
 // below two functions only check the type_name of the dti passed
 int is_text_inline_type_info(const data_type_info* dti_p);
 int is_text_extended_type_info(const data_type_info* dti_p);

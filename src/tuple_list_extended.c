@@ -4,7 +4,7 @@
 
 int is_tuple_list_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "tuple_list_extended") == 0;
+	return strcmp(dti_p->type_name, TUPLE_LIST_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
 }
 
 data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p)
@@ -14,7 +14,7 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 		exit(-1);
 
 	// the binary_inline controls the total size so we allow the binary_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "tuple_list_extended", 1, max_size, 2);
+	initialize_tuple_data_type_info(dti_p, TUPLE_LIST_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "tuple_list_prefix");
 	{
@@ -22,7 +22,7 @@ data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t in
 		if(tuple_list_inline_p == NULL)
 			exit(-1);
 
-		(*tuple_list_inline_p) = get_variable_length_binary_type("tuple_list_inline", inline_size);
+		(*tuple_list_inline_p) = get_variable_length_binary_type(TUPLE_LIST_TYPE_PREFIX INLINE_TYPE_SUFFIX, inline_size);
 
 		dti_p->containees[0].al.type_info = (data_type_info*)tuple_list_inline_p;
 	}

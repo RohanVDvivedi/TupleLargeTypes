@@ -4,7 +4,7 @@
 
 int is_jsonb_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "jsonb_extended") == 0;
+	return strcmp(dti_p->type_name, JSONB_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
 }
 
 data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p)
@@ -14,7 +14,7 @@ data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_
 		exit(-1);
 
 	// the binary_inline controls the total size so we allow the binary_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "jsonb_extended", 1, max_size, 2);
+	initialize_tuple_data_type_info(dti_p, JSONB_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "jsonb_prefix");
 	{
@@ -22,7 +22,7 @@ data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_
 		if(jsonb_inline_p == NULL)
 			exit(-1);
 
-		(*jsonb_inline_p) = get_variable_length_binary_type("jsonb_inline", inline_size);
+		(*jsonb_inline_p) = get_variable_length_binary_type(JSONB_TYPE_PREFIX INLINE_TYPE_SUFFIX, inline_size);
 
 		dti_p->containees[0].al.type_info = (data_type_info*)jsonb_inline_p;
 	}

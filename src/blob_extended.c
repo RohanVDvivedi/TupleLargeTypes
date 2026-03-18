@@ -4,12 +4,12 @@
 
 int is_blob_inline_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "blob_inline") == 0;
+	return strcmp(dti_p->type_name, BLOB_TYPE_PREFIX INLINE_TYPE_SUFFIX) == 0;
 }
 
 int is_blob_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, "blob_extended") == 0;
+	return strcmp(dti_p->type_name, BLOB_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
 }
 
 data_type_info* get_blob_inline_type_info(int is_fixed, uint32_t max_size)
@@ -19,9 +19,9 @@ data_type_info* get_blob_inline_type_info(int is_fixed, uint32_t max_size)
 		exit(-1);
 
 	if(is_fixed)
-		(*dti_p) = get_fixed_length_binary_type("blob_inline", max_size, 1 /*is_nullable*/);
+		(*dti_p) = get_fixed_length_binary_type(BLOB_TYPE_PREFIX INLINE_TYPE_SUFFIX, max_size, 1 /*is_nullable*/);
 	else
-		(*dti_p) = get_variable_length_binary_type("blob_inline", max_size);
+		(*dti_p) = get_variable_length_binary_type(BLOB_TYPE_PREFIX INLINE_TYPE_SUFFIX, max_size);
 
 	return dti_p;
 }

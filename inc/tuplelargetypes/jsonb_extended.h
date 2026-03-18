@@ -4,6 +4,8 @@
 #include<tuplestore/data_type_info.h>
 #include<tupleindexer/common/page_access_specification.h>
 
+#define JSONB_TYPE_PREFIX "jsonb"
+
 // below one function only check the type_name of the dti passed
 int is_jsonb_extended_type_info(const data_type_info* dti_p);
 
