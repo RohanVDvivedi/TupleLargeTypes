@@ -12,13 +12,16 @@ int is_text_extended_type_info(const data_type_info* dti_p)
 	return strcmp(dti_p->type_name, "text_extended") == 0;
 }
 
-data_type_info* get_text_inline_type_info(uint32_t max_size)
+data_type_info* get_text_inline_type_info(int is_fixed, uint32_t max_size)
 {
 	data_type_info* dti_p = malloc(sizeof(data_type_info));
 	if(dti_p == NULL)
 		exit(-1);
 
-	(*dti_p) = get_variable_length_string_type("text_inline", max_size);
+	if(is_fixed)
+		(*dti_p) = get_fixed_length_string_type("text_inline", max_size, 1 /*is_nullable*/);
+	else
+		(*dti_p) = get_variable_length_string_type("text_inline", max_size);
 
 	return dti_p;
 }
