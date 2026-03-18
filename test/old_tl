@@ -1,0 +1,226 @@
+size_def : is_variable_sized : 1
+min_size : 2
+max_size : 256
+has_size_in_prefix : 1
+has_element_count_in_prefix : 0
+type_info : type_name : "container" (finalized)
+type : TUPLE
+is_nullable : 1
+is_variable_sized : 1
+needs_is_valid_bit_in_prefix_bitmap : 0
+min_size : 2
+max_size : 256
+is_container_type : 1
+has_size_in_prefix : 1
+has_element_count_in_prefix : 0
+element_count : 1
+prefix_bitmap_size_in_bits : 0
+	(
+		field_name : containee
+		byte_offset_to_byte_offset : 1
+			type_name : "tuple_list_extended" (finalized)
+			type : TUPLE
+			is_nullable : 1
+			is_variable_sized : 1
+			needs_is_valid_bit_in_prefix_bitmap : 0
+			min_size : 5
+			max_size : 25
+			is_container_type : 1
+			has_size_in_prefix : 1
+			has_element_count_in_prefix : 0
+			element_count : 2
+			prefix_bitmap_size_in_bits : 0
+				(
+					field_name : tuple_list_prefix
+					byte_offset_to_byte_offset : 1
+						type_name : "tuple_list_inline" (finalized)
+						type : BINARY
+						is_nullable : 1
+						is_variable_sized : 1
+						needs_is_valid_bit_in_prefix_bitmap : 0
+						min_size : 1
+						max_size : 25
+						is_container_type : 1
+						has_size_in_prefix : 0
+						has_element_count_in_prefix : 1
+						element_count : variable
+							[
+								type_name : "" (finalized)
+								type : UINT
+								is_nullable : 0
+								is_variable_sized : 0
+								needs_is_valid_bit_in_prefix_bitmap : 0
+								size : 1
+								is_container_type : 0
+							]
+					field_name : tuple_list_extension
+					byte_offset : 2
+						type_name : "page_id" (finalized)
+						type : UINT
+						is_nullable : 0
+						is_variable_sized : 0
+						needs_is_valid_bit_in_prefix_bitmap : 0
+						size : 3
+						is_container_type : 0
+				)
+	)
+
+
+size_def : is_variable_sized : 1
+min_size : 10
+max_size : 256
+has_size_in_prefix : 1
+has_element_count_in_prefix : 0
+type_info : type_name : "elements" (finalized)
+type : TUPLE
+is_nullable : 1
+is_variable_sized : 1
+needs_is_valid_bit_in_prefix_bitmap : 0
+min_size : 10
+max_size : 256
+is_container_type : 1
+has_size_in_prefix : 1
+has_element_count_in_prefix : 0
+element_count : 2
+prefix_bitmap_size_in_bits : 0
+	(
+		field_name : varchar
+		byte_offset_to_byte_offset : 1
+			type_name : "varchar" (finalized)
+			type : STRING
+			is_nullable : 1
+			is_variable_sized : 1
+			needs_is_valid_bit_in_prefix_bitmap : 0
+			min_size : 1
+			max_size : 64
+			is_container_type : 1
+			has_size_in_prefix : 0
+			has_element_count_in_prefix : 1
+			element_count : variable
+				[
+					type_name : "" (finalized)
+					type : UINT
+					is_nullable : 0
+					is_variable_sized : 0
+					needs_is_valid_bit_in_prefix_bitmap : 0
+					size : 1
+					is_container_type : 0
+				]
+		field_name : float
+		byte_offset : 2
+			type_name : "" (finalized)
+			type : FLOAT
+			is_nullable : 0
+			is_variable_sized : 0
+			needs_is_valid_bit_in_prefix_bitmap : 0
+			size : 8
+			is_container_type : 0
+	)
+
+
+is_inline = 0, is_extended = 1
+can element tuple_def-s be inserted in tuple_list_extended = 1
+
+INLINE TUPLE : (container)<7>([2]->(tuple_list_extended)<5>(NULL, 0))
+ worm -> 16777215
+
+read failed
+
+
+INLINE TUPLE : (container)<7>([2]->(tuple_list_extended)<5>(NULL, 0))
+ worm -> 16777215
+
+skip failed
+
+
+INLINE TUPLE (before init-ing write_iterator) : (container)<7>([2]->(tuple_list_extended)<5>(NULL, 0))
+ worm -> 16777215
+INLINE TUPLE (after init-ing write_iterator) : (container)<8>([2]->(tuple_list_extended)<6>([5]->BINARY<0>[], 16777215))
+ worm -> 16777215
+
+written-> (elements)<30>([10]->"This is one - Rohan", 1.000000)
+bytes_written_this_iteration = 30
+written-> (elements)<29>([10]->"This is two - Rupa", 2.000000)
+bytes_written_this_iteration = 29
+written-> (elements)<35>([10]->"This is four - Devashree", 4.000000)
+bytes_written_this_iteration = 35
+written-> (elements)<37>([10]->"This is eight - Vipulkumar", 8.000000)
+bytes_written_this_iteration = 37
+
+
+INLINE TUPLE : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+read-> (elements)<30>([10]->"This is one - Rohan", 1.000000)
+skipped
+read-> (elements)<35>([10]->"This is four - Devashree", 4.000000)
+skipped
+
+
+INLINE TUPLE : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+skipped
+read-> (elements)<29>([10]->"This is two - Rupa", 2.000000)
+skipped
+read-> (elements)<37>([10]->"This is eight - Vipulkumar", 8.000000)
+
+
+INLINE TUPLE (before init-ing write_iterator) : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+INLINE TUPLE (after init-ing write_iterator) : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+written-> (elements)<53>([10]->"This is sixteen - Rohan Vipulkumar Dvivedi", 16.000000)
+bytes_written_this_iteration = 53
+written-> (elements)<55>([10]->"This is thirty two - Rupa Vipulkumar Dvivedi", 32.000000)
+bytes_written_this_iteration = 55
+written-> (elements)<53>([10]->"This is sixty four - Devashree Manan Joshi", 64.000000)
+bytes_written_this_iteration = 53
+written-> (elements)<68>([10]->"This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi", 128.000000)
+bytes_written_this_iteration = 68
+
+
+INLINE TUPLE : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+read-> (elements)<30>([10]->"This is one - Rohan", 1.000000)
+skipped
+skipped
+read-> (elements)<37>([10]->"This is eight - Vipulkumar", 8.000000)
+read-> (elements)<53>([10]->"This is sixteen - Rohan Vipulkumar Dvivedi", 16.000000)
+skipped
+read-> (elements)<53>([10]->"This is sixty four - Devashree Manan Joshi", 64.000000)
+skipped
+
+
+INLINE TUPLE : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+skipped
+read-> (elements)<29>([10]->"This is two - Rupa", 2.000000)
+read-> (elements)<35>([10]->"This is four - Devashree", 4.000000)
+skipped
+skipped
+read-> (elements)<55>([10]->"This is thirty two - Rupa Vipulkumar Dvivedi", 32.000000)
+skipped
+read-> (elements)<68>([10]->"This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi", 128.000000)
+
+
+INLINE TUPLE : (container)<23>([2]->(tuple_list_extended)<21>([5]->BINARY<15>[ 0x1e 0x a 0x 0 0x 0 0x 0 0x 0 0x 0 0x 0 0xf0 0x3f 0x13 0x54 0x68 0x69 0x73], 0))
+ worm -> 0
+
+read-> (elements)<30>([10]->"This is one - Rohan", 1.000000)
+read-> (elements)<29>([10]->"This is two - Rupa", 2.000000)
+read-> (elements)<35>([10]->"This is four - Devashree", 4.000000)
+read-> (elements)<37>([10]->"This is eight - Vipulkumar", 8.000000)
+read-> (elements)<53>([10]->"This is sixteen - Rohan Vipulkumar Dvivedi", 16.000000)
+read-> (elements)<55>([10]->"This is thirty two - Rupa Vipulkumar Dvivedi", 32.000000)
+read-> (elements)<53>([10]->"This is sixty four - Devashree Manan Joshi", 64.000000)
+read-> (elements)<68>([10]->"This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi", 128.000000)
+read failed
+
+
+dependent_root_page_id = 16777215 vaccum_needed = 1
+pages still being used = 0, of which 0 are free
+active locks count, read = 0, write 0
