@@ -11,11 +11,7 @@ int is_inline_type_info(const data_type_info* dti_p)
 
 int is_extended_type_info(const data_type_info* dti_p)
 {
-	int type_name_length = strnlen(dti_p->type_name, sizeof(dti_p->type_name));
-	int extended_suffix_length = strlen(EXTENDED_TYPE_SUFFIX);
-	if(type_name_length < extended_suffix_length)
-		return 0;
-	return strcmp(dti_p->type_name + type_name_length - extended_suffix_length, EXTENDED_TYPE_SUFFIX) == 0;
+	return is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
 }
 
 uint64_t get_extension_head_page_id_for_extended_type(const void* tupl, const tuple_def* tpl_d, positional_accessor pa, const page_access_specs* pas_p)
