@@ -28,7 +28,7 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	dwi_p->pmm_p = pmm_p;
 
 	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->pos), 2);
+	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->pos), 3);
 
 	if(dwi_p->is_extended)
 	{
@@ -93,7 +93,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 		return 0;
 
 	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->inline_accessor), 3);
+	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->pos), 3);
 
 	uint32_t digits_written = 0;
 
@@ -101,35 +101,36 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 	{
 		uint32_t digits_written_this_iteration = 0;
 
-		if(dwi_p->digits_to_be_written_to_prefix > dwi_p->digits_written_to_prefix)
+		if(dwi_p->digits_written_to_prefix < dwi_p->digits_to_be_written_to_prefix)
 		{
 			digits_written_this_iteration = min(digits_size, dwi_p->digits_to_be_written_to_prefix - dwi_p->digits_written_to_prefix);
 
 			// grab old_element_count and expand the container
-			point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 			expand_element_count_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, old_element_count, digits_written_this_iteration, digits_written_this_iteration * BYTES_PER_NUMERIC_DIGIT);
 
 			// copy data into it byte by byte
+			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
 			for(uint32_t i = 0; i < digits_written_this_iteration; i++)
 			{
-				point_to_prefix_s_digit(&child_relative_accessor, old_element_count + i, dwi_p->is_inline);
+				point_to_next_sibling_position(&(child_relative_accessor.exact));
 				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = digits[i]}), UINT32_MAX);
 			}
 
 			dwi_p->digits_written_to_prefix += digits_written_this_iteration;
 		}
-		else if(!(dwi_p->is_inline))
+		else if(dwi_p->is_extended)
 		{
 			if(dwi_p->wai_p == NULL)
 			{
 				// read extension_head_page_id
 				uint64_t extension_head_page_id;
 				{
-					point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
-					datum extension_head;
-					get_value_from_element_from_tuple(&extension_head, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-					extension_head_page_id = extension_head.uint_value;
+					relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+					datum extension_head_page_id_uval;
+					get_value_from_element_from_tuple(&extension_head_page_id_uval, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+					extension_head_page_id = extension_head_page_id_uval.uint_value;
 				}
 
 				// if it is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
@@ -148,13 +149,14 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 				dwi_p->wai_p = get_new_worm_append_iterator(extension_head_page_id, dwi_p->wtd_p, dwi_p->pam_p, dwi_p->pmm_p, transaction_id, abort_error);
 				if(*abort_error)
 				{
-					dwi_p->wai_p = NULL;
 					deinitialize_relative_positional_accessor(&child_relative_accessor);
 					return 0;
 				}
 			}
 
-			// genertae a buffer consisting of the digits in a SerializableInteger format of 5 bytes each
+			// append digits to worm
+
+			// generate a buffer consisting of the digits in a SerializableInteger format of 5 bytes each
 			uint32_t buffer_size = digits_size * BYTES_PER_NUMERIC_DIGIT;
 			void* buffer = malloc(buffer_size);
 			if(buffer == NULL)
@@ -169,8 +171,6 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 			free(buffer); // we can not forget to discard the buffer after the call
 			if(*abort_error)
 			{
-				delete_worm_append_iterator(dwi_p->wai_p, transaction_id, abort_error);
-				dwi_p->wai_p = NULL;
 				deinitialize_relative_positional_accessor(&child_relative_accessor);
 				return 0;
 			}
