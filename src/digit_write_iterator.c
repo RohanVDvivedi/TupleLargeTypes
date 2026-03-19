@@ -112,11 +112,8 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 
 			// copy data into it byte by byte
 			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
-			for(uint32_t i = 0; i < digits_written_this_iteration; i++)
-			{
-				point_to_next_sibling_position(&(child_relative_accessor.exact));
+			for(uint32_t i = 0; i < digits_written_this_iteration; i++, point_to_next_sibling_position(&(child_relative_accessor.exact)))
 				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = digits[i]}), UINT32_MAX);
-			}
 
 			dwi_p->digits_written_to_prefix += digits_written_this_iteration;
 		}

@@ -113,11 +113,8 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 
 			// copy data into it byte by byte
 			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
-			for(uint32_t i = 0; i < bytes_written_this_iteration; i++)
-			{
-				point_to_next_sibling_position(&(child_relative_accessor.exact));
+			for(uint32_t i = 0; i < bytes_written_this_iteration; i++, point_to_next_sibling_position(&(child_relative_accessor.exact)))
 				set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, &((datum){.uint_value = data[i]}), UINT32_MAX);
-			}
 
 			bwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
 		}
