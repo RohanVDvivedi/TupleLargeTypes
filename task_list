@@ -1,9 +1,6 @@
 PICKED TASKS
 
-
-* make macros to represent positional_acessor for the extended_head_page_id, inline_value, and other numeric's attributes, refactor all of that in the _commons.h
-* refactor digit_write_iterator
-
+* TEST the test cases with existing printed test results, ensuring there are no memory leaks
 
 * JSONB
   * build jsonb_node from json_node and viceversa
