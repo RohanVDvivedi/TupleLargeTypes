@@ -72,95 +72,40 @@ binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri
 
 uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data, uint32_t data_size, const void* transaction_id, int* abort_error)
 {
-	if(data_size == 0)
+	if(bri_p->is_null)
 		return 0;
-
-	// cache the prefix and the extension_head_page_id in local variables
-	datum prefix = (*EMPTY_DATUM);
-	uint64_t extension_head_page_id = bri_p->pam_p->pas.NULL_PAGE_ID;
-	{
-		relative_positional_accessor child_relative_accessor;
-		initialize_relative_positional_accessor(&child_relative_accessor, &(bri_p->inline_accessor), 1 * (!(bri_p->is_inline)));
-
-		if(bri_p->is_inline)
-		{
-			point_to_prefix(&child_relative_accessor, bri_p->is_inline);
-			int valid_prefix = get_value_from_element_from_tuple(&prefix, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
-			if((!valid_prefix) || is_datum_NULL(&prefix)) // this means it is an uninitialized large text or binary, so treat it as if it is empty, with no worm following it
-				prefix = (*EMPTY_DATUM);
-		}
-		else
-		{
-			point_to_prefix(&child_relative_accessor, bri_p->is_inline);
-			int valid_prefix = get_value_from_element_from_tuple(&prefix, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
-			if((!valid_prefix) || is_datum_NULL(&prefix)) // this means it is an uninitialized large text or binary, so treat it as if it is empty, with no worm following it
-			{
-				prefix = (*EMPTY_DATUM);
-				extension_head_page_id = bri_p->pam_p->pas.NULL_PAGE_ID;
-			}
-			else // else you need to read the extension_head_page_id
-			{
-				if(bri_p->wri_p == NULL) // you will need extension_head_page_id set to valid value only if the worm_read_iterator is not initialized
-				{
-					datum worm_head_page_id;
-					point_to_extension_head_page_id(&child_relative_accessor, bri_p->is_inline);
-					int valid_worm_head_page_id = get_value_from_element_from_tuple(&worm_head_page_id, bri_p->tpl_d, child_relative_accessor.exact, bri_p->tupl);
-					if(valid_worm_head_page_id && !is_datum_NULL(&worm_head_page_id)) // if valid and not NULL
-						extension_head_page_id = worm_head_page_id.uint_value;
-				}
-			}
-		}
-
-		deinitialize_relative_positional_accessor(&child_relative_accessor);
-	}
 
 	uint32_t bytes_read = 0;
 
-	while(data_size > 0)
+	while(bytes_read < data_size)
 	{
-		uint32_t bytes_read_this_iteration = 0;
-
-		if(bri_p->bytes_read_from_prefix < prefix.string_or_binary_size) // read from prefix until it is not completely read
+		// if the current chunk is empty make it peek
+		if(is_empty_dstring(&(bri_p->curr_chunk)))
 		{
-			bytes_read_this_iteration = min(data_size, prefix.string_or_binary_size - bri_p->bytes_read_from_prefix);
-			if(data != NULL)
-				memory_move(data, prefix.string_or_binary_value + bri_p->bytes_read_from_prefix, bytes_read_this_iteration);
-			bri_p->bytes_read_from_prefix += bytes_read_this_iteration;
-		}
-		else if(!(bri_p->is_inline)) // go here only if it is a extended text or binary
-		{
-			// initialize worm read iterator if not done already
-			if(bri_p->wri_p == NULL)
-			{
-				if(extension_head_page_id == bri_p->pam_p->pas.NULL_PAGE_ID)
-					goto NOTHING_TO_READ;
-
-				bri_p->wri_p = get_new_worm_read_iterator(extension_head_page_id, bri_p->wtd_p, bri_p->pam_p, transaction_id, abort_error);
-				if(*abort_error) // on abort error, do nothing
-				{
-					bri_p->wri_p = NULL;
-					return 0;
-				}
-			}
-
-			bytes_read_this_iteration = read_from_worm(bri_p->wri_p, data, data_size, transaction_id, abort_error);
-			if(*abort_error) // on abort error, delete worm iterator and set it to NULL
-			{
-				delete_worm_read_iterator(bri_p->wri_p, transaction_id, abort_error);
-				bri_p->wri_p = NULL;
+			uint32_t peeked_bytes;
+			peek_in_binary_read_iterator(bri_p, &peeked_bytes, transaction_id, abort_error);
+			if(*abort_error)
 				return 0;
-			}
+			if(peeked_bytes == 0) // if nothing could be peeked, then we are at the end
+				break;
 		}
 
-		// skip label to goto, if nothing to be read is found
-		NOTHING_TO_READ:;
+		// evaluate the bytes you plan to read in this iteration
+		uint32_t bytes_read_this_iteration = min(data_size - bytes_read, get_char_count_dstring(&(bri_p->curr_chunk)));
 
-		if(bytes_read_this_iteration == 0)
-			break;
+		// copy from current chunk, only if data is not empty
+		if(data)
+			memory_move(data + bytes_read, get_byte_array_dstring(&(bri_p->curr_chunk)), bytes_read_this_iteration);
 
-		if(data != NULL)
-			data += bytes_read_this_iteration;
-		data_size -= bytes_read_this_iteration;
+		// consume bytes from both the current chunk and the wri_p, if it is not null
+		discard_chars_from_front_dstring(&(bri_p->curr_chunk), bytes_read_this_iteration);
+		if(bri_p->wri_p != NULL)
+		{
+			read_from_worm(bri_p->wri_p, NULL, bytes_read_this_iteration, transaction_id, abort_error);
+			if(*abort_error)
+				return 0;
+		}
+
 		bytes_read += bytes_read_this_iteration;
 	}
 
@@ -172,11 +117,9 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 	if(bri_p->is_null)
 		return NULL;
 
-	if(is_empty_dstring(&(bri_p->curr_chunk)))
+	// we may need to peek in the work, only if the current chunk is empty and the extension_head_page_id exists
+	if(is_empty_dstring(&(bri_p->curr_chunk)) && (bri_p->extension_head_page_id != bri_p->pam_p->pas.NULL_PAGE_ID))
 	{
-		if(bri_p->extension_head_page_id == bri_p->pam_p->pas.NULL_PAGE_ID)
-			break;
-
 		if(bri_p->wri_p == NULL)
 		{
 			bri_p->wri_p = get_new_worm_read_iterator(bri_p->extension_head_page_id, bri_p->wtd_p, bri_p->pam_p, transaction_id, abort_error);
