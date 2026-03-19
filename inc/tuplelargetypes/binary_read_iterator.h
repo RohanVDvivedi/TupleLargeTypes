@@ -20,6 +20,7 @@ struct binary_read_iterator
 {
 	int is_null;
 
+	// current chunk is always a pointing-to dstring, removing it's prefix only advances it's pointer and size
 	dstring curr_chunk;
 
 	uint64_t extension_head_page_id;
