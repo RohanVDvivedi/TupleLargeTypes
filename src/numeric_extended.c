@@ -129,7 +129,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 	// if it is extended type, then we need to make sure that the 0th element inside it, the inline component is not NULL
 	if(is_extended)
 	{
-		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+		relative_positonal_accessor_set_from_relative(&rpa, EXTENDED_PREFIX_POS_ACC);
 		datum inline_component;
 		int valid = get_value_from_element_from_tuple(&inline_component, tpl_d, rpa.exact, tupl);
 		if(!valid) // this should not happen, for most cases
@@ -154,7 +154,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 			if(IS_INFINITY_NUMERIC_SIGN_BIT(sign_bits) || IS_ZERO_NUMERIC_SIGN_BIT(sign_bits))
 			{
 				if(is_extended)
-					relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+					relative_positonal_accessor_set_from_relative(&rpa, EXTENDED_PREFIX_POS_ACC);
 				else
 					relative_positonal_accessor_set_from_relative(&rpa, SELF);
 				result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, EMPTY_DATUM, 0);
@@ -164,10 +164,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 
 		if(result == 1)
 		{
-			if(is_extended)
-				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
-			else
-				relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
+			relative_positonal_accessor_set_from_relative(&rpa, GET_NUMERIC_SIGN_BIT_POS_ACC(is_extended));
 			result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((datum){.bit_field_value = sign_bits}), 0);
 		}
 	}
@@ -175,10 +172,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 	// set exponent
 	if(result == 1 && disallowed_setting_exponent == 0)
 	{
-		if(is_extended)
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
-		else
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
+		relative_positonal_accessor_set_from_relative(&rpa, GET_NUMERIC_EXPONENT_POS_ACC(is_extended));
 		result = result && set_element_in_tuple(tpl_d, rpa.exact, tupl, &((datum){.int_value = exponent}), 0);
 	}
 
