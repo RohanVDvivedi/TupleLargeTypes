@@ -18,9 +18,15 @@ uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const d
 {
 	if(is_extended_type_info(dti) && !is_datum_NULL(uval)) // extract only when uval is not NULL && the type is the extended one
 	{
+		datum prefix;
+		const data_type_info* prefix_dti;
+		int valid = get_nested_containee_from_datum(&prefix, &prefix_dti, uval, dti, EXTENDED_PREFIX_POS_ACC);
+		if(!valid || is_datum_NULL(&prefix))
+			return pas_p->NULL_PAGE_ID;
+
 		datum extension_head_page_id;
 		const data_type_info* extension_head_page_id_dti;
-		int valid = get_nested_containee_from_datum(&extension_head_page_id, &extension_head_page_id_dti, uval, dti, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+		valid = get_nested_containee_from_datum(&extension_head_page_id, &extension_head_page_id_dti, uval, dti, EXTENDED_HEAD_PAGE_ID_POS_ACC);
 		if(valid && (!is_datum_NULL(&extension_head_page_id)))
 			return extension_head_page_id.uint_value;
 	}
