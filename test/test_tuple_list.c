@@ -92,15 +92,22 @@ uint32_t build_tuple(void* res, const char* sval, double dval)
 
 void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	while((*dvals) != 0.0)
 	{
@@ -126,11 +133,15 @@ void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* w
 
 void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, int const * read_or_skip)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
 
 	while((*read_or_skip) != -1)
 	{
@@ -218,7 +229,10 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
 	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
