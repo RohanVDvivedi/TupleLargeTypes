@@ -14,8 +14,9 @@ fail_build_on((CHAR_BIT != 8));
 #define BYTES_PER_NUMERIC_DIGIT 5
 fail_build_on(BYTES_PER_NUMERIC_DIGIT > 8);
 
-#define GET_NUMERIC_SIGN_BIT_POS_ACC(is_extended) ((is_extended) ? STATIC_POSITION(0, 0) : STATIC_POSITION(0))
-#define GET_NUMERIC_EXPONENT_POS_ACC(is_extended) ((is_extended) ? STATIC_POSITION(0, 1) : STATIC_POSITION(1))
+#define GET_NUMERIC_SIGN_BIT_POS_ACC(is_extended) ((is_extended) ? STATIC_POSITION(EXTENDED_PREFIX_POS_VAL, 0) : STATIC_POSITION(0))
+#define GET_NUMERIC_EXPONENT_POS_ACC(is_extended) ((is_extended) ? STATIC_POSITION(EXTENDED_PREFIX_POS_VAL, 1) : STATIC_POSITION(1))
+#define GET_NUMERIC_DIGITS_POS_ACC(is_extended)   ((is_extended) ? STATIC_POSITION(EXTENDED_PREFIX_POS_VAL, 2) : STATIC_POSITION(2))
 
 // below two functions only check the type_name of the dti passed
 int is_numeric_inline_type_info(const data_type_info* dti_p);

@@ -16,17 +16,11 @@
 typedef struct digit_read_iterator digit_read_iterator;
 struct digit_read_iterator
 {
-	int is_inline:1;
+	datum inline_digits; // read calls will succeed only if this datum is not null
+	uint32_t digits_inline_count;
+	uint32_t digits_inline_read; // starts with 0 and increases until digits_inline_count
 
-	// shallow copy attributes
-	const void* tupl;
-	const tuple_def* tpl_d;
-	positional_accessor inline_accessor;
-
-	uint32_t digits_read_from_prefix;
-	// no reading digits from prefix, if this value becomes equal to the prefix size
-
-	// unused if is_inline is set
+	uint64_t extension_head_page_id;
 	worm_read_iterator* wri_p;
 
 	// below attributes only to be used to initialize the wri, only upon requirement
@@ -34,7 +28,7 @@ struct digit_read_iterator
 	const page_access_methods* pam_p;
 };
 
-digit_read_iterator* get_new_digit_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
+digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
 
 void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error);
 
