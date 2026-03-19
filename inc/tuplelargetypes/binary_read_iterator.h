@@ -20,9 +20,9 @@ struct binary_read_iterator
 {
 	int is_null;
 
-	const dstring curr_chunk;
+	dstring curr_chunk;
 
-	uint64_t extended_head_page_id;
+	uint64_t extension_head_page_id;
 	worm_read_iterator* wri_p;
 
 	// below attributes only to be used to initialize the wri, only upon requirement

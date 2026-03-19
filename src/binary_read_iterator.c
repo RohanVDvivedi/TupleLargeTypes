@@ -128,7 +128,7 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 		}
 
 		uint32_t data_size = 0;
-		void* data = peek_in_worm(bri_p->wri_p, &data_size, transaction_id, abort_error);
+		const void* data = peek_in_worm(bri_p->wri_p, &data_size, transaction_id, abort_error);
 		if(*abort_error)
 			return NULL;
 
