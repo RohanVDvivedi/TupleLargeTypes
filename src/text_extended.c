@@ -33,7 +33,7 @@ data_type_info* get_text_extended_type_info(uint32_t max_size, const data_type_i
 		exit(-1);
 
 	// the text_inline controls the total size so we allow the text_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, TEXT_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, pas_p->page_size, 2);
+	initialize_tuple_data_type_info(dti_p, TEXT_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "text_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)text_inline_p;
