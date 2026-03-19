@@ -18,17 +18,11 @@
 typedef struct binary_read_iterator binary_read_iterator;
 struct binary_read_iterator
 {
-	int is_inline:1;
+	int is_null;
 
-	// shallow copy attributes
-	const void* tupl;
-	const tuple_def* tpl_d;
-	positional_accessor inline_accessor;
+	const dstring inline_prefix;
+	uint64_t extended_head_page_id;
 
-	uint32_t bytes_read_from_prefix;
-	// no reading bytes from prefix, if this value becomes equal to the prefix size
-
-	// unused if is_inline is set
 	worm_read_iterator* wri_p;
 
 	// below attributes only to be used to initialize the wri, only upon requirement
@@ -36,7 +30,7 @@ struct binary_read_iterator
 	const page_access_methods* pam_p;
 };
 
-binary_read_iterator* get_new_binary_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
+binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
 
 void delete_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error);
 
