@@ -8,6 +8,8 @@ PICKED TASKS
 
 * make macros to represent positional_acessor for the extended_head_page_id, inline_value, and other numeric's attributes, refactor all of that in the _commons.h
 
+* nothing to be done in tuple_list and jsonb
+
 
 * JSONB
   * build jsonb_node from json_node and viceversa
