@@ -3,7 +3,7 @@
 
 #include<tuplelargetypes/binary_reader_interface.h>
 
-int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interface* bri2_p, int* is_prefix);
+int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* is_prefix, const void* transaction_id, int* abort_error);
 
 #define compare_text compare_tb
 #define compare_blob compare_tb

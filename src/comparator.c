@@ -1,86 +1,33 @@
 #include<tuplelargetypes/comparator.h>
 
-int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interface* bri2_p, int* is_prefix)
+int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* is_prefix, const void* transaction_id, int* abort_error)
 {
 	(*is_prefix) = 0;
 
-	// if any one if it is not valid return -2
-	if((!bri1_p->is_valid(bri1_p)) || (!bri2_p->is_valid(bri2_p)))
-		return -2;
-
-	int is_null1 = bri1_p->is_null(bri1_p);
-	int is_null2 = bri2_p->is_null(bri2_p);
-
 	// if one of them is NULL
-	if(is_null1 && is_null2)
+	if((bri1_p->is_null) && (bri2_p->is_null))
 		return 0;
-	else if(!is_null1 && is_null2)
+	else if(!(bri1_p->is_null) && (bri2_p->is_null))
 		return 1;
-	else if(is_null1 && !is_null2)
+	else if((bri1_p->is_null) && !(bri2_p->is_null))
 		return -1;
 
 	// if both are not NULL
 
-	uint32_t buffer_size1 = 0;
-	uint32_t buffer_size2 = 0;
-
-	const char* data1 = NULL; uint32_t data_size1 = 0;
-	const char* data2 = NULL; uint32_t data_size2 = 0;
-
 	int cmp = 0;
 	while(cmp == 0)
 	{
-		if(data_size1 == 0) // if there are no more bytes in the data1 then read it
-		{
-			int error = 0;
+		uint32_t data_size1 = 0;
+		const char* data1 = peek_in_binary_read_iterator(bri1_p, &data_size1, transaction_id, abort_error);
+		if(*abort_error)
+			return 0;
 
-			// skip the bytes processed from the previous peek
-			bri1_p->read_bytes_as_stream(bri1_p, NULL, buffer_size1, &error);
-			if(error)
-				goto ON_ERROR1;
+		uint32_t data_size2 = 0;
+		const char* data2 = peek_in_binary_read_iterator(bri1_p, &data_size2, transaction_id, abort_error);
+		if(*abort_error)
+			return 0;
 
-			// peek new bytes
-			data1 = bri1_p->peek_bytes_as_stream(bri1_p, &data_size1, &error);
-			if(error)
-				goto ON_ERROR1;
-			// set bytes to be skipped next
-			buffer_size1 = data_size1;
-
-			ON_ERROR1:;
-			if(error)
-			{
-				bri1_p->close_bytes_stream(bri1_p);
-				bri2_p->close_bytes_stream(bri2_p);
-				return 0;
-			}
-		}
-
-		if(data_size2 == 0) // if there are no more bytes in the data2 then read it
-		{
-			int error = 0;
-
-			// skip the bytes processed from the previous peek
-			bri2_p->read_bytes_as_stream(bri2_p, NULL, buffer_size2, &error);
-			if(error)
-				goto ON_ERROR2;
-
-			// peek new bytes
-			data2 = bri2_p->peek_bytes_as_stream(bri2_p, &data_size2, &error);
-			if(error)
-				goto ON_ERROR2;
-			// set bytes to be skipped next
-			buffer_size2 = data_size2;
-
-			ON_ERROR2:;
-			if(error)
-			{
-				bri1_p->close_bytes_stream(bri1_p);
-				bri2_p->close_bytes_stream(bri2_p);
-				return 0;
-			}
-		}
-
-		// if one or both of them does not have any more bytes
+		// if one or both of them does not have any more bytes, process those cases first
 		if(data_size1 == 0 && data_size2 == 0) // both of them are prefixes of each other and are equal
 		{
 			(*is_prefix) = 1 | 2;
@@ -92,26 +39,28 @@ int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interf
 		{
 			(*is_prefix) = 1;
 			cmp = -1;
-			break;
 		}
 		else if(data_size1 > 0 && data_size2 == 0)
 		{
 			(*is_prefix) = 2;
 			cmp = 1;
-			break;
 		}
+		else // process same number of bytes from both of them, if both of them have some number of bytes
+		{
+			const uint32_t bytes_processed = min(data_size1, data_size2);
+			cmp = memory_compare(data1, data2, bytes_processed);
 
-		const uint32_t bytes_processed = min(data_size1, data_size2);
-		cmp = memory_compare(data1, data2, bytes_processed);
+			// consume bytes processed from both of them
+			read_from_binary_read_iterator(bri1_p, NULL, bytes_processed, transaction_id, abort_error);
+			if(*abort_error)
+				return 0;
 
-		data1 += bytes_processed;
-		data2 += bytes_processed;
-		data_size1 -= bytes_processed;
-		data_size2 -= bytes_processed;
+			read_from_binary_read_iterator(bri2_p, NULL, bytes_processed, transaction_id, abort_error);
+			if(*abort_error)
+				return 0;
+		}
 	}
 
-	bri1_p->close_bytes_stream(bri1_p);
-	bri2_p->close_bytes_stream(bri2_p);
 	return cmp;
 }
 
