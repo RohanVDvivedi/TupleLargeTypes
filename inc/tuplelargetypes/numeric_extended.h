@@ -48,7 +48,7 @@ enum numeric_sign_bits
 extern char const * numeric_sign_bits_str[5];
 
 // pass in/out parameter sign_bits and exponent based on what ever you need
-int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor);
+int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const datum* uval, const data_type_info* dti);
 
 // returns 0, if any of the set calls either for the sign_bits or the exponent fails
 int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t exponent, void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor);
