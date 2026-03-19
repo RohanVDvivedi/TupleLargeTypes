@@ -299,6 +299,7 @@ int main()
 	// destroy worm
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
 	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
