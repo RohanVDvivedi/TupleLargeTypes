@@ -65,14 +65,13 @@ data_type_info* get_numeric_extended_type_info(uint32_t max_size, const data_typ
 	return dti_p;
 }
 
-int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor)
+int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const datum* uval, const data_type_info* dti)
 {
 	int is_extended = 0;
 	{
-		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-		if(is_numeric_extended_type_info(dti_p))
+		if(is_numeric_extended_type_info(dti))
 			is_extended = 1;
-		else if(is_numeric_inline_type_info(dti_p))
+		else if(is_numeric_inline_type_info(dti))
 			is_extended = 0;
 		else
 			return 0;
@@ -82,20 +81,14 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 	if(sign_bits == NULL && exponent == NULL)
 		return 1;
 
-	relative_positional_accessor rpa;
-	initialize_relative_positional_accessor(&rpa, &inline_accessor, 2);
-
 	int result = 1;
 
 	// extract sign_bits
 	if(sign_bits != NULL && result == 1)
 	{
-		if(is_extended)
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 0));
-		else
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
 		datum sign_bits_uv;
-		int valid = get_value_from_element_from_tuple(&sign_bits_uv, tpl_d, rpa.exact, tupl);
+		const data_type_info* sign_bits_dti;
+		int valid = get_nested_containee_from_datum(&sign_bits_uv, &sign_bits_dti, uval, dti, GET_NUMERIC_SIGN_BIT_POS_ACC(is_extended));
 		if(valid && !is_datum_NULL(&sign_bits_uv))
 			(*sign_bits) = sign_bits_uv.bit_field_value;
 		else
@@ -105,19 +98,14 @@ int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, in
 	// extract exponent
 	if(exponent != NULL && result == 1)
 	{
-		if(is_extended)
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0, 1));
-		else
-			relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(1));
 		datum exponent_uv;
-		int valid = get_value_from_element_from_tuple(&exponent_uv, tpl_d, rpa.exact, tupl);
+		const data_type_info* exponent_dti;
+		int valid = get_nested_containee_from_datum(&exponent_uv, &exponent_dti, uval, dti, GET_NUMERIC_EXPONENT_POS_ACC(is_extended));
 		if(valid && !is_datum_NULL(&exponent_uv))
 			(*exponent) = exponent_uv.int_value;
 		else
 			result = 0;
 	}
-
-	deinitialize_relative_positional_accessor(&rpa);
 
 	return result;
 }

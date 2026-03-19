@@ -19,7 +19,8 @@ uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const d
 	if(is_extended_type_info(dti) && !is_datum_NULL(uval)) // extract only when uval is not NULL && the type is the extended one
 	{
 		datum extension_head_page_id;
-		int valid = get_containee_for_datum(&extension_head_page_id, uval, dti, EXTENDED_HEAD_PAGE_ID_POS_VAL);
+		const data_type_info* extension_head_page_id_dti;
+		int valid = get_nested_containee_from_datum(&extension_head_page_id, &extension_head_page_id_dti, uval, dti, EXTENDED_HEAD_PAGE_ID_POS_ACC);
 		if(valid && (!is_datum_NULL(&extension_head_page_id)))
 			return extension_head_page_id.uint_value;
 	}

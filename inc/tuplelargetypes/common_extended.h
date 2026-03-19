@@ -8,11 +8,9 @@
 #define EXTENDED_TYPE_SUFFIX        "_extended"
 #define INLINE_TYPE_SUFFIX          "_inline"
 
-#define EXTENDED_PREFIX_POS_VAL          0
-#define EXTENDED_PREFIX_POS_ACC          STATIC_POSITION(EXTENDED_PREFIX_POS_ACC)
+#define EXTENDED_PREFIX_POS_ACC          STATIC_POSITION(0)
 
-#define EXTENDED_HEAD_PAGE_ID_POS_VAL    1
-#define EXTENDED_HEAD_PAGE_ID_POS_ACC    STATIC_POSITION(EXTENDED_HEAD_PAGE_ID_POS_VAL)
+#define EXTENDED_HEAD_PAGE_ID_POS_ACC    STATIC_POSITION(1)
 
 // anything that is not extended is inline, including float, integer, etc
 int is_inline_type_info(const data_type_info* dti_p);

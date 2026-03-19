@@ -14,8 +14,9 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 	// hash the prefix
 	{
 		datum prefix;
-		const data_type_info* prefix_dti = get_data_type_info_for_containee_of_container_without_data(dti, EXTENDED_PREFIX_POS_VAL);
-		if((prefix_dti != NULL) && get_containee_for_datum(&prefix, uval, dti, EXTENDED_PREFIX_POS_VAL))
+		const data_type_info* prefix_dti;
+		int valid = get_nested_containee_from_datum(&prefix, &prefix_dti, uval, dti, EXTENDED_PREFIX_POS_ACC);
+		if(valid)
 			hash_datum(&prefix, dti, th);
 	}
 

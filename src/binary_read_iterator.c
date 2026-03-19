@@ -23,7 +23,8 @@ binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data
 		{
 			{
 				datum prefix;
-				int valid = get_containee_for_datum(&prefix, uval, dti, EXTENDED_PREFIX_POS_VAL);
+				const data_type_info* prefix_dti;
+				int valid = get_nested_containee_from_datum(&prefix, &prefix_dti, uval, dti, EXTENDED_PREFIX_POS_ACC);
 				if(valid && !is_datum_NULL(&prefix))
 					bri_p->curr_chunk = get_dstring_pointing_to(prefix.string_or_binary_value, prefix.string_or_binary_size);
 			}
