@@ -23,7 +23,7 @@ int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* 
 			return 0;
 
 		uint32_t data_size2 = 0;
-		const char* data2 = peek_in_binary_read_iterator(bri1_p, &data_size2, transaction_id, abort_error);
+		const char* data2 = peek_in_binary_read_iterator(bri2_p, &data_size2, transaction_id, abort_error);
 		if(*abort_error)
 			return 0;
 
@@ -50,7 +50,8 @@ int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* 
 			const uint32_t bytes_processed = min(data_size1, data_size2);
 			cmp = memory_compare(data1, data2, bytes_processed);
 
-			// consume bytes processed from both of them
+			// consume bytes processed from both of the iterators
+
 			read_from_binary_read_iterator(bri1_p, NULL, bytes_processed, transaction_id, abort_error);
 			if(*abort_error)
 				return 0;
