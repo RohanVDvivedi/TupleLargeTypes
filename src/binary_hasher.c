@@ -3,30 +3,23 @@
 #include<tuplelargetypes/common_extended.h>
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-uint64_t hash_tbn(const tuple_def* tpl_d, const void* tupl, positional_accessor inline_accessor, tuple_hasher* th, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error)
+uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error)
 {
-	// check for the attribute being valid and not null
+	// if inline handle it here
+	if(is_inline_type_info(dti))
+		return hash_datum(uval, dti, th);
+
+	// else it is extended type
+
+	// hash the prefix
 	{
-		datum uval;
-		int valid = get_value_from_element_from_tuple(&uval, tpl_d, inline_accessor, tupl);
-		if(!valid || is_datum_NULL(&uval))
-			return th->hash;
+		datum prefix;
+		const data_type_info* prefix_dti = get_data_type_info_for_containee_of_container_without_data(dti, EXTENDED_PREFIX_POS_VAL);
+		if((prefix_dti != NULL) && get_containee_for_datum(&prefix, uval, dti, EXTENDED_PREFIX_POS_VAL))
+			hash_datum(&prefix, dti, th);
 	}
 
-	if(is_inline_type_info(get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor)))
-		return hash_tuple(tupl, tpl_d, &inline_accessor, th, 1);
-
-	{
-		relative_positional_accessor rpa;
-		initialize_relative_positional_accessor(&rpa, &inline_accessor, 1);
-		relative_positonal_accessor_set_from_relative(&rpa, STATIC_POSITION(0));
-
-		hash_tuple(tupl, tpl_d, &(rpa.exact), th, 1);
-
-		deinitialize_relative_positional_accessor(&rpa);
-	}
-
-	uint64_t extension_head_page_id = get_extension_head_page_id_for_extended_type(tupl, tpl_d, inline_accessor, &(pam_p->pas));
+	uint64_t extension_head_page_id = get_extension_head_page_id_for_extended_type(uval, dti, &(pam_p->pas));
 	if(extension_head_page_id == pam_p->pas.NULL_PAGE_ID)
 		return th->hash;
 
