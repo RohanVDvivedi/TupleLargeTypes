@@ -6,8 +6,6 @@
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-#include<tuplelargetypes/digit_iterator_commons.h>
-
 #include<tuplelargetypes/numeric_extended.h>
 
 digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
