@@ -8,8 +8,6 @@ PICKED TASKS
 
 * make macros to represent positional_acessor for the extended_head_page_id, inline_value, and other numeric's attributes, refactor all of that in the _commons.h
 
-* leave write size code as is, unchanged, just make the write_stream the default way to insert into extended types
-
 
 * JSONB
   * build jsonb_node from json_node and viceversa
