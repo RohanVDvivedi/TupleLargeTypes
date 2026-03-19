@@ -14,33 +14,12 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	if(dwi_p == NULL)
 		exit(-1);
 
-	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-	dwi_p->is_inline = is_inline_type_info(dti_p);
+	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pos);
+	dwi_p->is_extended = is_extended_type_info(dti_p);
 
 	dwi_p->tupl = tupl;
 	dwi_p->tpl_d = tpl_d;
-	dwi_p->inline_accessor = inline_accessor;
-
-	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->inline_accessor),3);
-
-	// if it is a numeric_extended, with a worm attached then make digits_to_be_written_to_prefix = 0
-	if(!(dwi_p->is_inline))
-	{
-		point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
-		datum extension_head_page;
-		int valid_extension = get_value_from_element_from_tuple(&extension_head_page, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-
-		point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
-		datum prefix;
-		int valid_prefix = get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-
-		if(valid_extension && valid_prefix && !is_datum_NULL(&extension_head_page) && !is_datum_NULL(&prefix) && extension_head_page.uint_value != pam_p->pas.NULL_PAGE_ID)
-			digits_to_be_written_to_prefix = 0;
-	}
-
-	dwi_p->digits_to_be_written_to_prefix = digits_to_be_written_to_prefix;
-	dwi_p->digits_written_to_prefix = 0;
+	dwi_p->pos = pos;
 
 	dwi_p->wai_p = NULL;
 
@@ -48,49 +27,53 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	dwi_p->pam_p = pam_p;
 	dwi_p->pmm_p = pmm_p;
 
-	// if the prefix is NULL in an extended numeric, set it to EMPTY_DATUM and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the binary_extension to NULL_PAGE_ID
-	if(!(dwi_p->is_inline))
+	relative_positional_accessor child_relative_accessor;
+	initialize_relative_positional_accessor(&child_relative_accessor, &(dwi_p->pos), 2);
+
+	if(dwi_p->is_extended)
 	{
-		// if prefix_container is NULL set it to EMPTY_DATUM
-		{
-			point_to_prefix_container(&child_relative_accessor, dwi_p->is_inline);
-			datum prefix_container;
-			get_value_from_element_from_tuple(&prefix_container, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-			if(is_datum_NULL(&prefix_container))
-				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
-		}
-		
-		// if prefix is NULL set it to EMPTY_DATUM
-		point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
 		datum prefix;
 		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-		int reset = 0;
+
 		if(is_datum_NULL(&prefix))
 		{
-			reset = 1;
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
 			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
-		}
-		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 
-		if(reset)
-		{
-			point_to_extension_head_page_id(&child_relative_accessor, dwi_p->is_inline);
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
 			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = dwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
+
+			dwi_p->digits_written_to_prefix = 0;
+			dwi_p->digits_to_be_written_to_prefix = digits_to_be_written_to_prefix;
 		}
+		else // note down the number of bytes already written to the prefix
+		{
+			dwi_p->digits_written_to_prefix = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+			dwi_p->digits_to_be_written_to_prefix = digits_to_be_written_to_prefix;
+
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+			datum extension_head_page_id;
+			get_value_from_element_from_tuple(&extension_head_page_id, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+
+			// if the extension_head_page_id is not NULL, then we already wrote the prefix completely
+			if(!is_datum_NULL(&extension_head_page_id) && extension_head_page_id.uint_value != dwi_p->pam_p->pas.NULL_PAGE_ID)
+				dwi_p->digits_to_be_written_to_prefix = dwi_p->digits_written_to_prefix;
+		}
+	}
+
+	// limit the bytes_to_be_written_to_prefix, by the amount of bytes the tuple can allow us to expand it
+	if(dwi_p->is_extended)
+	{
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
+		dwi_p->digits_to_be_written_to_prefix = dwi_p->digits_written_to_prefix +
+			min(dwi_p->digits_to_be_written_to_prefix - dwi_p->digits_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 	}
 	else
 	{
-		// if prefix is NULL set it to EMPTY_DATUM
-		{
-			point_to_prefix(&child_relative_accessor, dwi_p->is_inline);
-			datum prefix;
-			get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-			if(is_datum_NULL(&prefix))
-				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
-		}
-
-		// get maximum digits you can extend it additionally by
-		dwi_p->digits_to_be_written_to_prefix = min(dwi_p->digits_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
+		dwi_p->digits_to_be_written_to_prefix = dwi_p->digits_written_to_prefix +
+			min(dwi_p->digits_to_be_written_to_prefix - dwi_p->digits_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl) / BYTES_PER_NUMERIC_DIGIT);
 	}
 
 	deinitialize_relative_positional_accessor(&child_relative_accessor);
