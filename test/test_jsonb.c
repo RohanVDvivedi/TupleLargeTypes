@@ -107,15 +107,22 @@ jsonb_node* generate_test_data()
 
 void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const jsonb_node* node_p, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	binary_write_iterator* bwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	stream strm;
 	initialize_stream_for_binary_write_iterator_static(&strm, bwi_p, transaction_id, &abort_error, 100); // write in chunks of 100 bytes at once to worm/binary_write_iterator
@@ -146,12 +153,16 @@ void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const js
 
 jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_binary(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
+	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
 
-	binary_read_iterator* bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
 
 	stream strm;
 	initialize_stream_for_binary_read_iterator_static(&strm, bri_p, transaction_id, &abort_error);
@@ -201,7 +212,11 @@ void print_json_attribute(const jsonb_node* node_p, json_accessor acs)
 
 void print_worm_as_is(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 	print_worm(head_page_id, wtd_p, pam_p, transaction_id, &abort_error);
 	if(abort_error)
 	{
@@ -351,7 +366,11 @@ int main()
 
 	/* TEST JSONB READ ITERATOR */
 
-	binary_read_iterator* bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
+	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
 	jsonb_read_iterator jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR());
@@ -365,7 +384,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR());
@@ -384,7 +403,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("aAa_revenues"), JSON_ARRAY_INDEX(1)));
@@ -393,7 +412,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("aAa_revenues"), JSON_OBJECT_KEY_literal("none")));
@@ -405,7 +424,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(inline_tuple, tpl_d, ACCS, &wtd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_array")));
@@ -428,7 +447,7 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
 	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
