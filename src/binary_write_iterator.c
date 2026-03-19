@@ -8,39 +8,18 @@
 
 #include<tuplelargetypes/binary_iterator_commons.h>
 
-binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, uint32_t bytes_to_be_written_to_prefix, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
+binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def* tpl_d, positional_accessor pos, uint32_t bytes_to_be_written_to_prefix, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
 {
 	binary_write_iterator* bwi_p = malloc(sizeof(binary_write_iterator));
 	if(bwi_p == NULL)
 		exit(-1);
 
-	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-	bwi_p->is_inline = is_inline_type_info(dti_p);
+	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pos);
+	bwi_p->is_extended = is_extended_type_info(dti_p);
 
 	bwi_p->tupl = tupl;
 	bwi_p->tpl_d = tpl_d;
-	bwi_p->inline_accessor = inline_accessor;
-
-	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->inline_accessor),2);
-
-	// if it is a text_extended or binary_extended, with a worm attached then make bytes_to_be_written_to_prefix = 0
-	if(!(bwi_p->is_inline))
-	{
-		point_to_extension_head_page_id(&child_relative_accessor, bwi_p->is_inline);
-		datum extension_head_page;
-		int valid_extension = get_value_from_element_from_tuple(&extension_head_page, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-
-		point_to_prefix(&child_relative_accessor, bwi_p->is_inline);
-		datum prefix;
-		int valid_prefix = get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-
-		if(valid_extension && valid_prefix && !is_datum_NULL(&extension_head_page) && !is_datum_NULL(&prefix) && extension_head_page.uint_value != pam_p->pas.NULL_PAGE_ID)
-			bytes_to_be_written_to_prefix = 0;
-	}
-
-	bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
-	bwi_p->bytes_written_to_prefix = 0;
+	bwi_p->pos = pos;
 
 	bwi_p->wai_p = NULL;
 
@@ -48,30 +27,53 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	bwi_p->pam_p = pam_p;
 	bwi_p->pmm_p = pmm_p;
 
-	// if the prefix is NULL in an extended text or binary, set it to EMPTY_DATUM and then bytes_to_be_written_to_prefix = min(bytes_to_be_written_to_prefix, max_size_increment_allowed);, then set the binary_extension to NULL_PAGE_ID
-	if(!(bwi_p->is_inline))
+	relative_positional_accessor child_relative_accessor;
+	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->pos), 2);
+
+	if(bwi_p->is_extended)
 	{
-		point_to_prefix(&child_relative_accessor, bwi_p->is_inline);
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
 		datum prefix;
 		get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-		int reset = 0;
+
 		if(is_datum_NULL(&prefix))
 		{
-			reset = 1;
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
 			set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
-		}
-		bwi_p->bytes_to_be_written_to_prefix = min(bwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl));
 
-		if(reset)
-		{
-			point_to_extension_head_page_id(&child_relative_accessor, bwi_p->is_inline);
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
 			set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, &((datum){.uint_value = bwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
+
+			bwi_p->bytes_written_to_prefix = 0;
+			bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
 		}
+		else // note down the number of bytes already written to the prefix
+		{
+			bwi_p->bytes_written_to_prefix = prefix.string_or_binary_size;
+			bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
+
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+			datum extension_head_page_id;
+			get_value_from_element_from_tuple(&extension_head_page_id, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+
+			// if the extension_head_page_id is not NULL, then we already wrote the prefix completely
+			if(!is_datum_NULL(&extension_head_page_id) && extension_head_page_id.uint_value != bwi_p->pam_p->pas.NULL_PAGE_ID)
+				bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix;
+		}
+	}
+
+	// limit the bytes_to_be_written_to_prefix, by the amount of bytes the tuple can allow us to expand it
+	if(bwi_p->is_extended)
+	{
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
+		bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix +
+			min(bwi_p->bytes_to_be_written_to_prefix - bwi_p->bytes_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl));
 	}
 	else
 	{
-		point_to_attribute(&child_relative_accessor, bwi_p->is_inline);
-		bwi_p->bytes_to_be_written_to_prefix = min(bwi_p->bytes_to_be_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl));
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
+		bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix +
+			min(bwi_p->bytes_to_be_written_to_prefix - bwi_p->bytes_written_to_prefix, get_max_size_increment_allowed_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl));
 	}
 
 	deinitialize_relative_positional_accessor(&child_relative_accessor);
@@ -91,7 +93,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 		return 0;
 
 	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->inline_accessor), 2);
+	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->pos), 2);
 
 	uint32_t bytes_written = 0;
 
@@ -99,35 +101,39 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 	{
 		uint32_t bytes_written_this_iteration = 0;
 
-		if(bwi_p->bytes_to_be_written_to_prefix > bwi_p->bytes_written_to_prefix)
+		if(bwi_p->bytes_written_to_prefix < bwi_p->bytes_to_be_written_to_prefix)
 		{
 			bytes_written_this_iteration = min(data_size, bwi_p->bytes_to_be_written_to_prefix - bwi_p->bytes_written_to_prefix);
 
 			// grab old_element_count and expand the container
-			point_to_prefix(&child_relative_accessor, bwi_p->is_inline);
+			if(bwi_p->is_extended)
+				relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
+			else
+				relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
 			expand_element_count_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
 
 			// copy data into it byte by byte
+			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
 			for(uint32_t i = 0; i < bytes_written_this_iteration; i++)
 			{
-				point_to_prefix_s_byte(&child_relative_accessor, old_element_count + i, bwi_p->is_inline);
+				point_to_next_sibling_position(&(child_relative_accessor.exact));
 				set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, &((datum){.uint_value = data[i]}), UINT32_MAX);
 			}
 
 			bwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
 		}
-		else if(!(bwi_p->is_inline))
+		else if(bwi_p->is_extended)
 		{
 			if(bwi_p->wai_p == NULL)
 			{
 				// read extension_head_page_id
 				uint64_t extension_head_page_id;
 				{
-					point_to_extension_head_page_id(&child_relative_accessor, bwi_p->is_inline);
-					datum extension_head;
-					get_value_from_element_from_tuple(&extension_head, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-					extension_head_page_id = extension_head.uint_value;
+					relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+					datum extension_head_page_id_uval;
+					get_value_from_element_from_tuple(&extension_head_page_id_uval, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+					extension_head_page_id = extension_head_page_id_uval.uint_value;
 				}
 
 				// if it is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
@@ -146,7 +152,6 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 				bwi_p->wai_p = get_new_worm_append_iterator(extension_head_page_id, bwi_p->wtd_p, bwi_p->pam_p, bwi_p->pmm_p, transaction_id, abort_error);
 				if(*abort_error)
 				{
-					bwi_p->wai_p = NULL;
 					deinitialize_relative_positional_accessor(&child_relative_accessor);
 					return 0;
 				}
@@ -156,8 +161,6 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			bytes_written_this_iteration = append_to_worm(bwi_p->wai_p, data, data_size, NULL, NULL, transaction_id, abort_error);
 			if(*abort_error)
 			{
-				delete_worm_append_iterator(bwi_p->wai_p, transaction_id, abort_error);
-				bwi_p->wai_p = NULL;
 				deinitialize_relative_positional_accessor(&child_relative_accessor);
 				return 0;
 			}
