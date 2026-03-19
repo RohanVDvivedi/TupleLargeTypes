@@ -6,7 +6,7 @@
 int compare_tb(const binary_reader_interface* bri1_p, const binary_reader_interface* bri2_p, int* is_prefix);
 
 #define compare_text compare_tb
-#define compare_binary compare_tb
+#define compare_blob compare_tb
 
 #include<tuplelargetypes/numeric_reader_interface.h>
 
