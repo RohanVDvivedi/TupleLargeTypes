@@ -17,7 +17,7 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 		const data_type_info* prefix_dti;
 		int valid = get_nested_containee_from_datum(&prefix, &prefix_dti, uval, dti, EXTENDED_PREFIX_POS_ACC);
 		if(valid)
-			hash_datum(&prefix, dti, th);
+			hash_datum(&prefix, prefix_dti, th);
 	}
 
 	uint64_t extension_head_page_id = get_extension_head_page_id_for_extended_type(uval, dti, &(pam_p->pas));
