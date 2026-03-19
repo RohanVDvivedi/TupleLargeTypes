@@ -1,7 +1,7 @@
 #ifndef BINARY_COMPARATOR_H
 #define BINARY_COMPARATOR_H
 
-#include<tuplelargetypes/binary_reader_interface.h>
+#include<tuplelargetypes/binary_read_iterator.h>
 
 int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* is_prefix, const void* transaction_id, int* abort_error);
 
