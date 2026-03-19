@@ -1,6 +1,6 @@
 PICKED TASKS
 
-* TEST the test cases with existing printed test results, ensuring there are no memory leaks
+* test the test cases (jsonb and numeric) with existing printed test results, ensuring there are no memory leaks
 
 * JSONB
   * build jsonb_node from json_node and viceversa
