@@ -1,12 +1,8 @@
 PICKED TASKS
 
-* revamp digit_read_iterator with new uval and datum like api, make this api private
-* make numeric reader insterface to work with datum api
-* discard use of relative_positional_accessor, and embrace STATION_POSITION(0 or 1) instead, (for the reader side of the code only) for read functions
 
 * make macros to represent positional_acessor for the extended_head_page_id, inline_value, and other numeric's attributes, refactor all of that in the _commons.h
-
-* nothing to be done in tuple_list and jsonb
+* refactor digit_write_iterator
 
 
 * JSONB
