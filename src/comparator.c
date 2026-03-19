@@ -67,13 +67,9 @@ int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* 
 
 #define BUFFER_CAPACITY 1024
 
-int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix)
+int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix, int* error)
 {
 	(*is_prefix) = 0;
-
-	// if any one if it is not valid return -2
-	if((!nri1_p->is_valid(nri1_p)) || (!nri2_p->is_valid(nri2_p)))
-		return -2;
 
 	int is_null1 = nri1_p->is_null(nri1_p);
 	int is_null2 = nri2_p->is_null(nri2_p);
@@ -121,27 +117,25 @@ int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader
 	{
 		if(data_size1 == 0) // if there are no more bytes in the data1 then read it
 		{
-			int error = 0;
 			data1 = buffer1;
-			data_size1 = nri1_p->read_digits_as_stream(nri1_p, data1, BUFFER_CAPACITY/sizeof(uint64_t), &error);
-			if(error)
+			data_size1 = nri1_p->read_digits_as_stream(nri1_p, data1, BUFFER_CAPACITY/sizeof(uint64_t), error);
+			if(*error)
 			{
 				nri1_p->close_digits_stream(nri1_p);
 				nri2_p->close_digits_stream(nri2_p);
-				return 0;
+				return -2;
 			}
 		}
 
 		if(data_size2 == 0) // if there are no more bytes in the data2 then read it
 		{
-			int error = 0;
 			data2 = buffer2;
-			data_size2 = nri2_p->read_digits_as_stream(nri2_p, data2, BUFFER_CAPACITY/sizeof(uint64_t), &error);
-			if(error)
+			data_size2 = nri2_p->read_digits_as_stream(nri2_p, data2, BUFFER_CAPACITY/sizeof(uint64_t), error);
+			if(*error)
 			{
 				nri1_p->close_digits_stream(nri1_p);
 				nri2_p->close_digits_stream(nri2_p);
-				return 0;
+				return -2;
 			}
 		}
 
@@ -157,23 +151,23 @@ int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader
 		{
 			(*is_prefix) = 1;
 			cmp = -1;
-			break;
 		}
 		else if(data_size1 > 0 && data_size2 == 0)
 		{
 			(*is_prefix) = 2;
 			cmp = 1;
-			break;
 		}
+		else
+		{
+			const uint32_t digits_processed = min(data_size1, data_size2);
+			for(uint32_t i = 0; i < digits_processed && cmp == 0; i++)
+				cmp = compare_numbers(data1[i], data2[i]);
 
-		const uint32_t digits_processed = min(data_size1, data_size2);
-		for(uint32_t i = 0; i < digits_processed && cmp == 0; i++)
-			cmp = compare_numbers(data1[i], data2[i]);
-
-		data1 += digits_processed;
-		data2 += digits_processed;
-		data_size1 -= digits_processed;
-		data_size2 -= digits_processed;
+			data1 += digits_processed;
+			data2 += digits_processed;
+			data_size1 -= digits_processed;
+			data_size2 -= digits_processed;
+		}
 	}
 
 	nri1_p->close_digits_stream(nri1_p);

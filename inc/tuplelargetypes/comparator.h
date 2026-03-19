@@ -10,7 +10,7 @@ int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* 
 
 #include<tuplelargetypes/numeric_reader_interface.h>
 
-int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix);
+int compare_numeric(const numeric_reader_interface* nri1_p, const numeric_reader_interface* nri2_p, int* is_prefix, int* error);
 
 /*
 	if first parameter is prefix of another then (is_prefix & 1) returns true
