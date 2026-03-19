@@ -6,22 +6,33 @@
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-#include<tuplelargetypes/binary_iterator_commons.h>
-
-binary_read_iterator* get_new_binary_read_iterator(const void* tupl, const tuple_def* tpl_d, positional_accessor inline_accessor, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
+binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
 {
 	binary_read_iterator* bri_p = malloc(sizeof(binary_read_iterator));
 	if(bri_p == NULL)
 		exit(-1);
 
-	const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, inline_accessor);
-	bri_p->is_inline = is_inline_type_info(dti_p);
+	bri_p->is_null = is_datum_NULL(uval);
 
-	bri_p->tupl = tupl;
-	bri_p->tpl_d = tpl_d;
-	bri_p->inline_accessor = inline_accessor;
+	bri_p->curr_chunk = get_dstring_pointing_to(NULL, 0);
+	bri_p->extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
 
-	bri_p->bytes_read_from_prefix = 0;
+	if(!(bri_p->is_null))
+	{
+		if(dti != NULL && is_extended_type_info(dti))
+		{
+			{
+				datum prefix;
+				int valid = get_containee_for_datum(&prefix, uval, dti, EXTENDED_PREFIX_POS_VAL);
+				if(valid && !is_datum_NULL(&prefix))
+					bri_p->curr_chunk = get_dstring_pointing_to(prefix.string_or_binary_value, prefix.string_or_binary_size);
+			}
+
+			bri_p->extension_head_page_id = get_extension_head_page_id_for_extended_type(uval, dti, &(pam_p->pas));
+		}
+		else
+			bri_p->curr_chunk = get_dstring_pointing_to(uval->string_or_binary_value, uval->string_or_binary_size);
+	}
 
 	bri_p->wri_p = NULL;
 
@@ -46,7 +57,7 @@ binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri
 
 	(*clone_p) = (*bri_p);
 
-	if((!clone_p->is_inline) && (bri_p->wri_p != NULL)) // if is_large && wri_p != NULL then a wri_p clone is necessary
+	if((bri_p->wri_p != NULL))
 	{
 		clone_p->wri_p = clone_worm_read_iterator(bri_p->wri_p, transaction_id, abort_error);
 		if(*abort_error)
