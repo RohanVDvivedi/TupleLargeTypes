@@ -61,6 +61,24 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 				dwi_p->digits_to_be_written_to_prefix = dwi_p->digits_written_to_prefix;
 		}
 	}
+	else
+	{
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
+		datum prefix;
+		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+
+		if(is_datum_NULL(&prefix))
+		{
+			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
+			get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+
+			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = dwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
+		}
+
+		dwi_p->digits_written_to_prefix = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+		dwi_p->digits_to_be_written_to_prefix = digits_to_be_written_to_prefix;
+	}
 
 	// limit the bytes_to_be_written_to_prefix, by the amount of bytes the tuple can allow us to expand it
 	if(dwi_p->is_extended)

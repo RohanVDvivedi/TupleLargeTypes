@@ -59,6 +59,15 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 				bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix;
 		}
 	}
+	else
+	{
+		relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
+		datum prefix;
+		get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+
+		bwi_p->bytes_written_to_prefix = prefix.string_or_binary_size;
+		bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
+	}
 
 	// limit the bytes_to_be_written_to_prefix, by the amount of bytes the tuple can allow us to expand it
 	if(bwi_p->is_extended)
