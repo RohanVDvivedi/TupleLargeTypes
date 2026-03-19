@@ -34,11 +34,7 @@ uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeri
 	digits_size = read_from_digit_read_iterator(cntxt->dri_p, digits, digits_size, cntxt->transaction_id, cntxt->abort_error);
 	(*error) = (*cntxt->abort_error);
 	if((*(cntxt->abort_error)))
-	{
-		delete_digit_read_iterator(cntxt->dri_p, cntxt->transaction_id, cntxt->abort_error);
-		cntxt->dri_p = NULL;
 		return 0;
-	}
 
 	return digits_size;
 }
