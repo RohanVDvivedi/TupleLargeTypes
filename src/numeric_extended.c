@@ -12,6 +12,11 @@ char const * numeric_sign_bits_str[5] = {
 	"+inf",
 };
 
+int is_numeric_type_info(const data_type_info* dti_p)
+{
+	return is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX));
+}
+
 int is_numeric_inline_type_info(const data_type_info* dti_p)
 {
 	return strcmp(dti_p->type_name, NUMERIC_TYPE_PREFIX INLINE_TYPE_SUFFIX) == 0;

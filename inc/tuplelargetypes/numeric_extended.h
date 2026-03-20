@@ -18,6 +18,9 @@ fail_build_on(BYTES_PER_NUMERIC_DIGIT > 8);
 #define GET_NUMERIC_EXPONENT_POS_ACC(is_extended) ((is_extended) ? STATIC_POSITION(EXTENDED_PREFIX_POS_VAL, 1) : STATIC_POSITION(1))
 #define GET_NUMERIC_DIGITS_POS_ACC(is_extended)   ((is_extended) ? STATIC_POSITION(EXTENDED_PREFIX_POS_VAL, 2) : STATIC_POSITION(2))
 
+// if this function returns 1, the type can be compared with another numeric type using compare_numeric, and hashed with hash_numeric
+int is_numeric_type_info(const data_type_info* dti_p);
+
 // below two functions only check the type_name of the dti passed
 int is_numeric_inline_type_info(const data_type_info* dti_p);
 int is_numeric_extended_type_info(const data_type_info* dti_p);
