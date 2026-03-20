@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* make a function to create a new worm for an extended_type
+
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
