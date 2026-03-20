@@ -6,6 +6,9 @@
 
 #define BLOB_TYPE_PREFIX "blob"
 
+// if this function returns 1, the type can be compared with another blob type using compare_blob, and hashed with hash_blob
+int is_blob_type_info(const data_type_info* dti_p);
+
 // below two functions only check the type_name of the dti passed
 int is_blob_inline_type_info(const data_type_info* dti_p);
 int is_blob_extended_type_info(const data_type_info* dti_p);
