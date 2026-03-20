@@ -79,7 +79,7 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 
 	uint32_t digits_read = 0;
 
-	while(digits_read < digits_size)
+	while(digits_size > 0)
 	{
 		uint32_t digits_read_this_iteration = 0;
 

@@ -8,14 +8,14 @@ int is_null_for_intuple_numeric_reader_interface(const numeric_reader_interface*
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
-	return is_datum_NULL(cntxt->uval);
+	return is_datum_NULL(&(cntxt->uval));
 }
 
 void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, numeric_sign_bits* sign_bits, int16_t* exponent)
 {
 	intuple_numeric_reader_interface_context* cntxt = nri_p->context;
 
-	extract_sign_bits_and_exponent_from_numeric(sign_bits, exponent, cntxt->uval, cntxt->dti);
+	extract_sign_bits_and_exponent_from_numeric(sign_bits, exponent, &(cntxt->uval), cntxt->dti);
 }
 
 uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error)
@@ -29,7 +29,7 @@ uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeri
 	}
 
 	if(cntxt->dri_p == NULL)
-		cntxt->dri_p = get_new_digit_read_iterator(cntxt->uval, cntxt->dti, cntxt->wtd_p, cntxt->pam_p);
+		cntxt->dri_p = get_new_digit_read_iterator(&(cntxt->uval), cntxt->dti, cntxt->wtd_p, cntxt->pam_p);
 
 	digits_size = read_from_digit_read_iterator(cntxt->dri_p, digits, digits_size, cntxt->transaction_id, cntxt->abort_error);
 	(*error) = (*cntxt->abort_error);

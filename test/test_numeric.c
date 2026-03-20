@@ -84,15 +84,22 @@ void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
 
 void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	digit_write_iterator* dwi_p = get_new_digit_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
 
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	uint64_t digits[WRITE_CHUNK_SIZE];
 	uint32_t digits_to_write = TEST_DIGITS_COUNT;
@@ -120,12 +127,16 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_def
 
 void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
 {
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_numeric(tpl_d, inline_tuple, ACCS, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
+	printf("hash => %"PRIu64"\n\n", hash_numeric(&uval, dti, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
 
-	digit_read_iterator* dri_p = get_new_digit_read_iterator(inline_tuple, tpl_d, ACCS, wtd_p, pam_p);
+	digit_read_iterator* dri_p = get_new_digit_read_iterator(&uval, dti, wtd_p, pam_p);
 
 	uint64_t digits[READ_CHUNK_SIZE];
 
@@ -211,7 +222,10 @@ int main()
 	#endif
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	datum uval;
+	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
 
@@ -269,7 +283,9 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
 	s = NEGATIVE_NUMERIC;
@@ -284,7 +300,9 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
 	s = POSITIVE_NUMERIC;
@@ -292,7 +310,9 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas)));
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
@@ -340,12 +360,18 @@ int main()
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
+		int error = 0;
+
 		{
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
-			cmp = compare_numeric(&nri1, &nri2, &prefix);
+			cmp = compare_numeric(&nri1, &nri2, &prefix, &error);
+			nri1.close_digits_stream(&nri1);
+			nri2.close_digits_stream(&nri2);
 			printf("forward compared with ");
 			if(compare_with[i] != NULL)
 				print_materialized_numeric(compare_with[i]);
@@ -355,11 +381,15 @@ int main()
 		}
 
 		{
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
-			cmp = compare_numeric(&nri2, &nri1, &prefix);
+			cmp = compare_numeric(&nri2, &nri1, &prefix, &error);
+			nri1.close_digits_stream(&nri1);
+			nri2.close_digits_stream(&nri2);
 			printf("reverse compared with ");
 			if(compare_with[i] != NULL)
 				print_materialized_numeric(compare_with[i]);
@@ -374,12 +404,18 @@ int main()
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
+		int error = 0;
+
 		{
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
-			cmp = compare_numeric(&nri1, &nri2, &prefix);
+			cmp = compare_numeric(&nri1, &nri2, &prefix, &error);
+			nri1.close_digits_stream(&nri1);
+			nri2.close_digits_stream(&nri2);
 			printf("forward compared with ");
 			if(compare_with[i] != NULL)
 				print_materialized_numeric(compare_with[i]);
@@ -389,11 +425,15 @@ int main()
 		}
 
 		{
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, inline_tuple, ACCS, &wtd, pam_p, transaction_id, &abort_error);
+			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
-			cmp = compare_numeric(&nri2, &nri1, &prefix);
+			cmp = compare_numeric(&nri2, &nri1, &prefix, &error);
+			nri1.close_digits_stream(&nri1);
+			nri2.close_digits_stream(&nri2);
 			printf("reverse compared with ");
 			if(compare_with[i] != NULL)
 				print_materialized_numeric(compare_with[i]);
@@ -408,7 +448,9 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(inline_tuple, tpl_d, ACCS, &(pam_p->pas));
+	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
+	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 	uint64_t dependent_root_page_id;
 	int vaccum_needed = 0;
 	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
@@ -531,34 +573,53 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 	print_tuple(tuple, tpl_d);
 	printf("\n");
 
+	int error = 0;
+
+	datum uval;
+	const data_type_info* dti;
+
 	{
 		int cmp = 100;
 		int prefix = 100;
-		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
-		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
-		cmp = compare_numeric(&nri1, &nri2, &prefix);
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		cmp = compare_numeric(&nri1, &nri2, &prefix, &error);
+		nri1.close_digits_stream(&nri1);
+		nri2.close_digits_stream(&nri2);
 		print_num(n1);
 		printf(", ");
 		print_num(n2);
-		printf(" => cmp(%d), prefix(%d)\n",cmp, prefix);
+		printf(" => cmp(%d), prefix(%d)\n", cmp, prefix);
 	}
 
 	{
 		int cmp = 100;
 		int prefix = 100;
-		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(0), wtd_p, pam_p, transaction_id, &abort_error);
-		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(tpl_d, tuple, STATIC_POSITION(1), wtd_p, pam_p, transaction_id, &abort_error);
-		cmp = compare_numeric(&nri2, &nri1, &prefix);
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		cmp = compare_numeric(&nri2, &nri1, &prefix, &error);
+		nri1.close_digits_stream(&nri1);
+		nri2.close_digits_stream(&nri2);
 		print_num(n2);
 		printf(", ");
 		print_num(n1);
-		printf(" => cmp(%d), prefix(%d)\n",cmp, prefix);
+		printf(" => cmp(%d), prefix(%d)\n", cmp, prefix);
 	}
 	printf("\n");
 
 	// destroy s1
 	{
-		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(0), &(pam_p->pas));
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 		uint64_t dependent_root_page_id;
 		int vaccum_needed = 0;
 		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
@@ -567,7 +628,9 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 
 	// destroy s2
 	{
-		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(tuple, tpl_d, STATIC_POSITION(1), &(pam_p->pas));
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
+		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
 		uint64_t dependent_root_page_id;
 		int vaccum_needed = 0;
 		if(head_page_id != pam_p->pas.NULL_PAGE_ID)

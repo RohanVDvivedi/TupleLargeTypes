@@ -36,7 +36,7 @@ struct numeric_reader_interface
 typedef struct intuple_numeric_reader_interface_context intuple_numeric_reader_interface_context;
 struct intuple_numeric_reader_interface_context
 {
-	const datum* uval;
+	datum uval;
 	const data_type_info* dti;
 
 	const worm_tuple_defs* wtd_p;

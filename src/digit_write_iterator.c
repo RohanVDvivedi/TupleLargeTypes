@@ -71,9 +71,6 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 		{
 			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
 			get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
-
-			relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
-			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = dwi_p->pam_p->pas.NULL_PAGE_ID}), UINT32_MAX);
 		}
 
 		dwi_p->digits_written_to_prefix = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
@@ -128,7 +125,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 			expand_element_count_for_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, old_element_count, digits_written_this_iteration, digits_written_this_iteration * BYTES_PER_NUMERIC_DIGIT);
 
-			// copy data into it byte by byte
+			// copy data into it digit by digit
 			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
 			for(uint32_t i = 0; i < digits_written_this_iteration; i++, point_to_next_sibling_position(&(child_relative_accessor.exact)))
 				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = digits[i]}), UINT32_MAX);
