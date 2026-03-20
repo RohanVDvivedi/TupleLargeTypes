@@ -1,7 +1,5 @@
 PICKED TASKS
 
-* test the test cases (numeric) with existing printed test results, ensuring there are no memory leaks
-
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
