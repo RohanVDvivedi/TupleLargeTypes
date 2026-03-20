@@ -447,13 +447,12 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
-	uint64_t dependent_root_page_id;
-	int vaccum_needed = 0;
-	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
 	{
-		decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
-		printf("dependent_root_page_id = %"PRIu64" vaccum_needed = %d\n", dependent_root_page_id, vaccum_needed);
+		datum uval;
+		const data_type_info* dti;
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
+		get_value_from_element_from_tuple(&uval, tpl_d, SELF, inline_tuple);
+		delete_all_extension_worms(&uval, dti, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
 	}
 
 	// close the in-memory data store

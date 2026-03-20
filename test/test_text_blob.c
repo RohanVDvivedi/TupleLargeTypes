@@ -300,16 +300,12 @@ int main()
 	/* CLEANUP */
 
 	// destroy worm
-	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-	uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
-	uint64_t dependent_root_page_id;
-	int vaccum_needed = 0;
-	if(head_page_id != pam_p->pas.NULL_PAGE_ID)
 	{
-		decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
-		printf("dependent_root_page_id = %"PRIu64" vaccum_needed = %d\n", dependent_root_page_id, vaccum_needed);
+		datum uval;
+		const data_type_info* dti;
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
+		get_value_from_element_from_tuple(&uval, tpl_d, SELF, inline_tuple);
+		delete_all_extension_worms(&uval, dti, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
 	}
 
 	// run comparison based tests
@@ -420,32 +416,14 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	}
 	printf("\n");
 
-	// destroy s1
+	// destroy all
 	{
 		datum uval;
 		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
-		uint64_t dependent_root_page_id;
-		int vaccum_needed = 0;
-		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
-			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
+		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
+		get_value_from_element_from_tuple(&uval, tpl_d, SELF, tuple);
+		delete_all_extension_worms(&uval, dti, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
 	}
-
-	// destroy s2
-	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		uint64_t head_page_id = get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas));
-		uint64_t dependent_root_page_id;
-		int vaccum_needed = 0;
-		if(head_page_id != pam_p->pas.NULL_PAGE_ID)
-			decrement_reference_counter_for_worm(head_page_id, &dependent_root_page_id, &vaccum_needed, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
-	}
-
 }
 
 void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
