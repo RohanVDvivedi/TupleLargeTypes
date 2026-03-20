@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* add is_text/blob/jsonb/numeric/tuple_list_type_info functions
+
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
