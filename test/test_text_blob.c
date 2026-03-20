@@ -197,7 +197,7 @@ int main()
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
 	{
 		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-		printf("is_inline = %d, is_extended = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p));
+		printf("is_inline = %d, is_extended = %d, is_text = %d, is_blob = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p), is_text_type_info(dti_p), is_blob_type_info(dti_p));
 	}
 
 	/* TESTS STARTED */
