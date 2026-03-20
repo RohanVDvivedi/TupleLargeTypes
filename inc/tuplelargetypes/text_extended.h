@@ -6,6 +6,9 @@
 
 #define TEXT_TYPE_PREFIX "text"
 
+// if this function returns 1, the type can be compared with another text type using compare_text, and hashed with hash_text
+int is_text_type_info(const data_type_info* dti_p);
+
 // below two functions only check the type_name of the dti passed
 int is_text_inline_type_info(const data_type_info* dti_p);
 int is_text_extended_type_info(const data_type_info* dti_p);
