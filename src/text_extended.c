@@ -7,7 +7,7 @@ int is_text_type_info(const data_type_info* dti_p)
 	if(is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(TEXT_TYPE_PREFIX)))
 		return 1;
 
-	return (dti_p->type == BINARY) || (dti_p->type == STRING);
+	return (dti_p->type == STRING);
 }
 
 int is_text_inline_type_info(const data_type_info* dti_p)
