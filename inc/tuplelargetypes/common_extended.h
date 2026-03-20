@@ -20,4 +20,8 @@ int is_extended_type_info(const data_type_info* dti_p);
 // returns 1-th element from the large type info
 uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p);
 
+#include<tupleindexer/worm/worm.h>
+
+void delete_all_extension_worms(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p, const void* transaction_id, int* abort_error);
+
 #endif
