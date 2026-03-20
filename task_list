@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* make a delete_all_extension_worms a recursively delete all the worms
+
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
