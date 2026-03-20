@@ -131,25 +131,12 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 		{
 			if(bwi_p->wai_p == NULL)
 			{
-				// read extension_head_page_id
-				uint64_t extension_head_page_id;
+				// read extension_head_page_id, or create one
+				uint64_t extension_head_page_id = get_or_create_extension_worm(bwi_p->tupl, bwi_p->tpl_d, bwi_p->pos, bwi_p->wtd_p, bwi_p->pam_p, bwi_p->pmm_p, transaction_id, abort_error);
+				if(*abort_error)
 				{
-					relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
-					datum extension_head_page_id_uval;
-					get_value_from_element_from_tuple(&extension_head_page_id_uval, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-					extension_head_page_id = extension_head_page_id_uval.uint_value;
-				}
-
-				// if it is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
-				if(extension_head_page_id == bwi_p->pam_p->pas.NULL_PAGE_ID)
-				{
-					extension_head_page_id = get_new_worm(1, bwi_p->pam_p->pas.NULL_PAGE_ID, bwi_p->wtd_p, bwi_p->pam_p, bwi_p->pmm_p, transaction_id, abort_error);
-					if(*abort_error)
-					{
-						deinitialize_relative_positional_accessor(&child_relative_accessor);
-						return 0;
-					}
-					set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, &((datum){.uint_value = extension_head_page_id}), UINT32_MAX);
+					deinitialize_relative_positional_accessor(&child_relative_accessor);
+					return 0;
 				}
 
 				// open a new wai
