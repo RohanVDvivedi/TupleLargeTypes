@@ -22,6 +22,10 @@ uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const d
 
 #include<tupleindexer/worm/worm.h>
 
+// creates a new worm, and inserts it's head_page_id in the tupe at pos position and will also return it
+// does not create a new one if one already exists in the tuple for the pos position
+uint64_t get_or_create_extension_worm(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p, const void* transaction_id, int* abort_error);
+
 void delete_all_extension_worms(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p, const void* transaction_id, int* abort_error);
 
 #endif

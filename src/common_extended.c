@@ -45,6 +45,55 @@ uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const d
 	return pas_p->NULL_PAGE_ID;
 }
 
+uint64_t get_or_create_extension_worm(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p, const void* transaction_id, int* abort_error)
+{
+	// make sure the type in context is an extended type
+	{
+		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, pos);
+		if(dti_p == NULL)
+			return pam_p->pas.NULL_PAGE_ID;
+		if(!is_extended_type_info(dti_p))
+			return pam_p->pas.NULL_PAGE_ID;
+	}
+
+	// initialize it to NULL
+	uint64_t extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
+
+	// create a relative position accessor
+	relative_positional_accessor child_relative_accessor;
+	initialize_relative_positional_accessor(&child_relative_accessor, &pos, 1);
+	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_HEAD_PAGE_ID_POS_ACC);
+
+	// fetch the extension_head_page_id
+	{
+		datum extension_head_page_id_uval;
+		if(!get_value_from_element_from_tuple(&extension_head_page_id_uval, tpl_d, child_relative_accessor.exact, tupl)) // if we can not extraxt one, fail this call
+		{
+			deinitialize_relative_positional_accessor(&child_relative_accessor);
+			return pam_p->pas.NULL_PAGE_ID;
+		}
+		if(is_datum_NULL(&extension_head_page_id_uval))
+			extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
+		else
+			extension_head_page_id = extension_head_page_id_uval.uint_value;
+	}
+
+	// if extension_head_page_id is NULL_PAGE_ID, then create a new worm and set it in the attribute beside prefix
+	if(extension_head_page_id == pam_p->pas.NULL_PAGE_ID)
+	{
+		extension_head_page_id = get_new_worm(1, pam_p->pas.NULL_PAGE_ID, wtd_p, pam_p, pmm_p, transaction_id, abort_error);
+		if(*abort_error)
+		{
+			deinitialize_relative_positional_accessor(&child_relative_accessor);
+			return pam_p->pas.NULL_PAGE_ID;
+		}
+		set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = extension_head_page_id}), UINT32_MAX);
+	}
+
+	deinitialize_relative_positional_accessor(&child_relative_accessor);
+	return extension_head_page_id;
+}
+
 void delete_all_extension_worms(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p, const void* transaction_id, int* abort_error)
 {
 	// return directly if the uval is NULL
