@@ -1,5 +1,8 @@
 PICKED TASKS
 
+* for tuple_list, allow it pointing to peek instead of direct coping, pass a parameter to tell if the returnned pointer needs to be freed
+* tuple_list is allowed to store extended types
+
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
