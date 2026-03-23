@@ -165,7 +165,7 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 				if(to_be_freed)
 				{
 					tuple = to_be_freed;
-					is_peeked = 1;
+					is_peeked = 0;
 				}
 			}
 			if(tuple)
