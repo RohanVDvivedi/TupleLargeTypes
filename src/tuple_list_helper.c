@@ -6,47 +6,55 @@ typedef struct get_size_context get_size_context;
 struct get_size_context
 {
 	binary_read_iterator* bri_p;
-	binary_read_iterator* cloned_bri_p;
 	const void* transaction_id;
 	int* abort_error;
 };
 
-static uint32_t read_from_stream_for_get_size_context(void* context_p, void* data, uint32_t data_size)
+static uint32_t read_tuple_prefix_from_iterator(void* context_p, void* data, uint32_t data_size)
 {
 	if(data_size == 0) // this will never happen
 		return 0;
 
 	get_size_context* gsc_p = context_p;
 
-	// initialize the new iterator to not have need to forward the current one
-	if(gsc_p->cloned_bri_p == NULL)
 	{
-		gsc_p->cloned_bri_p = clone_binary_read_iterator(gsc_p->bri_p, gsc_p->transaction_id, gsc_p->abort_error);
+		uint32_t bytes_peeked = 0;
+		const void* tuple_prefix = peek_in_binary_read_iterator(gsc_p->bri_p, &bytes_peeked, gsc_p->transaction_id, gsc_p->abort_error);
 		if(*(gsc_p->abort_error))
 			return 0;
+		if(bytes_peeked >= data_size)
+		{
+			memory_move(data, tuple_prefix, data_size);
+			return data_size;
+		}
 	}
 
-	// read from the cloned_bri_p, this is will read no more than 4 bytes
-	// if abort_error, this function will return 0
-	return read_from_binary_read_iterator(gsc_p->cloned_bri_p, data, data_size, gsc_p->transaction_id, gsc_p->abort_error);
+	// else if too few bytes are peeked
+
+	// then close the iterator and make read call from the cloned iterator
+
+	binary_read_iterator* cloned_bri_p = clone_binary_read_iterator(gsc_p->bri_p, gsc_p->transaction_id, gsc_p->abort_error);
+	if(*(gsc_p->abort_error))
+		return 0;
+
+	uint32_t bytes_read = read_from_binary_read_iterator(cloned_bri_p, data, data_size, gsc_p->transaction_id, gsc_p->abort_error);
+	if(*(gsc_p->abort_error))
+	{
+		delete_binary_read_iterator(cloned_bri_p, gsc_p->transaction_id, gsc_p->abort_error);
+		return 0;
+	}
+
+	delete_binary_read_iterator(cloned_bri_p, gsc_p->transaction_id, gsc_p->abort_error);
+	return bytes_read;
 }
 
 // the passed buffer must be atleast 4 bytes big, buffer_size will be set to bytes read from the bri_p
 uint32_t get_curr_tuple_size_from_binary_read_iterator(binary_read_iterator* bri_p, const tuple_def* tpl_d, const void* transaction_id, int* abort_error)
 {
-	char buffer[4] = {};
-	uint32_t buffer_size = 0;
-	get_size_context gsc = {.bri_p = bri_p, .cloned_bri_p = NULL, .transaction_id = transaction_id, abort_error};
-
-	uint32_t curr_tuple_size = get_tuple_size_from_stream(tpl_d, buffer, &buffer_size, &gsc, read_from_stream_for_get_size_context);
-
-	// cloned_bri_p has to be deleted in any case, even if the get_tuple_size_from_stream() call failed with an abort_error
-	if(gsc.cloned_bri_p != NULL)
-		delete_binary_read_iterator(gsc.cloned_bri_p, transaction_id, abort_error);
-
+	get_size_context gsc = {.bri_p = bri_p, .transaction_id = transaction_id, abort_error};
+	uint32_t curr_tuple_size = get_tuple_size2(tpl_d, &gsc, read_tuple_prefix_from_iterator);
 	if(*abort_error)
 		return 0;
-
 	return curr_tuple_size;
 }
 
