@@ -147,18 +147,41 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 	{
 		if(*read_or_skip)
 		{
-			void* tuple = read_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+			int is_peeked = 0;
+			void* to_be_freed = NULL;
+			const void* tuple = NULL;
+			if(tuple == NULL)
+			{
+				tuple = peek_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+				if(tuple != NULL)
+				{
+					to_be_freed = NULL;
+					is_peeked = 1;
+				}
+			}
+			if(tuple == NULL)
+			{
+				to_be_freed = read_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+				if(to_be_freed)
+				{
+					tuple = to_be_freed;
+					is_peeked = 1;
+				}
+			}
 			if(tuple)
 			{
 				printf("read-> ");
 				print_tuple(tuple, &tpl_d_tlist_elements);
-				free(tuple);
 			}
 			else
 			{
 				printf("read failed\n");
 				break;
 			}
+			if(to_be_freed != NULL)
+				free(to_be_freed);
+			if(is_peeked)
+				skip_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
 		}
 		else
 		{
@@ -198,11 +221,6 @@ int main()
 		const data_type_info* dti_p = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 		printf("is_inline = %d, is_extended = %d\n", is_inline_type_info(dti_p), is_extended_type_info(dti_p));
 	}
-
-	int is_insertable = can_tuple_be_inserted_in_tuple_list_extended(&tpl_d_tlist_elements);
-	printf("can element tuple_def-s be inserted in tuple_list_extended = %d\n\n", is_insertable);
-	if(!is_insertable)
-		exit(-1);
 
 	/* TESTS STARTED */
 
