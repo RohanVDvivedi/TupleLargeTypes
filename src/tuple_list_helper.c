@@ -27,6 +27,8 @@ static uint32_t read_tuple_prefix_from_iterator(void* context_p, void* data, uin
 			memory_move(data, tuple_prefix, data_size);
 			return data_size;
 		}
+		if(bytes_peeked == 0)
+			return 0;
 	}
 
 	// else if too few bytes are peeked
