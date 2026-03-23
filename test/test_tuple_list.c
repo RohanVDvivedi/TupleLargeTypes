@@ -170,7 +170,7 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 			}
 			if(tuple)
 			{
-				printf("read-> ");
+				printf("%s-> ", (is_peeked?"peek":"read"));
 				print_tuple(tuple, &tpl_d_tlist_elements);
 			}
 			else
