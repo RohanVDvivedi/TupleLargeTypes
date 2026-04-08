@@ -17,6 +17,9 @@
 int is_inline_type_info(const data_type_info* dti_p);
 int is_extended_type_info(const data_type_info* dti_p);
 
+// returns true, if any of the constituent types of this type info is an extended type info
+int has_extended_type_info(const data_type_info* dti_p);
+
 // returns 1-th element from the large type info
 uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p);
 

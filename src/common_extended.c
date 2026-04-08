@@ -14,6 +14,24 @@ int is_extended_type_info(const data_type_info* dti_p)
 	return is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
 }
 
+int has_extended_type_info(const data_type_info* dti_p)
+{
+	if(is_extended_type_info(dti_p))
+		return 1;
+
+	if(dti_p->type == ARRAY)
+		return has_extended_type_info(dti_p->containee);
+	else if(dti_p->type == TUPLE)
+	{
+		int has_extended = 0;
+		for(uint32_t i = 0; i < dti_p->element_count && !has_extended; i++)
+			has_extended = has_extended_type_info(dti_p->containees[i].al.type_info);
+		return has_extended;
+	}
+	else
+		return 0;
+}
+
 #include<tuplelargetypes/numeric_extended.h>
 
 uint64_t get_extension_head_page_id_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
