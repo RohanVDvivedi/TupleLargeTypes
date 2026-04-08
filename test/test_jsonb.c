@@ -52,6 +52,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	initialize_tuple_def(&tpl_d, dti);
 	print_tuple_def(&tpl_d);
 	printf("\n");
+	printf("%d\n\n", has_extended_type_info(tpl_d.type_info));
 	return &tpl_d;
 }
 
