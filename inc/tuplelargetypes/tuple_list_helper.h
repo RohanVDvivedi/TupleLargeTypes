@@ -17,4 +17,28 @@ const void* peek_tuple_from_binary_read_iterator(binary_read_iterator* bri_p, co
 // you will need to free this buffer, the tuple returned by this function is already skipped
 void* read_tuple_from_binary_read_iterator(binary_read_iterator* bri_p, const tuple_def* tpl_d, const void* transaction_id, int* abort_error);
 
+#define consume_tuple_from_tuple_list(tuple, tpl_d, bri_p, transaction_id, abort_error, BODY) {                          \
+	int peeked = 0;                                                                                                      \
+	const void* tuple = peek_tuple_from_binary_read_iterator(bri_p, tpl_d, transaction_id, abort_error);                 \
+	if(tuple != NULL)                                                                                                    \
+	{                                                                                                                    \
+		peeked = 1;                                                                                                      \
+	}                                                                                                                    \
+	else                                                                                                                 \
+	{                                                                                                                    \
+		peeked = 0;                                                                                                      \
+		tuple = read_tuple_from_binary_read_iterator(bri_p, tpl_d, transaction_id, abort_error);                         \
+	}                                                                                                                    \
+	{                                                                                                                    \
+		BODY                                                                                                             \
+	}                                                                                                                    \
+	if(tuple != NULL)                                                                                                    \
+	{                                                                                                                    \
+		if(peeked)                                                                                                       \
+			skip_tuple_from_binary_read_iterator(bri_p, tpl_d, transaction_id, abort_error);                             \
+		else                                                                                                             \
+			free(tuple);                                                                                                 \
+	}                                                                                                                    \
+}
+
 #endif
