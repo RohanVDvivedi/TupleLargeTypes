@@ -147,41 +147,18 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 	{
 		if(*read_or_skip)
 		{
-			int is_peeked = 0;
-			void* to_be_freed = NULL;
-			const void* tuple = NULL;
-			if(tuple == NULL)
-			{
-				tuple = peek_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
-				if(tuple != NULL)
+			consume_tuple_from_tuple_list(tuple, &tpl_d_tlist_elements, tbri_p, transaction_id, &abort_error, {
+				if(tuple)
 				{
-					to_be_freed = NULL;
-					is_peeked = 1;
+					printf("%s-> ", (is_peeked?"peek":"read"));
+					print_tuple(tuple, &tpl_d_tlist_elements);
 				}
-			}
-			if(tuple == NULL)
-			{
-				to_be_freed = read_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
-				if(to_be_freed)
+				else
 				{
-					tuple = to_be_freed;
-					is_peeked = 0;
+					printf("read failed\n");
+					break;
 				}
-			}
-			if(tuple)
-			{
-				printf("%s-> ", (is_peeked?"peek":"read"));
-				print_tuple(tuple, &tpl_d_tlist_elements);
-			}
-			else
-			{
-				printf("read failed\n");
-				break;
-			}
-			if(to_be_freed != NULL)
-				free(to_be_freed);
-			if(is_peeked)
-				skip_tuple_from_binary_read_iterator(tbri_p, &tpl_d_tlist_elements, transaction_id, &abort_error);
+			});
 		}
 		else
 		{
