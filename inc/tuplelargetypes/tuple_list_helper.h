@@ -37,7 +37,7 @@ void* read_tuple_from_binary_read_iterator(binary_read_iterator* bri_p, const tu
 		if(is_peeked)                                                                                                    \
 			skip_tuple_from_binary_read_iterator(bri_p, tpl_d, transaction_id, abort_error);                             \
 		else                                                                                                             \
-			free(tuple);                                                                                                 \
+			free((void*)tuple);                                                                                          \
 	}                                                                                                                    \
 }
 
