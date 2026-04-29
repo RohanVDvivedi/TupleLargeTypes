@@ -118,12 +118,21 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			else
 				relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
 			uint32_t old_element_count = get_element_count_for_element_from_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-			expand_element_count_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
+			int expanded = expand_element_count_for_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, old_element_count, bytes_written_this_iteration, bytes_written_this_iteration);
 
 			// copy data into it byte by byte
+			/*
 			point_to_i_th_child_position(&(child_relative_accessor.exact), old_element_count);
 			for(uint32_t i = 0; i < bytes_written_this_iteration; i++, point_to_next_sibling_position(&(child_relative_accessor.exact)))
 				set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, &((datum){.uint_value = data[i]}), UINT32_MAX);
+			*/
+			// doing the same above thing but in more optimized way, this is illegal but fast
+			if(expanded)
+			{
+				datum prefix;
+				get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+				memory_move((void*)(prefix.string_or_binary_value + old_element_count), data, bytes_written_this_iteration);
+			}
 
 			bwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
 		}
