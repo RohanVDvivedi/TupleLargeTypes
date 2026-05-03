@@ -1,6 +1,13 @@
 PICKED TASKS
 
 * integrate with blob_store instead of worm and see the performance get better in the RhenDB's rash_table
+* compare test outputs of worm with the one with blob_store
+* binary write iterator will need more work, wee need to work with even the heap notifier
+
+
+
+
+
 
 * JSONB
   * build jsonb_node from json_node and viceversa
