@@ -1,5 +1,7 @@
 PICKED TASKS
 
+* integrate with blob_store instead of worm and see the performance get better in the RhenDB's rash_table
+
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
