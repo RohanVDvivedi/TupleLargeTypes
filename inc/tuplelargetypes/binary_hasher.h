@@ -4,10 +4,10 @@
 #include<tuplestore/tuple_def.h>
 #include<tuplestore/tuple.h>
 
-#include<tupleindexer/worm/worm.h>
+#include<tupleindexer/blob_store/blob_store.h>
 #include<tupleindexer/interface/page_access_methods.h>
 
-uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error);
+uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error);
 
 #define hash_text hash_tbn
 #define hash_blob hash_tbn
