@@ -31,6 +31,9 @@ int is_extended_type_info(const data_type_info* dti_p);
 // returns true, if any of the constituent types of this type info is an extended type info
 int has_extended_type_info(const data_type_info* dti_p);
 
+// this stays at position of EXTENSION_HEAD_POS_ACC in all the extended types
+data_type_info* get_extendion_head_type_info(const page_access_specs* pas_p);
+
 // returns 1-th element from the large type info
 chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p);
 

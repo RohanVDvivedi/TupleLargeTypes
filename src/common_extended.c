@@ -32,6 +32,24 @@ int has_extended_type_info(const data_type_info* dti_p)
 		return 0;
 }
 
+data_type_info* get_extendion_head_type_info(const page_access_specs* pas_p)
+{
+	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
+	if(dti_p == NULL)
+		exit(-1);
+
+	// the text_inline controls the total size so we allow the text_extended to be atmost page_size bytes large
+	initialize_tuple_data_type_info(dti_p, "extension_head", 0, 0, 2);
+
+	strcpy(dti_p->containees[0].field_name, "extension_head_page_id");
+	dti_p->containees[0].al.type_info = (data_type_info*)(&(pas_p->page_id_type_info));
+
+	strcpy(dti_p->containees[1].field_name, "extension_head_tuple_index");
+	dti_p->containees[1].al.type_info = (data_type_info*)(&(pas_p->tuple_index_type_info));
+
+	return dti_p;
+}
+
 #include<tuplelargetypes/numeric_extended.h>
 
 chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)

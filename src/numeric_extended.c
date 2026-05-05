@@ -65,7 +65,7 @@ data_type_info* get_numeric_extended_type_info(uint32_t max_size, const data_typ
 	dti_p->containees[0].al.type_info = (data_type_info*)numeric_inline_p;
 
 	strcpy(dti_p->containees[1].field_name, "numeric_extension");
-	dti_p->containees[1].al.type_info = (data_type_info*)(&(pas_p->page_id_type_info));
+	dti_p->containees[1].al.type_info = get_extendion_head_type_info(pas_p);
 
 	return dti_p;
 }
