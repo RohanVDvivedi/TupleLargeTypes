@@ -2,7 +2,7 @@
 #define DIGIT_READ_ITERATOR_H
 
 #include<tuplestore/tuple.h>
-#include<tupleindexer/worm/worm.h>
+#include<tupleindexer/blob_store/blob_store.h>
 #include<tuplelargetypes/common_extended.h>
 
 /*
@@ -22,15 +22,15 @@ struct digit_read_iterator
 
 	const data_type_info* digits_dti;
 
-	uint64_t extension_head_page_id;
-	worm_read_iterator* wri_p;
+	chunk_ptr extension_head;
+	blob_store_read_iterator* bsri_p;
 
-	// below attributes only to be used to initialize the wri, only upon requirement
-	const worm_tuple_defs* wtd_p;
+	// below attributes only to be used to initialize the bsri, only upon requirement
+	const blob_store_tuple_defs* bstd_p;
 	const page_access_methods* pam_p;
 };
 
-digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p);
+digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p);
 
 void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error);
 

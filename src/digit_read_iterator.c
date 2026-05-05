@@ -8,7 +8,7 @@
 
 #include<tuplelargetypes/numeric_extended.h>
 
-digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const worm_tuple_defs* wtd_p, const page_access_methods* pam_p)
+digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p)
 {
 	digit_read_iterator* dri_p = malloc(sizeof(digit_read_iterator));
 	if(dri_p == NULL)
@@ -20,14 +20,14 @@ digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_t
 	dri_p->digits_inline_count = 0;
 	dri_p->digits_inline_read = 0;
 
-	dri_p->extension_head_page_id = pam_p->pas.NULL_PAGE_ID;
-	dri_p->wri_p = NULL;
+	dri_p->extension_head = (chunk_ptr){pam_p->pas.NULL_PAGE_ID};
+	dri_p->bsri_p = NULL;
 
-	dri_p->wtd_p = wtd_p;
+	dri_p->bstd_p = bstd_p;
 	dri_p->pam_p = pam_p;
 
 	if(is_extended_type_info(dti))
-		dri_p->extension_head_page_id = get_extension_head_page_id_for_extended_type(uval, dti, &(pam_p->pas));
+		dri_p->extension_head = get_extension_head_for_extended_type(uval, dti, &(pam_p->pas));
 
 	{
 		datum prefix_digits;
@@ -46,8 +46,8 @@ digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_t
 
 void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error)
 {
-	if(dri_p->wri_p != NULL)
-		delete_worm_read_iterator(dri_p->wri_p, transaction_id, abort_error);
+	if(dri_p->bsri_p != NULL)
+		delete_blob_store_read_iterator(dri_p->bsri_p, transaction_id, abort_error);
 	free(dri_p);
 }
 
@@ -59,9 +59,9 @@ digit_read_iterator* clone_digit_read_iterator(const digit_read_iterator* dri_p,
 
 	(*clone_p) = (*dri_p);
 
-	if(dri_p->wri_p != NULL)
+	if(dri_p->bsri_p != NULL)
 	{
-		clone_p->wri_p = clone_worm_read_iterator(dri_p->wri_p, transaction_id, abort_error);
+		clone_p->bsri_p = clone_blob_store_read_iterator(dri_p->bsri_p, transaction_id, abort_error);
 		if(*abort_error)
 		{
 			free(clone_p);
@@ -93,23 +93,23 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 
 			digits_read_this_iteration++;
 		}
-		else if(dri_p->extension_head_page_id != dri_p->pam_p->pas.NULL_PAGE_ID)
+		else if(dri_p->extension_head.page_id != dri_p->pam_p->pas.NULL_PAGE_ID)
 		{
-			// initialize worm read iterator if not done already
-			if(dri_p->wri_p == NULL)
+			// initialize blob store read iterator if not done already
+			if(dri_p->bsri_p == NULL)
 			{
-				dri_p->wri_p = get_new_worm_read_iterator(dri_p->extension_head_page_id, dri_p->wtd_p, dri_p->pam_p, transaction_id, abort_error);
+				dri_p->bsri_p = get_new_blob_store_read_iterator(dri_p->extension_head.page_id, dri_p->extension_head.tuple_index, 0, dri_p->bstd_p, dri_p->pam_p, transaction_id, abort_error);
 				if(*abort_error)
 					return 0;
 			}
 
-			// we will read data from worm directly into the digits buffer but at the end of this buffer
+			// we will read data from blob directly into the digits buffer but at the end of this buffer
 			const uint32_t buffer_size = (digits_size * BYTES_PER_NUMERIC_DIGIT); // BYTES_PER_NUMERIC_DIGIT bytes per digit will require this many bytes
 			void * const buffer = (digits == NULL) ? NULL : (((void*)(digits + digits_size)) - buffer_size); // (end of digits) - buffer_size
 
 			// perform actual read
-			const uint32_t bytes_read_this_iteration = read_from_worm(dri_p->wri_p, buffer, buffer_size, transaction_id, abort_error); // current code assumes that bytes_read_this_iteration will always be multiple of BYTES_PER_NUMERIC_DIGIT
-			if(*abort_error) // on abort error, delete worm iterator and set it to NULL
+			const uint32_t bytes_read_this_iteration = read_from_blob(dri_p->bsri_p, buffer, buffer_size, transaction_id, abort_error); // current code assumes that bytes_read_this_iteration will always be multiple of BYTES_PER_NUMERIC_DIGIT
+			if(*abort_error) // on abort error, just return empty handed
 				return 0;
 
 			// now convert bytes into digits
