@@ -21,7 +21,6 @@ struct chunk_ptr
 {
 	uint64_t page_id;
 	uint32_t tuple_index;
-	uint32_t byte_index;
 };
 
 // anything that is not extended is inline, including float, integer, etc
@@ -37,8 +36,10 @@ data_type_info* get_extendion_head_type_info(const page_access_specs* pas_p);
 // returns 1-th element from the large type info
 chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p);
 
-#include<tupleindexer/blob_store/blob_store.h>
+void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr);
 
-void initialize_extension_head(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p);
+chunk_ptr get_chunk_ptr(const datum* uval, const data_type_info* dti);
+
+void set_chunk_ptr(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr);
 
 #endif

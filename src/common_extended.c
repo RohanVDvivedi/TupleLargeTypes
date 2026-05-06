@@ -82,7 +82,7 @@ chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_typ
 	return (chunk_ptr){pas_p->NULL_PAGE_ID};
 }
 
-void initialize_extension_head(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p)
+void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr)
 {
 	// make sure the type in context is an extended type
 	{
@@ -98,10 +98,28 @@ void initialize_extension_head(void* tupl, const tuple_def* tpl_d, positional_ac
 	initialize_relative_positional_accessor(&child_relative_accessor, &pos, 2);
 
 	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENSION_HEAD_PAGE_ID_POS_ACC);
-	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = pas_p->NULL_PAGE_ID}), UINT32_MAX);
+	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = cptr.page_id}), UINT32_MAX);
 
 	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENSION_HEAD_TUPLE_INDEX_POS_ACC);
-	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = 0}), UINT32_MAX);
+	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = cptr.tuple_index}), UINT32_MAX);
 
 	deinitialize_relative_positional_accessor(&child_relative_accessor);
+}
+
+chunk_ptr get_chunk_ptr(const datum* uval, const data_type_info* dti)
+{
+	datum uval_head_page_id;
+	datum uval_head_tuple_index;
+	const data_type_info* dti;
+	if(get_nested_containee_from_datum(&uval_head_page_id, &dti, uval, dti, STATIC_POSITION(0))
+		&& get_nested_containee_from_datum(&uval_head_tuple_index, &dti, uval, dti, STATIC_POSITION(1)))
+		return (chunk_ptr){uval_head_page_id.uint_value, uval_head_tuple_index.uint_value};
+
+	return (chunk_ptr){pas_p->NULL_PAGE_ID};
+}
+
+void set_chunk_ptr(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr)
+{
+	set_element_in_tuple(tpl_d, STATIC_POSITION(0), tupl, &((datum){.uint_value = cptr.page_id}), 0);
+	set_element_in_tuple(tpl_d, STATIC_POSITION(1), tupl, &((datum){.uint_value = cptr.tuple_index}), 0);
 }
