@@ -93,7 +93,7 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 
 			digits_read_this_iteration++;
 		}
-		else if(dri_p->extension_head.page_id != dri_p->pam_p->pas.NULL_PAGE_ID)
+		else if(is_tuple_pointer_NULL(dri_p->extension_head, &(dri_p->pam_p->pas)))
 		{
 			// initialize blob store read iterator if not done already
 			if(dri_p->bsri_p == NULL)

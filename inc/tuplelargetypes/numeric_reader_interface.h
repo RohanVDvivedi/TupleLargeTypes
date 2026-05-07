@@ -39,7 +39,7 @@ struct intuple_numeric_reader_interface_context
 	datum uval;
 	const data_type_info* dti;
 
-	const worm_tuple_defs* wtd_p;
+	const blob_store_tuple_defs* bstd_p;
 	const page_access_methods* pam_p;
 
 	const void* transaction_id;
@@ -53,9 +53,9 @@ void extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface(const n
 uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p, uint64_t* digits, uint32_t digits_size, int* error);
 void close_digits_stream_for_intuple_numeric_reader_interface(const numeric_reader_interface* nri_p);
 
-#define init_intuple_numeric_reader_interface(uval_v, dti_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v) \
+#define init_intuple_numeric_reader_interface(uval_v, dti_v, bstd_p_v, pam_p_v, transaction_id_v, abort_error_v) \
 (numeric_reader_interface){ \
-	&(intuple_numeric_reader_interface_context){uval_v, dti_v, wtd_p_v, pam_p_v, transaction_id_v, abort_error_v, NULL}, \
+	&(intuple_numeric_reader_interface_context){uval_v, dti_v, bstd_p_v, pam_p_v, transaction_id_v, abort_error_v, NULL}, \
 	is_null_for_intuple_numeric_reader_interface, \
 	extract_sign_bits_and_exponent_for_intuple_numeric_reader_interface, \
 	read_digits_as_stream_for_intuple_numeric_reader_interface, \

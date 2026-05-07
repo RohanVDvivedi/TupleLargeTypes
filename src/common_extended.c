@@ -34,7 +34,7 @@ int has_extended_type_info(const data_type_info* dti_p)
 
 #include<tuplelargetypes/numeric_extended.h>
 
-chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
+tuple_pointer get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
 {
 	if(is_extended_type_info(dti) && !is_datum_NULL(uval)) // extract only when uval is not NULL && the type is the extended one
 	{
@@ -42,7 +42,7 @@ chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_typ
 		const data_type_info* prefix_dti;
 		int valid = get_nested_containee_from_datum(&prefix, &prefix_dti, uval, dti, EXTENDED_PREFIX_POS_ACC);
 		if(!valid || is_datum_NULL(&prefix))
-			return (chunk_ptr){pas_p->NULL_PAGE_ID};
+			return get_NULL_tuple_pointer(pas_p);
 
 		if(is_numeric_extended_type_info(dti))
 		{
@@ -50,7 +50,7 @@ chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_typ
 			const data_type_info* prefix_digits_dti;
 			int valid = get_nested_containee_from_datum(&prefix_digits, &prefix_digits_dti, uval, dti, GET_NUMERIC_DIGITS_POS_ACC(is_extended_type_info(dti)));
 			if(!valid || is_datum_NULL(&prefix_digits))
-				return (chunk_ptr){pas_p->NULL_PAGE_ID};
+				return get_NULL_tuple_pointer(pas_p);
 		}
 
 		datum extension_head;
@@ -59,7 +59,7 @@ chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_typ
 			return get_tuple_pointer(extension_head.tuple_value, pas_p);
 	}
 
-	return (chunk_ptr){pas_p->NULL_PAGE_ID};
+	return get_NULL_tuple_pointer(pas_p);
 }
 
 void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr)

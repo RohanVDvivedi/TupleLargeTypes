@@ -62,7 +62,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 			}
 
 			// if the extension_head_page_id is not NULL, then we already wrote the prefix completely, so no more extension
-			if(bwi_p->extension_head.page_id != bwi_p->pam_p->pas.NULL_PAGE_ID)
+			if(is_tuple_pointer_NULL(bwi_p->extension_head, &(bwi_p->pam_p->pas)))
 				bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix;
 		}
 
@@ -163,7 +163,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 
 			// whether to update chunk_ptrs to head and tail
 			// only update head if it was previously NULL_PAGE_ID
-			need_to_update_extension_head = need_to_update_extension_head || ((bytes_written_this_iteration > 0) && (bwi_p->extension_head.page_id == bwi_p->pam_p->pas.NULL_PAGE_ID));
+			need_to_update_extension_head = need_to_update_extension_head || ((bytes_written_this_iteration > 0) && is_tuple_pointer_NULL(bwi_p->extension_head, &(bwi_p->pam_p->pas)));
 			need_to_update_extension_tail = need_to_update_extension_tail || (bytes_written_this_iteration > 0);
 		}
 
