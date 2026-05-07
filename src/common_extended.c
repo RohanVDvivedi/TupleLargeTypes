@@ -32,24 +32,6 @@ int has_extended_type_info(const data_type_info* dti_p)
 		return 0;
 }
 
-data_type_info* get_extendion_head_type_info(const page_access_specs* pas_p)
-{
-	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
-	if(dti_p == NULL)
-		exit(-1);
-
-	// the text_inline controls the total size so we allow the text_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, "extension_head", 0, 0, 2);
-
-	strcpy(dti_p->containees[0].field_name, "extension_head_page_id");
-	dti_p->containees[0].al.type_info = (data_type_info*)(&(pas_p->page_id_type_info));
-
-	strcpy(dti_p->containees[1].field_name, "extension_head_tuple_index");
-	dti_p->containees[1].al.type_info = (data_type_info*)(&(pas_p->tuple_index_type_info));
-
-	return dti_p;
-}
-
 #include<tuplelargetypes/numeric_extended.h>
 
 chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
@@ -71,12 +53,10 @@ chunk_ptr get_extension_head_for_extended_type(const datum* uval, const data_typ
 				return (chunk_ptr){pas_p->NULL_PAGE_ID};
 		}
 
-		datum uval_head_page_id;
-		datum uval_head_tuple_index;
+		datum extension_head;
 		const data_type_info* dti;
-		if(get_nested_containee_from_datum(&uval_head_page_id, &dti, uval, dti, EXTENSION_HEAD_PAGE_ID_POS_ACC)
-			&& get_nested_containee_from_datum(&uval_head_tuple_index, &dti, uval, dti, EXTENSION_HEAD_TUPLE_INDEX_POS_ACC))
-			return (chunk_ptr){uval_head_page_id.uint_value, uval_head_tuple_index.uint_value};
+		if(get_nested_containee_from_datum(&extension_head, &dti, uval, dti, EXTENSION_HEAD_POS_ACC) && is_datum_NULL(&extension_head))
+			return get_tuple_pointer(extension_head.tuple_value, pas_p);
 	}
 
 	return (chunk_ptr){pas_p->NULL_PAGE_ID};
@@ -93,33 +73,8 @@ void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, po
 			return ;
 	}
 
-	// create a relative position accessor
-	relative_positional_accessor child_relative_accessor;
-	initialize_relative_positional_accessor(&child_relative_accessor, &pos, 2);
+	char chunk_pointer_tuple[sizeof(tuple_pointer)];
+	set_tuple_pointer(chunk_pointer_tuple, cptr, pas_p);
 
-	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENSION_HEAD_PAGE_ID_POS_ACC);
-	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = cptr.page_id}), UINT32_MAX);
-
-	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENSION_HEAD_TUPLE_INDEX_POS_ACC);
-	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.uint_value = cptr.tuple_index}), UINT32_MAX);
-
-	deinitialize_relative_positional_accessor(&child_relative_accessor);
-}
-
-chunk_ptr get_chunk_ptr(const datum* uval, const data_type_info* dti)
-{
-	datum uval_head_page_id;
-	datum uval_head_tuple_index;
-	const data_type_info* dti;
-	if(get_nested_containee_from_datum(&uval_head_page_id, &dti, uval, dti, STATIC_POSITION(0))
-		&& get_nested_containee_from_datum(&uval_head_tuple_index, &dti, uval, dti, STATIC_POSITION(1)))
-		return (chunk_ptr){uval_head_page_id.uint_value, uval_head_tuple_index.uint_value};
-
-	return (chunk_ptr){pas_p->NULL_PAGE_ID};
-}
-
-void set_chunk_ptr(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr)
-{
-	set_element_in_tuple(tpl_d, STATIC_POSITION(0), tupl, &((datum){.uint_value = cptr.page_id}), 0);
-	set_element_in_tuple(tpl_d, STATIC_POSITION(1), tupl, &((datum){.uint_value = cptr.tuple_index}), 0);
+	set_element_in_tuple(tpl_d, EXTENSION_HEAD_POS_ACC, &((datum){.tuple_value = chunk_pointer_tuple}), 0);
 }

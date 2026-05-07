@@ -22,7 +22,7 @@ struct digit_read_iterator
 
 	const data_type_info* digits_dti;
 
-	chunk_ptr extension_head;
+	tuple_pointer extension_head;
 	blob_store_read_iterator* bsri_p;
 
 	// below attributes only to be used to initialize the bsri, only upon requirement

@@ -20,7 +20,7 @@ digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_t
 	dri_p->digits_inline_count = 0;
 	dri_p->digits_inline_read = 0;
 
-	dri_p->extension_head = (chunk_ptr){pam_p->pas.NULL_PAGE_ID};
+	dri_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
 	dri_p->bsri_p = NULL;
 
 	dri_p->bstd_p = bstd_p;
@@ -98,7 +98,7 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 			// initialize blob store read iterator if not done already
 			if(dri_p->bsri_p == NULL)
 			{
-				dri_p->bsri_p = get_new_blob_store_read_iterator(dri_p->extension_head.page_id, dri_p->extension_head.tuple_index, 0, dri_p->bstd_p, dri_p->pam_p, transaction_id, abort_error);
+				dri_p->bsri_p = get_new_blob_store_read_iterator(dri_p->extension_head, 0, dri_p->bstd_p, dri_p->pam_p, transaction_id, abort_error);
 				if(*abort_error)
 					return 0;
 			}

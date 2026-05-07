@@ -1,10 +1,5 @@
 PICKED TASKS
 
-* refactor all extended types to use the dti of tuple_pointer in the pas for the extension type info
-* discard now redundant functionality of tuple_pointer from the header and source
-* refactore hasher, binary read iterator, binary write iterator and digit read iterator to use the new api
-* make sure comparator api still remains unchanged
-
 * refactor digit write iterator to use blob_store
 
 * integrate with blob_store instead of worm and see the performance get better in the RhenDB's rash_table

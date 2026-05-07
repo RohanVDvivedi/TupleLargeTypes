@@ -20,14 +20,14 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 			hash_datum(&prefix, prefix_dti, th);
 	}
 
-	chunk_ptr extension_head = get_extension_head_for_extended_type(uval, dti, &(pam_p->pas));
-	if(extension_head.page_id == pam_p->pas.NULL_PAGE_ID)
+	tuple_pointer extension_head = get_extension_head_for_extended_type(uval, dti, &(pam_p->pas));
+	if(is_tuple_pointer_NULL(extension_head, &(pam_p->pas)))
 		return th->hash;
 
 	const char* buffer = NULL;
 	uint32_t buffer_size = 0;
 
-	blob_store_read_iterator* bsri_p = get_new_blob_store_read_iterator(extension_head.page_id, extension_head.tuple_index, 0, bstd_p, pam_p, transaction_id, abort_error);
+	blob_store_read_iterator* bsri_p = get_new_blob_store_read_iterator(extension_head, 0, bstd_p, pam_p, transaction_id, abort_error);
 	if(*abort_error)
 		return 0;
 

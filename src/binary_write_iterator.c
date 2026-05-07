@@ -6,7 +6,7 @@
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def* tpl_d, positional_accessor pos, uint64_t blob_store_root_page_id, chunk_ptr extension_tail, uint32_t bytes_to_be_written_to_prefix, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
+binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def* tpl_d, positional_accessor pos, uint64_t blob_store_root_page_id, tuple_pointer extension_tail, uint32_t bytes_to_be_written_to_prefix, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
 {
 	binary_write_iterator* bwi_p = malloc(sizeof(binary_write_iterator));
 	if(bwi_p == NULL)
@@ -21,8 +21,8 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 
 	bwi_p->blob_store_root_page_id = blob_store_root_page_id;
 
-	bwi_p->extension_head = (chunk_ptr){pam_p->pas.NULL_PAGE_ID};
-	bwi_p->extension_tail = (chunk_ptr){pam_p->pas.NULL_PAGE_ID};
+	bwi_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
+	bwi_p->extension_tail = get_NULL_tuple_pointer(&(pam_p->pas));
 
 	bwi_p->bswi_p = NULL;
 
@@ -43,7 +43,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 		{
 			set_element_in_tuple(bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
 
-			set_extension_head_for_extended_type(tupl, tpl_d, pos, &(pam_p->pas), (chunk_ptr){pam_p->pas.NULL_PAGE_ID});
+			set_extension_head_for_extended_type(tupl, tpl_d, pos, &(pam_p->pas), get_NULL_tuple_pointer(&(pam_p->pas)));
 
 			bwi_p->bytes_written_to_prefix = 0;
 			bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
@@ -145,7 +145,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			if(bwi_p->bswi_p == NULL)
 			{
 				// open a new bswi
-				bwi_p->bswi_p = get_new_blob_store_write_iterator(bwi_p->blob_store_root_page_id, bwi_p->extension_head.page_id, bwi_p->extension_head.tuple_index, bwi_p->extension_tail.page_id, bwi_p->extension_tail.tuple_index, bwi_p->bstd_p, bwi_p->pam_p, bwi_p->pmm_p, transaction_id, abort_error);
+				bwi_p->bswi_p = get_new_blob_store_write_iterator(bwi_p->blob_store_root_page_id, bwi_p->extension_head, bwi_p->extension_tail, bwi_p->bstd_p, bwi_p->pam_p, bwi_p->pmm_p, transaction_id, abort_error);
 				if(*abort_error)
 				{
 					deinitialize_relative_positional_accessor(&child_relative_accessor);
@@ -179,12 +179,12 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 
 	if(need_to_update_extension_head)
 	{
-		bwi_p->extension_head.page_id = get_head_position_in_blob(bwi_p->bswi_p, &(bwi_p->extension_head.tuple_index));
+		bwi_p->extension_head = get_head_pointer_in_blob(bwi_p->bswi_p);
 		set_extension_head_for_extended_type(bwi_p->tupl, bwi_p->tpl_d, bwi_p->pos, &(bwi_p->pam_p->pas), bwi_p->extension_head);
 	}
 
 	if(need_to_update_extension_tail)
-		bwi_p->extension_tail.page_id = get_tail_position_in_blob(bwi_p->bswi_p, &(bwi_p->extension_tail.tuple_index));
+		bwi_p->extension_tail = get_tail_pointer_in_blob(bwi_p->bswi_p);
 
 	return bytes_written;
 }

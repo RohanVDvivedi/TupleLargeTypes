@@ -6,11 +6,11 @@
 #include<tuplelargetypes/common_extended.h>
 
 /*
-	To be used solely with data_type_info-s that are structurally similar to
+	no be used solely with data_type_info-s that are structurally similar to
 	inline types like : numeric_inline,
 	extended types like : numeric_extended,
 
-	Note: there should not exist another digit_write_iterator on the same attribute of the same tuple at the same time
+	note: there should not exist another digit_write_iterator on the same attribute of the same tuple at the same time
 */
 
 typedef struct digit_write_iterator digit_write_iterator;

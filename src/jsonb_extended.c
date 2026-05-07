@@ -28,7 +28,7 @@ data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_
 	}
 
 	strcpy(dti_p->containees[1].field_name, "jsonb_extension");
-	dti_p->containees[1].al.type_info = get_extendion_head_type_info(pas_p);
+	dti_p->containees[1].al.type_info = (data_type_info*)(&(pas_p->tuple_pointer_type_info));
 
 	return dti_p;
 }

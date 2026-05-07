@@ -15,7 +15,7 @@ binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data
 	bri_p->is_null = is_datum_NULL(uval);
 
 	bri_p->curr_chunk = get_dstring_pointing_to(NULL, 0);
-	bri_p->extension_head = (chunk_ptr){pam_p->pas.NULL_PAGE_ID};
+	bri_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
 
 	if(!(bri_p->is_null))
 	{
@@ -122,11 +122,11 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 	}
 
 	// we may need to peek in the work, only if the current chunk is empty and the extension_head_page_id exists
-	if(is_empty_dstring(&(bri_p->curr_chunk)) && (bri_p->extension_head.page_id != bri_p->pam_p->pas.NULL_PAGE_ID))
+	if(is_empty_dstring(&(bri_p->curr_chunk)) && (!is_tuple_pointer_NULL(bri_p->extension_head, &(bri_p->pam_p->pas))))
 	{
 		if(bri_p->bsri_p == NULL)
 		{
-			bri_p->bsri_p = get_new_blob_store_read_iterator(bri_p->extension_head.page_id, bri_p->extension_head.tuple_index, 0, bri_p->bstd_p, bri_p->pam_p, transaction_id, abort_error);
+			bri_p->bsri_p = get_new_blob_store_read_iterator(bri_p->extension_head, 0, bri_p->bstd_p, bri_p->pam_p, transaction_id, abort_error);
 			if(*abort_error)
 				return NULL;
 		}

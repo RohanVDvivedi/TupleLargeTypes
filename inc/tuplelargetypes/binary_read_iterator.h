@@ -23,7 +23,7 @@ struct binary_read_iterator
 	// current chunk is always a pointing-to dstring, removing it's prefix only advances it's pointer and size
 	dstring curr_chunk;
 
-	chunk_ptr extension_head;
+	tuple_pointer extension_head;
 	blob_store_read_iterator* bsri_p;
 
 	// below attributes only to be used to initialize the bsri, only upon requirement
