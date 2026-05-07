@@ -62,7 +62,7 @@ tuple_pointer get_extension_head_for_extended_type(const datum* uval, const data
 	return get_NULL_tuple_pointer(pas_p);
 }
 
-void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, chunk_ptr cptr)
+void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, positional_accessor pos, const page_access_specs* pas_p, tuple_pointer cptr)
 {
 	// make sure the type in context is an extended type
 	{
@@ -76,5 +76,5 @@ void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, po
 	char chunk_pointer_tuple[sizeof(tuple_pointer)];
 	set_tuple_pointer(chunk_pointer_tuple, cptr, pas_p);
 
-	set_element_in_tuple(tpl_d, EXTENSION_HEAD_POS_ACC, &((datum){.tuple_value = chunk_pointer_tuple}), 0);
+	set_element_in_tuple(tpl_d, EXTENSION_HEAD_POS_ACC, tupl, &((datum){.tuple_value = chunk_pointer_tuple}), 0);
 }
