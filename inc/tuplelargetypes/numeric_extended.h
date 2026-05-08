@@ -101,6 +101,6 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 		* now everything becomes radix 10^12 instead of radix of 10, and with 3 sign bits, 16 bit exponent and finally an array of 5 byte integers, each storing precisely 12 digits worth of information as a 10^12 radix digit
 
 	EXTENDED NUMERIC TYPE
-	will just be a tuple of a inline numeric type and a page_id to point to a worm
-	any and all following digits that could not be accomodated in the prefix will be pushed into the worm in 5 byte chunks one after the another
+	will just be a tuple of a inline numeric type and a tuple_pointer to point to chunks in a blob_store
+	any and all following digits that could not be accomodated in the prefix will be pushed into the blob in 5 byte chunks one after the another
 */

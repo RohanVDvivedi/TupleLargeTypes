@@ -149,7 +149,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 				}
 			}
 
-			// append digits to worm
+			// append digits to blob in blob_store
 
 			// generate a buffer consisting of the digits in a SerializableInteger format of 5 bytes each
 			uint32_t buffer_size = digits_size * BYTES_PER_NUMERIC_DIGIT;

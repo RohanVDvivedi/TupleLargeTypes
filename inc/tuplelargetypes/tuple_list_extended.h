@@ -6,7 +6,7 @@
 
 /*
 	The tuple_list_extended type info is nothing but a list of tuples inside a blob_extended like type
-	it stores tuples one after another in the prefix then in the worm, adjacently
+	it stores tuples one after another in the prefix then in the extension chunks in blob_store, adjacently
 	all these tuples can be of the same type or different, the api does not enforce this
 	the user is responsible to provide the tuple_def that deciphers the ith tuple in the row
 	it is your responsibility to provide the respective tuple_def for using it with the tuple_list_extended

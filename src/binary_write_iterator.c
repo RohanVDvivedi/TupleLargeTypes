@@ -153,7 +153,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 				}
 			}
 
-			// append to worm
+			// append to blob_store's blob
 			bytes_written_this_iteration = append_to_tail_in_blob(bwi_p->bswi_p, data, data_size, NULL, notify_wrong_entry, transaction_id, abort_error);
 			if(*abort_error)
 			{
