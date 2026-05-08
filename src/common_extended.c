@@ -76,5 +76,11 @@ void set_extension_head_for_extended_type(void* tupl, const tuple_def* tpl_d, po
 	char chunk_pointer_tuple[sizeof(tuple_pointer)];
 	set_tuple_pointer(chunk_pointer_tuple, cptr, pas_p);
 
-	set_element_in_tuple(tpl_d, EXTENSION_HEAD_POS_ACC, tupl, &((datum){.tuple_value = chunk_pointer_tuple}), 0);
+	relative_positional_accessor child_relative_accessor;
+	initialize_relative_positional_accessor(&child_relative_accessor, &(bwi_p->pos), 1);
+	relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENSION_HEAD_POS_ACC);
+
+	set_element_in_tuple(tpl_d, child_relative_accessor.exact, tupl, &((datum){.tuple_value = chunk_pointer_tuple}), 0);
+
+	deinitialize_relative_positional_accessor(&child_relative_accessor);
 }
