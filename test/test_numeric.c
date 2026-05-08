@@ -9,6 +9,11 @@
 
 #include<tuplelargetypes/numeric_extended.h>
 
+#include<tupleindexer/heap_table/heap_table.h>
+#include<tupleindexer/blob_store/blob_store.h>
+
+#include<tupleindexer/utils/heap_table_accumulative_notifier.h>
+
 //#define USE_INLINE
 #define USE_EXTENDED
 
@@ -37,6 +42,27 @@
 // initialize transaction_id and abort_error
 const void* transaction_id = NULL;
 int abort_error = 0;
+
+heap_table_accumulative_notifier htan;
+
+void fix_all_entries(const heap_table_tuple_defs* httd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
+{
+	uint64_t root_page_id;
+	uint32_t unused_space;
+	uint64_t page_id;
+	while(pop_from_heap_table_accumulative_notifier(&htan, &root_page_id, &unused_space, &page_id))
+	{
+		fix_unused_space_in_heap_table(root_page_id, unused_space, page_id, httd_p, pam_p, pmm_p, transaction_id, &abort_error);
+		if(abort_error)
+		{
+			printf("ABORTED\n");
+			exit(-1);
+		}
+	}
+}
+
+uint64_t blob_store_root_page_id;
+tuple_pointer extension_tail;
 
 tuple_def tpl_d;
 data_type_info* short_dti = NULL;
@@ -83,7 +109,7 @@ void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
 		digits[i] = TEST_DIGIT((index + i) % TEST_DIGITS_COUNT);
 }
 
-void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -91,16 +117,14 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_def
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
-	digit_write_iterator* dwi_p = get_new_digit_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+	digit_write_iterator* dwi_p = get_new_digit_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	uint64_t digits[WRITE_CHUNK_SIZE];
 	uint32_t digits_to_write = TEST_DIGITS_COUNT;
@@ -110,7 +134,9 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_def
 		uint32_t digits_to_write_this_iteration = min(digits_to_write, WRITE_CHUNK_SIZE);
 
 		populate_digits_buffer(digits, digits_written, digits_to_write_this_iteration);
-		digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+		digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
+
+		fix_all_entries(&(bstd_p->httd), pam_p, pmm_p);
 
 		if(digits_to_write_this_iteration == 0)
 			break;
@@ -126,7 +152,7 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_def
 	delete_digit_write_iterator(dwi_p, transaction_id, &abort_error);
 }
 
-void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
+void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -134,10 +160,9 @@ void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_numeric(&uval, dti, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf("hash => %"PRIu64"\n\n", hash_numeric(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error));
 
-	digit_read_iterator* dri_p = get_new_digit_read_iterator(&uval, dti, wtd_p, pam_p);
+	digit_read_iterator* dri_p = get_new_digit_read_iterator(&uval, dti, bstd_p, pam_p);
 
 	uint64_t digits[READ_CHUNK_SIZE];
 
@@ -169,7 +194,7 @@ void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, worm
 	delete_digit_read_iterator(dri_p, transaction_id, &abort_error);
 }
 
-void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p);
+void compare_tests(blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p);
 
 int main()
 {
@@ -194,15 +219,26 @@ int main()
 
 	/* SETUP STARTED */
 
+	// setup notifier
+	initialize_heap_table_accumulative_notifier(&htan, 24);
+
 	// construct an in-memory data store
 	page_access_methods* pam_p = get_new_unWALed_in_memory_data_store(&((page_access_specs){.page_id_width = PAGE_ID_WIDTH, .page_size = PAGE_SIZE}));
 
 	// construct unWALed page_modification_methods
 	page_modification_methods* pmm_p = get_new_unWALed_page_modification_methods();
 
-	// construct tuple definitions for worm
-	worm_tuple_defs wtd;
-	init_worm_tuple_definitions(&wtd, &(pam_p->pas));
+	// construct tuple definitions for blob_store
+	blob_store_tuple_defs bstd;
+	init_blob_store_tuple_definitions(&bstd, &(pam_p->pas));
+
+	// create a blob_store
+	blob_store_root_page_id = get_new_blob_store(&bstd, pam_p, pmm_p, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("ABORTED\n");
+		exit(-1);
+	}
 
 	// allocate record tuple definition and initialize it
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
@@ -226,9 +262,8 @@ int main()
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
-	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
 
 	s = NEGATIVE_NUMERIC;
 	e = -2;
@@ -286,7 +321,6 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
 	s = NEGATIVE_NUMERIC;
@@ -303,7 +337,6 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
 	s = POSITIVE_NUMERIC;
@@ -313,13 +346,12 @@ int main()
 	print_tuple(inline_tuple, tpl_d);
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 	printf("\n");
 
-	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
 
-	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+	insert_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p, pmm_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
 
 	#define init_static_mat_num(n, s, e, ds) initialize_static_materialized_numeric(n, s, e, ds, sizeof(ds)/sizeof(uint64_t))
 	materialized_numeric m1;init_static_mat_num(&m1, NEGATIVE_INFINITY_NUMERIC, 5, ((uint64_t[]){1,2,3}));
@@ -366,7 +398,7 @@ int main()
 		{
 			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
@@ -384,7 +416,7 @@ int main()
 		{
 			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
@@ -400,8 +432,8 @@ int main()
 		}
 	}
 
-	insert_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_digits(tpl_d, inline_tuple, &wtd, pam_p);
+	insert_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p, pmm_p);
+	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
@@ -410,7 +442,7 @@ int main()
 		{
 			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
@@ -428,7 +460,7 @@ int main()
 		{
 			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &wtd, pam_p, transaction_id, &abort_error);
+			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
 			int prefix = 100;
@@ -444,27 +476,26 @@ int main()
 		}
 	}
 
+	// run comparison based tests
+	compare_tests(&bstd, pam_p, pmm_p);
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
 
-	// destroy worm
+	// destroy blob_store
+	destroy_blob_store(blob_store_root_page_id, &bstd, pam_p, transaction_id, &abort_error);
+	if(abort_error)
 	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
-		get_value_from_element_from_tuple(&uval, tpl_d, SELF, inline_tuple);
-		delete_all_extension_worms(&uval, dti, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
+		printf("ABORTED\n");
+		exit(-1);
 	}
-
-	// run comparison based tests
-	compare_tests(&wtd, pam_p, pmm_p);
 
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
 
-	// destroy worm_tuple_definitions
-	deinit_worm_tuple_definitions(&wtd);
+	// destroy blob_store_tuple_definitions
+	deinit_blob_store_tuple_definitions(&bstd);
 
 	// destory page_modification_methods
 	delete_unWALed_page_modification_methods(pmm_p);
@@ -507,7 +538,7 @@ void print_num(const num* n)
 	}
 }
 
-void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def* tpl_d, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	init_tuple(tpl_d, tuple);
 
@@ -519,14 +550,14 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 
 		if(n1->digits != NULL)
 		{
-			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(0), blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 			const uint64_t* digits = n1->digits;
 			uint32_t digits_to_write = n1->digits_count;
 			while(digits_to_write > 0)
 			{
 				uint32_t digits_to_write_this_iteration = digits_to_write;
-				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
 
 				if(digits_to_write_this_iteration == 0)
 					break;
@@ -547,14 +578,14 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 
 		if(n2->digits != NULL)
 		{
-			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+			digit_write_iterator* dwi_p = get_new_digit_write_iterator(tuple, tpl_d, STATIC_POSITION(1), blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 			const uint64_t* digits = n2->digits;
 			uint32_t digits_to_write = n2->digits_count;
 			while(digits_to_write > 0)
 			{
 				uint32_t digits_to_write_this_iteration = digits_to_write;
-				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, transaction_id, &abort_error);
+				digits_to_write_this_iteration = append_to_digit_write_iterator(dwi_p, digits, digits_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
 
 				if(digits_to_write_this_iteration == 0)
 					break;
@@ -581,10 +612,10 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 		int prefix = 100;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, transaction_id, &abort_error);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, transaction_id, &abort_error);
 		cmp = compare_numeric(&nri1, &nri2, &prefix, &error);
 		nri1.close_digits_stream(&nri1);
 		nri2.close_digits_stream(&nri2);
@@ -599,10 +630,10 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 		int prefix = 100;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, transaction_id, &abort_error);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, wtd_p, pam_p, transaction_id, &abort_error);
+		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, transaction_id, &abort_error);
 		cmp = compare_numeric(&nri2, &nri1, &prefix, &error);
 		nri1.close_digits_stream(&nri1);
 		nri2.close_digits_stream(&nri2);
@@ -612,18 +643,9 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 		printf(" => cmp(%d), prefix(%d)\n", cmp, prefix);
 	}
 	printf("\n");
-
-	// destroy all
-	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
-		get_value_from_element_from_tuple(&uval, tpl_d, SELF, tuple);
-		delete_all_extension_worms(&uval, dti, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
-	}
 }
 
-void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void compare_tests(blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	char tuple[1024];
 
@@ -635,24 +657,24 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 		printf("\n\n========================================\n\n");
 	}
 
@@ -664,24 +686,24 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 		printf("\n\n========================================\n\n");
 	}
 
@@ -693,24 +715,24 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = large_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(NEGATIVE_INFINITY_NUMERIC, 0), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, 3, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, 0, ((uint64_t[]){1,2})), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,3})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), STATIC_NUM(NEGATIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,4})), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM2(ZERO_NUMERIC, 0), STATIC_NUM2(ZERO_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(STATIC_NUM(POSITIVE_NUMERIC, -5, ((uint64_t[]){1,2,3,5})), STATIC_NUM2(POSITIVE_INFINITY_NUMERIC, 0), tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 		printf("\n\n========================================\n\n");
 	}
 }
