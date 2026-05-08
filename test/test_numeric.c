@@ -145,6 +145,7 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tup
 
 		digits_to_write -= digits_to_write_this_iteration;
 		digits_written += digits_to_write_this_iteration;
+		extension_tail = dwi_p->extension_tail;
 	}
 
 	printf("digits_written = %"PRIu32"/%"PRIu32"\n\n", digits_written, TEST_DIGITS_COUNT);
