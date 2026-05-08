@@ -385,6 +385,8 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
 			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
 
+			fix_all_entries(&(bstd_p->httd), pam_p, pmm_p);
+
 			if(bytes_to_write_this_iteration == 0)
 				break;
 
@@ -407,6 +409,8 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		{
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
 			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
+
+			fix_all_entries(&(bstd_p->httd), pam_p, pmm_p);
 
 			if(bytes_to_write_this_iteration == 0)
 				break;
