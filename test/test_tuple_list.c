@@ -9,6 +9,11 @@
 
 #include<tuplelargetypes/tuple_list_extended.h>
 
+#include<tupleindexer/heap_table/heap_table.h>
+#include<tupleindexer/blob_store/blob_store.h>
+
+#include<tupleindexer/utils/heap_table_accumulative_notifier.h>
+
 //#define USE_BASE
 #define USE_NESTED
 
@@ -31,6 +36,27 @@
 // initialize transaction_id and abort_error
 const void* transaction_id = NULL;
 int abort_error = 0;
+
+heap_table_accumulative_notifier htan;
+
+void fix_all_entries(const heap_table_tuple_defs* httd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
+{
+	uint64_t root_page_id;
+	uint32_t unused_space;
+	uint64_t page_id;
+	while(pop_from_heap_table_accumulative_notifier(&htan, &root_page_id, &unused_space, &page_id))
+	{
+		fix_unused_space_in_heap_table(root_page_id, unused_space, page_id, httd_p, pam_p, pmm_p, transaction_id, &abort_error);
+		if(abort_error)
+		{
+			printf("ABORTED\n");
+			exit(-1);
+		}
+	}
+}
+
+uint64_t blob_store_root_page_id;
+tuple_pointer extension_tail;
 
 tuple_def tpl_d;
 char tuple_type_info_memory[sizeof_tuple_data_type_info(2)];
@@ -90,7 +116,7 @@ uint32_t build_tuple(void* res, const char* sval, double dval)
 	return get_tuple_size(&tpl_d_tlist_elements, res);
 }
 
-void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
+void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p, double* dvals, char const * const * svals)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -98,23 +124,23 @@ void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* w
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
-	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	while((*dvals) != 0.0)
 	{
 		char tuple[1024];
 		uint32_t bytes_to_write_this_iteration = build_tuple(tuple, *svals, *dvals);
 
-		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, tuple, bytes_to_write_this_iteration, transaction_id, &abort_error);
+		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, tuple, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
+
+		fix_all_entries(&(bstd_p->httd), pam_p, pmm_p);
 
 		if(bytes_to_write_this_iteration == 0)
 			break;
@@ -125,13 +151,14 @@ void insert_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* w
 
 		dvals++;
 		svals++;
+		extension_tail = tbwi_p->extension_tail;
 	}
 
 	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
 	printf("\n\n");
 }
 
-void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, int const * read_or_skip)
+void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, int const * read_or_skip)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -139,9 +166,8 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, worm_tuple_
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 
 	while((*read_or_skip) != -1)
 	{
@@ -182,15 +208,26 @@ int main()
 {
 	/* SETUP STARTED */
 
+	// setup notifier
+	initialize_heap_table_accumulative_notifier(&htan, 24);
+
 	// construct an in-memory data store
 	page_access_methods* pam_p = get_new_unWALed_in_memory_data_store(&((page_access_specs){.page_id_width = PAGE_ID_WIDTH, .page_size = PAGE_SIZE}));
 
 	// construct unWALed page_modification_methods
 	page_modification_methods* pmm_p = get_new_unWALed_page_modification_methods();
 
-	// construct tuple definitions for worm
-	worm_tuple_defs wtd;
-	init_worm_tuple_definitions(&wtd, &(pam_p->pas));
+	// construct tuple definitions for blob_store
+	blob_store_tuple_defs bstd;
+	init_blob_store_tuple_definitions(&bstd, &(pam_p->pas));
+
+	// create a blob_store
+	blob_store_root_page_id = get_new_blob_store(&bstd, pam_p, pmm_p, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("ABORTED\n");
+		exit(-1);
+	}
 
 	// allocate record tuple definition and initialize it
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
@@ -206,37 +243,39 @@ int main()
 	#ifdef USE_NESTED
 		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){0,1,0,1,-1});
 
-	insert_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, pmm_p, (double[]){1.0,2.0,4.0,8.0,0.0}, (char const*[]){"This is one - Rohan","This is two - Rupa","This is four - Devashree","This is eight - Vipulkumar"});
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,1,0,-1});
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,0,1,-1});
+	insert_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, pmm_p, (double[]){1.0,2.0,4.0,8.0,0.0}, (char const*[]){"This is one - Rohan","This is two - Rupa","This is four - Devashree","This is eight - Vipulkumar"});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){0,1,0,1,-1});
 
-	insert_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, pmm_p, (double[]){16.0,32.0,64.0,128.0,0.0}, (char const*[]){"This is sixteen - Rohan Vipulkumar Dvivedi","This is thirty two - Rupa Vipulkumar Dvivedi","This is sixty four - Devashree Manan Joshi","This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi"});
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,0,0,1,1,0,1,0,-1});
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){0,1,1,0,0,1,0,1,-1});
+	insert_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, pmm_p, (double[]){16.0,32.0,64.0,128.0,0.0}, (char const*[]){"This is sixteen - Rohan Vipulkumar Dvivedi","This is thirty two - Rupa Vipulkumar Dvivedi","This is sixty four - Devashree Manan Joshi","This is one twenty eight - Vipulkumar Bhanuprasad Dvivedi"});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){1,0,0,1,1,0,1,0,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){0,1,1,0,0,1,0,1,-1});
 
-	read_and_skip_test_tuples(tpl_d, inline_tuple, &wtd, pam_p, (int[]){1,1,1,1,1,1,1,1,1,-1});
+	read_and_skip_test_tuples(tpl_d, inline_tuple, &bstd, pam_p, (int[]){1,1,1,1,1,1,1,1,1,-1});
 
 	/* TESTS ENDED */
 
 	/* CLEANUP */
 
-	// destroy worm
+	// destroy blob_store
+	destroy_blob_store(blob_store_root_page_id, &bstd, pam_p, transaction_id, &abort_error);
+	if(abort_error)
 	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
-		get_value_from_element_from_tuple(&uval, tpl_d, SELF, inline_tuple);
-		delete_all_extension_worms(&uval, dti, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
+		printf("ABORTED\n");
+		exit(-1);
 	}
+
+	// destroy the notifier
+	deinitialize_heap_table_accumulative_notifier(&htan);
 
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
 
-	// destroy worm_tuple_definitions
-	deinit_worm_tuple_definitions(&wtd);
+	// destroy blob_store_tuple_definitions
+	deinit_blob_store_tuple_definitions(&bstd);
 
 	// destory page_modification_methods
 	delete_unWALed_page_modification_methods(pmm_p);
