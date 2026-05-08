@@ -55,7 +55,7 @@ tuple_pointer get_extension_head_for_extended_type(const datum* uval, const data
 
 		datum extension_head;
 		const data_type_info* dti;
-		if(get_nested_containee_from_datum(&extension_head, &dti, uval, dti, EXTENSION_HEAD_POS_ACC) && is_datum_NULL(&extension_head))
+		if(get_nested_containee_from_datum(&extension_head, &dti, uval, dti, EXTENSION_HEAD_POS_ACC) && !is_datum_NULL(&extension_head))
 			return get_tuple_pointer(extension_head.tuple_value, pas_p);
 	}
 
