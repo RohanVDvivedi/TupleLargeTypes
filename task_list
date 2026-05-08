@@ -1,10 +1,6 @@
 PICKED TASKS
 
-* refactor digit write iterator to use blob_store
-
-* integrate with blob_store instead of worm and see the performance get better in the RhenDB's rash_table
-* compare test outputs of worm with the one with blob_store
-* binary write iterator will need more work, wee need to work with even the heap notifier
+* fix test cases to use the new api
 
 
 
