@@ -164,7 +164,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 			uint32_t bytes_written = 0;
 			while(bytes_written < buffer_size)
 			{
-				uint32_t bytes_written_this_iteration = append_to_tail_in_blob(dwi_p->bswi_p, buffer + bytes_written, buffer_size - bytes_written, NULL, notify_wrong_entry, transaction_id, abort_error) / BYTES_PER_NUMERIC_DIGIT;
+				uint32_t bytes_written_this_iteration = append_to_tail_in_blob(dwi_p->bswi_p, buffer + bytes_written, buffer_size - bytes_written, NULL, notify_wrong_entry, transaction_id, abort_error);
 				if(*abort_error)
 					break;
 				if(bytes_written_this_iteration == 0)
