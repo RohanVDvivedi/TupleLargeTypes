@@ -10,6 +10,11 @@
 #include<tuplelargetypes/blob_extended.h>
 #include<tuplelargetypes/text_extended.h>
 
+#include<tupleindexer/heap_table/heap_table.h>
+#include<tupleindexer/blob_store/blob_store.h>
+
+#include<tupleindexer/utils/heap_table_accumulative_notifier.h>
+
 //#define USE_INLINE
 #define USE_EXTENDED
 
@@ -38,6 +43,27 @@
 // initialize transaction_id and abort_error
 const void* transaction_id = NULL;
 int abort_error = 0;
+
+heap_table_accumulative_notifier htan;
+
+void fix_all_entries(const heap_table_tuple_defs* httd_p, const page_access_methods* pam_p, const page_modification_methods* pmm_p)
+{
+	uint64_t root_page_id;
+	uint32_t unused_space;
+	uint64_t page_id;
+	while(pop_from_heap_table_accumulative_notifier(&htan, &root_page_id, &unused_space, &page_id))
+	{
+		fix_unused_space_in_heap_table(root_page_id, unused_space, page_id, httd_p, pam_p, pmm_p, transaction_id, &abort_error);
+		if(abort_error)
+		{
+			printf("ABORTED\n");
+			exit(-1);
+		}
+	}
+}
+
+uint64_t blob_store_root_page_id;
+tuple_pointer extension_tail;
 
 char* test_data = "Rohan is a good boy, "
 					"Rohan is probably a bad boy, "
@@ -85,7 +111,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	return &tpl_d;
 }
 
-void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, const blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -93,16 +119,14 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
-	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
@@ -113,7 +137,9 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 	{
 		uint32_t bytes_to_write_this_iteration = min(bytes_to_write, WRITE_CHUNK_SIZE);
 
-		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+		bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
+
+		fix_all_entries(&(bstd_p->httd), pam_p, pmm_p);
 
 		if(bytes_to_write_this_iteration == 0)
 			break;
@@ -123,6 +149,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 		bytes += bytes_to_write_this_iteration;
 		bytes_to_write -= bytes_to_write_this_iteration;
 		bytes_written += bytes_to_write_this_iteration;
+		extension_tail = tbwi_p->extension_tail;
 	}
 
 	printf("bytes_written = %"PRIu32"/%"PRIu32"\n\n", bytes_written, TEST_DATA_SIZE);
@@ -130,7 +157,7 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs*
 	delete_binary_write_iterator(tbwi_p, transaction_id, &abort_error);
 }
 
-void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_tuple_defs* wtd_p, page_access_methods* pam_p)
+void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p)
 {
 	datum uval;
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
@@ -138,10 +165,9 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, worm_t
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf(" worm -> %"PRIu64"\n\n", get_extension_head_page_id_for_extended_type(&uval, dti, &(pam_p->pas)));
-	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, wtd_p, pam_p, transaction_id, &abort_error));
+	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error));
 
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
@@ -182,7 +208,11 @@ int main()
 		}
 		printf("\n");
 	}
+
 	/* SETUP STARTED */
+
+	// setup notifier
+	initialize_heap_table_accumulative_notifier(&htan, 24);
 
 	// construct an in-memory data store
 	page_access_methods* pam_p = get_new_unWALed_in_memory_data_store(&((page_access_specs){.page_id_width = PAGE_ID_WIDTH, .page_size = PAGE_SIZE}));
@@ -190,9 +220,17 @@ int main()
 	// construct unWALed page_modification_methods
 	page_modification_methods* pmm_p = get_new_unWALed_page_modification_methods();
 
-	// construct tuple definitions for worm
-	worm_tuple_defs wtd;
-	init_worm_tuple_definitions(&wtd, &(pam_p->pas));
+	// construct tuple definitions for blob_store
+	blob_store_tuple_defs bstd;
+	init_blob_store_tuple_definitions(&bstd, &(pam_p->pas));
+
+	// create a blob_store
+	blob_store_root_page_id = get_new_blob_store(&bstd, pam_p, pmm_p, transaction_id, &abort_error);
+	if(abort_error)
+	{
+		printf("ABORTED\n");
+		exit(-1);
+	}
 
 	// allocate record tuple definition and initialize it
 	tuple_def* tpl_d = get_tuple_definition(&(pam_p->pas));
@@ -208,10 +246,10 @@ int main()
 	#ifdef USE_NESTED
 		set_element_in_tuple(tpl_d, ACCS, inline_tuple, EMPTY_DATUM, UINT32_MAX);
 	#endif
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	read_and_compare_all_test_data(tpl_d, inline_tuple, &bstd, pam_p);
 
-	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	insert_all_test_data(tpl_d, inline_tuple, &bstd, pam_p, pmm_p);
+	read_and_compare_all_test_data(tpl_d, inline_tuple, &bstd, pam_p);
 
 	char* test5 = alloca((strlen(test_data) * 3) + 1);
 	memory_move(test5, test_data, strlen(test_data));
@@ -235,8 +273,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &wtd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
@@ -249,8 +287,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &wtd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
@@ -261,8 +299,8 @@ int main()
 	}
 	printf("\n\n");
 
-	insert_all_test_data(tpl_d, inline_tuple, &wtd, pam_p, pmm_p);
-	read_and_compare_all_test_data(tpl_d, inline_tuple, &wtd, pam_p);
+	insert_all_test_data(tpl_d, inline_tuple, &bstd, pam_p, pmm_p);
+	read_and_compare_all_test_data(tpl_d, inline_tuple, &bstd, pam_p);
 
 	for(int i = 0; i < sizeof(compare_with)/sizeof(compare_with[0]); i++)
 	{
@@ -270,8 +308,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &wtd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
@@ -284,8 +322,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &wtd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &wtd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
@@ -296,27 +334,29 @@ int main()
 	}
 	printf("\n\n");
 
+	// run comparison based tests
+	compare_tests(&bstd, pam_p, pmm_p);
+
 	/* TESTS ENDED */
 
 	/* CLEANUP */
 
-	// destroy worm
+	// destroy blob_store
+	destroy_blob_store(blob_store_root_page_id, &bstd, pam_p, transaction_id, &abort_error);
+	if(abort_error)
 	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
-		get_value_from_element_from_tuple(&uval, tpl_d, SELF, inline_tuple);
-		delete_all_extension_worms(&uval, dti, &wtd, pam_p, pmm_p, transaction_id, &abort_error);
+		printf("ABORTED\n");
+		exit(-1);
 	}
 
-	// run comparison based tests
-	compare_tests(&wtd, pam_p, pmm_p);
+	// destroy the notifier
+	deinitialize_heap_table_accumulative_notifier(&htan);
 
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
 
-	// destroy worm_tuple_definitions
-	deinit_worm_tuple_definitions(&wtd);
+	// destroy blob_store_tuple_definitions
+	deinit_blob_store_tuple_definitions(&bstd);
 
 	// destory page_modification_methods
 	delete_unWALed_page_modification_methods(pmm_p);
@@ -328,7 +368,7 @@ int main()
 	return 0;
 }
 
-void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_def* tpl_d, worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_def* tpl_d, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	init_tuple(tpl_d, tuple);
 
@@ -336,14 +376,14 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	if(s1 != NULL)
 	{
 		set_element_in_tuple(tpl_d, STATIC_POSITION(0), tuple, EMPTY_DATUM, UINT32_MAX);
-		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(0), blob_store_root_page_id, get_NULL_tuple_pointer(&(pam_p->pas)), PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 		const char* bytes = s1;
 		uint32_t bytes_to_write = strlen(s1);
 		while(bytes_to_write > 0)
 		{
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
-			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
 
 			if(bytes_to_write_this_iteration == 0)
 				break;
@@ -359,14 +399,14 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 	if(s2 != NULL)
 	{
 		set_element_in_tuple(tpl_d, STATIC_POSITION(1), tuple, EMPTY_DATUM, UINT32_MAX);
-		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), PREFIX_SIZE, wtd_p, pam_p, pmm_p);
+		binary_write_iterator* tbwi_p = get_new_binary_write_iterator(tuple, tpl_d, STATIC_POSITION(1), blob_store_root_page_id, get_NULL_tuple_pointer(&(pam_p->pas)), PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
 		const char* bytes = s2;
 		uint32_t bytes_to_write = strlen(s2);
 		while(bytes_to_write > 0)
 		{
 			uint32_t bytes_to_write_this_iteration = bytes_to_write;
-			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, transaction_id, &abort_error);
+			bytes_to_write_this_iteration = append_to_binary_write_iterator(tbwi_p, bytes, bytes_to_write_this_iteration, &HEAP_TABLE_ACCUMULATIVE_NOTIFIER(&htan), transaction_id, &abort_error);
 
 			if(bytes_to_write_this_iteration == 0)
 				break;
@@ -389,10 +429,10 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		const data_type_info* dti;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 		cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
 		delete_binary_read_iterator(bri1, transaction_id, &abort_error);
@@ -406,28 +446,19 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		const data_type_info* dti;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, wtd_p, pam_p);
+		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
 		cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
 		delete_binary_read_iterator(bri1, transaction_id, &abort_error);
 		delete_binary_read_iterator(bri2, transaction_id, &abort_error);
 	}
 	printf("\n");
-
-	// destroy all
-	{
-		datum uval;
-		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, SELF);
-		get_value_from_element_from_tuple(&uval, tpl_d, SELF, tuple);
-		delete_all_extension_worms(&uval, dti, wtd_p, pam_p, pmm_p, transaction_id, &abort_error);
-	}
 }
 
-void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
+void compare_tests(blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	char tuple[1024];
 
@@ -439,15 +470,15 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 	}
 
 	{
@@ -458,15 +489,15 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = short_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 	}
 
 	{
@@ -477,14 +508,14 @@ void compare_tests(worm_tuple_defs* wtd_p, page_access_methods* pam_p, page_modi
 		tuple_dti->containees[1].al.type_info = large_dti;
 		initialize_tuple_def(&tpl_d, tuple_dti);
 
-		set_and_compare(NULL, NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "abc", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("def", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare(NULL, "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", NULL, tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("", "", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "def", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abcd", "abce", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
-		set_and_compare("abc", "abcd", tuple, &tpl_d, wtd_p, pam_p, pmm_p);
+		set_and_compare(NULL, NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "abc", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("def", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare(NULL, "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", NULL, tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("", "", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "def", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abcd", "abce", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
+		set_and_compare("abc", "abcd", tuple, &tpl_d, bstd_p, pam_p, pmm_p);
 	}
 }
