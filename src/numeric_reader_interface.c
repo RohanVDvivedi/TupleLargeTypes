@@ -29,7 +29,7 @@ uint32_t read_digits_as_stream_for_intuple_numeric_reader_interface(const numeri
 	}
 
 	if(cntxt->dri_p == NULL)
-		cntxt->dri_p = get_new_digit_read_iterator(&(cntxt->uval), cntxt->dti, cntxt->wtd_p, cntxt->pam_p);
+		cntxt->dri_p = get_new_digit_read_iterator(&(cntxt->uval), cntxt->dti, cntxt->bstd_p, cntxt->pam_p);
 
 	digits_size = read_from_digit_read_iterator(cntxt->dri_p, digits, digits_size, cntxt->transaction_id, cntxt->abort_error);
 	(*error) = (*cntxt->abort_error);
