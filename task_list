@@ -1,11 +1,5 @@
 PICKED TASKS
 
-* fix test cases to use the new api
-
-
-
-
-
 
 * JSONB
   * build jsonb_node from json_node and viceversa
