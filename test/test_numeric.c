@@ -492,6 +492,9 @@ int main()
 		exit(-1);
 	}
 
+	// destroy the notifier
+	deinitialize_heap_table_accumulative_notifier(&htan);
+
 	// close the in-memory data store
 	close_and_destroy_unWALed_in_memory_data_store(pam_p);
 
