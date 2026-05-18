@@ -64,7 +64,7 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 			}
 
 			// if the extension_head_page_id is not NULL, then we already wrote the prefix completely
-			if(is_tuple_pointer_NULL(dwi_p->extension_head, &(dwi_p->pam_p->pas)))
+			if(!is_tuple_pointer_NULL(dwi_p->extension_head, &(dwi_p->pam_p->pas)))
 				dwi_p->digits_to_be_written_to_prefix = dwi_p->digits_written_to_prefix;
 		}
 

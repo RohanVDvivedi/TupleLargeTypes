@@ -62,7 +62,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 			}
 
 			// if the extension_head_page_id is not NULL, then we already wrote the prefix completely, so no more extension
-			if(is_tuple_pointer_NULL(bwi_p->extension_head, &(bwi_p->pam_p->pas)))
+			if(!is_tuple_pointer_NULL(bwi_p->extension_head, &(bwi_p->pam_p->pas)))
 				bwi_p->bytes_to_be_written_to_prefix = bwi_p->bytes_written_to_prefix;
 		}
 
