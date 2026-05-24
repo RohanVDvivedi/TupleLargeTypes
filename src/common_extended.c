@@ -32,6 +32,19 @@ int has_extended_type_info(const data_type_info* dti_p)
 		return 0;
 }
 
+int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos)
+{
+	return has_extended_type_info(get_type_info_for_element_from_tuple_def(tpl_d, pos));
+}
+
+int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids)
+{
+	for(uint32_t i = 0; i < key_element_count; i++)
+		if(has_extended_type_info2(tpl_d, key_element_ids[i]))
+			return 1;
+	return 0;
+}
+
 #include<tuplelargetypes/numeric_extended.h>
 
 tuple_pointer get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p)
