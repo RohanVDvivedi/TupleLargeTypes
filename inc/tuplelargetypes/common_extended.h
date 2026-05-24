@@ -20,6 +20,8 @@ int is_inline_type_info(const data_type_info* dti_p);
 
 int is_extended_type_info(const data_type_info* dti_p);
 
+int has_extended_type_info(const data_type_info* dti_p);
+
 int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos);
 
 int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids);
