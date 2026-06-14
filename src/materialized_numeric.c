@@ -160,12 +160,15 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 		cmp = compare_numbers(d1, d2);
 	}
 
-	if(digits_count1 != digits_count2)
+	if(cmp == 0)
 	{
-		if(digits_count1 > digits_count2)
-			cmp = 1;
-		else
-			cmp = -1;
+		if(digits_count1 != digits_count2)
+		{
+			if(digits_count1 > digits_count2)
+				cmp = 1;
+			else
+				cmp = -1;
+		}
 	}
 
 	return cmp * digits_requirement;
