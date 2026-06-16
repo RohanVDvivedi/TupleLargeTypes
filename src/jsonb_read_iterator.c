@@ -30,7 +30,7 @@ static inline jsonb_key* get_top_from_jsonb_accessor(const jsonb_accessor* jb_ac
 	return jb_acs->keys_list + (jb_acs->keys_count-1);
 }
 
-static inline int pop_from_jsonb_accessor(jsonb_accessor* jb_acs)
+int pop_from_jsonb_accessor(jsonb_accessor* jb_acs)
 {
 	if(jb_acs->keys_count == 0)
 		return 0;

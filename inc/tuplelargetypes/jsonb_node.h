@@ -105,7 +105,7 @@ Rest bytes will be consumed by the dedicated function
 	1 -> true  -> no further bytes -> skip_size = 0
 	2 -> false -> no further bytes -> skip_size = 0
 	3 -> string -> 4 byte skip_size, and then the bytes
-	4 -> numeric -> 4 byte skip_size (always 3 + 3*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits
+	4 -> numeric -> 4 byte skip_size (always 3 + 5*Ndigits), 1 byte sign bits, 2 bytes exponent, then digits (5 bytes each)
 	5 -> json array -> 4 byte skip_size (>= 4), 4 byte element count, then elements
 	6 -> json object -> 4 byte skip_size (>= 4), 4 byte element count, then keys (strings without type information) ordered lexicographically and values alternatively
 
