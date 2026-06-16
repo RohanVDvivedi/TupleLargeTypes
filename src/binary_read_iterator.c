@@ -72,7 +72,11 @@ binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri
 			uint32_t data_size = 0;
 			const void* data = peek_in_blob(clone_p->bsri_p, &data_size, transaction_id, abort_error);
 			if(*abort_error)
+			{
+				delete_blob_store_read_iterator(clone_p->bsri_p, transaction_id, abort_error);
+				free(clone_p);
 				return NULL;
+			}
 
 			clone_p->curr_chunk = get_dstring_pointing_to(data, data_size);
 		}
