@@ -16,7 +16,7 @@
 typedef struct digit_write_iterator digit_write_iterator;
 struct digit_write_iterator
 {
-	int is_extended:1;
+	unsigned int is_extended:1;
 
 	// shallow copy of input parameters
 	void* tupl;

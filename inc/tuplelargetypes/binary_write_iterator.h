@@ -18,7 +18,7 @@
 typedef struct binary_write_iterator binary_write_iterator;
 struct binary_write_iterator
 {
-	int is_extended:1;
+	unsigned int is_extended:1;
 
 	// shallow copy of input parameters
 	void* tupl;
