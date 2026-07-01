@@ -25,6 +25,7 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 
 	dwi_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
 	dwi_p->extension_tail = get_NULL_tuple_pointer(&(pam_p->pas));
+	dwi_p->was_inline_OR_extended_head_modified = 0;
 
 	dwi_p->bswi_p = NULL;
 
@@ -135,6 +136,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 				set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, &((datum){.uint_value = digits[i]}), UINT32_MAX);
 
 			dwi_p->digits_written_to_prefix += digits_written_this_iteration;
+			dwi_p->was_inline_OR_extended_head_modified = 1;
 		}
 		else if(dwi_p->is_extended)
 		{
@@ -196,6 +198,7 @@ uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint6
 
 	if(need_to_update_extension_head)
 	{
+		dwi_p->was_inline_OR_extended_head_modified = 1;
 		dwi_p->extension_head = get_head_pointer_in_blob(dwi_p->bswi_p);
 		set_extension_head_for_extended_type(dwi_p->tupl, dwi_p->tpl_d, dwi_p->pos, &(dwi_p->pam_p->pas), dwi_p->extension_head);
 	}

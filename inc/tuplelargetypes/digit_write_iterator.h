@@ -28,6 +28,9 @@ struct digit_write_iterator
 	tuple_pointer extension_head;
 	tuple_pointer extension_tail;
 
+	// boolean that will be set if this iterator modifed inline component or the extended_head_page_id
+	int was_inline_OR_extended_head_modified;
+
 	uint32_t digits_written_to_prefix;
 	uint32_t digits_to_be_written_to_prefix;
 	// no more appending to prefix if the above 2 attributes become equal
