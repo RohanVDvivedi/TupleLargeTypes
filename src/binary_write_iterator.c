@@ -23,6 +23,7 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 
 	bwi_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
 	bwi_p->extension_tail = get_NULL_tuple_pointer(&(pam_p->pas));
+	bwi_p->was_inline_OR_extended_head_modified = 0;
 
 	bwi_p->bswi_p = NULL;
 
@@ -139,6 +140,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			}
 
 			bwi_p->bytes_written_to_prefix += bytes_written_this_iteration;
+			bwi_p->was_inline_OR_extended_head_modified = 1;
 		}
 		else if(bwi_p->is_extended)
 		{
@@ -179,6 +181,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 
 	if(need_to_update_extension_head)
 	{
+		bwi_p->was_inline_OR_extended_head_modified = 1;
 		bwi_p->extension_head = get_head_pointer_in_blob(bwi_p->bswi_p);
 		set_extension_head_for_extended_type(bwi_p->tupl, bwi_p->tpl_d, bwi_p->pos, &(bwi_p->pam_p->pas), bwi_p->extension_head);
 	}
