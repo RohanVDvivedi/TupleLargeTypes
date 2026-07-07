@@ -43,6 +43,11 @@ int pop_lsd_from_materialized_numeric(materialized_numeric* m);
 uint64_t get_nth_digit_from_materialized_numeric(const materialized_numeric* m, uint32_t position); // -> get digit at power of (10^12)^(exponent-position)
 int set_nth_digit_in_materialized_numeric(materialized_numeric* m, uint64_t digit, uint32_t position);
 
+int64_t maximum_power_of_digit_for_materialized_numeric(const materialized_numeric* m);
+int64_t minimum_power_of_digit_for_materialized_numeric(const materialized_numeric* m);
+
+uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int64_t power);
+
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
 
 void deinitialize_materialized_numeric(materialized_numeric* m);

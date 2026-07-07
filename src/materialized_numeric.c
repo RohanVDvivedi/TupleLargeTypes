@@ -135,6 +135,27 @@ int set_nth_digit_in_materialized_numeric(materialized_numeric* m, uint64_t digi
 	return set_from_front_in_digits_list(&(m->digits), &digit, position);
 }
 
+int64_t maximum_power_of_digit_for_materialized_numeric(const materialized_numeric* m)
+{
+	return m->exponent;
+}
+
+int64_t minimum_power_of_digit_for_materialized_numeric(const materialized_numeric* m)
+{
+	if(get_element_count_digits_list(&(m->digits)) == 0)
+		return m->exponent;
+
+	return ((int64_t)(m->exponent)) - get_element_count_digits_list(&(m->digits)) + 1;
+}
+
+uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int64_t power)
+{
+	if(power < minimum_power_of_digit_for_materialized_numeric(m) || maximum_power_of_digit_for_materialized_numeric(m) < power)
+		return 0;
+
+	return get_nth_digit_from_materialized_numeric(m, m->exponent - power);
+}
+
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2)
 {
 	numeric_sign_bits sign_bits1; int16_t exponent1;
