@@ -206,7 +206,66 @@ void absolute_materialized_numeric(materialized_numeric* m)
 		negate_materialized_numeric(m);
 }
 
-materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan)
+{
+	// infinity + (-infinity) OR (-infinity) + infinity is a NAN
+	if(
+		(a->sign_bits == POSITIVE_INFINITY_NUMERIC && b->sign_bits == NEGATIVE_INFINITY_NUMERIC) ||
+		(a->sign_bits == NEGATIVE_INFINITY_NUMERIC && b->sign_bits == POSITIVE_INFINITY_NUMERIC)
+	)
+	{
+		(*is_nan) = 1;
+		return (materialized_numeric){};
+	}
+
+	(*is_nan) = 0;
+
+	// if a is zero, return b.clone()
+	if(a->sign_bits == ZERO_NUMERIC)
+	{
+		materialized_numeric res;
+		if(initialize_from_materialized_numeric(&res, NULL, 0, b))
+			exit(-1);
+		return res;
+	}
+
+	// if b is zero, return a.clone()
+	if(b->sign_bits == ZERO_NUMERIC)
+	{
+		materialized_numeric res;
+		if(initialize_from_materialized_numeric(&res, NULL, 0, a))
+			exit(-1);
+		return res;
+	}
+
+	// infinity drags the value to infinity
+	if(a->sign_bits == POSITIVE_INFINITY_NUMERIC || b->sign_bits == POSITIVE_INFINITY_NUMERIC)
+	{
+		materialized_numeric res;
+		initialize_materialized_numeric(&res, 0);
+		res.sign_bits = POSITIVE_INFINITY_NUMERIC;
+		return res;
+	}
+
+	// -infinity drags the value to -infinity
+	if(a->sign_bits == NEGATIVE_INFINITY_NUMERIC || b->sign_bits == NEGATIVE_INFINITY_NUMERIC)
+	{
+		materialized_numeric res;
+		initialize_materialized_numeric(&res, 0);
+		res.sign_bits = NEGATIVE_INFINITY_NUMERIC;
+		return res;
+	}
+
+	// make a to have higher exponent valus
+	if(a->exponent < b.exponent)
+	{
+		const materialized_numeric* t = a;
+		a = b;
+		b = t;
+	}
+
+	// TODO add digit by digit at the same location
+}
 
 materialized_numeric sub_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan)
 {
