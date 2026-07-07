@@ -200,6 +200,12 @@ void negate_materialized_numeric(materialized_numeric* m)
 	m->sign_bits = negate_numeric_sign_bits(m->sign_bits);
 }
 
+void absolute_materialized_numeric(materialized_numeric* m)
+{
+	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(m->sign_bits))
+		negate_materialized_numeric(m);
+}
+
 materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
 
 materialized_numeric sub_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan)
