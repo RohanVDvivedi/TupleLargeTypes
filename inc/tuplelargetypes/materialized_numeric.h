@@ -40,7 +40,7 @@ int push_msd_in_materialized_numeric(materialized_numeric* m, uint64_t digit);
 int push_lsd_in_materialized_numeric(materialized_numeric* m, uint64_t digit);
 int pop_lsd_from_materialized_numeric(materialized_numeric* m);
 
-uint64_t get_nth_digit_from_materialized_numeric(const materialized_numeric* m, uint32_t position); // -> get digit at power of (10^12)^(-position)
+uint64_t get_nth_digit_from_materialized_numeric(const materialized_numeric* m, uint32_t position); // -> get digit at power of (10^12)^(exponent-position)
 int set_nth_digit_in_materialized_numeric(materialized_numeric* m, uint64_t digit, uint32_t position);
 
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
