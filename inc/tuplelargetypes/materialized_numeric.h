@@ -53,16 +53,15 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 void negate_materialized_numeric(materialized_numeric* m);
 
 // output_digits_count is the maximum number of digits that will be pushed to output to be returned
+// when is_nan gets set, return value can be ignored
 
-materialized_numeric add_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
 
-materialized_numeric sub_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+materialized_numeric sub_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
 
-materialized_numeric mul_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+materialized_numeric mul_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
 
-materialized_numeric div_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
-
-int can_div_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
+materialized_numeric div_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
 
 void deinitialize_materialized_numeric(materialized_numeric* m);
 

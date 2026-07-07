@@ -200,6 +200,19 @@ void negate_materialized_numeric(materialized_numeric* m)
 	m->sign_bits = negate_numeric_sign_bits(m->sign_bits);
 }
 
+materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+
+materialized_numeric sub_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan)
+{
+	materialized_numeric minus_b = b;
+	negate_materialized_numeric(&minus_b);
+	return add_materialized_numeric(a, &minus_b, output_digits_count, is_nan);
+}
+
+materialized_numeric mul_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+
+materialized_numeric div_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+
 void deinitialize_materialized_numeric(materialized_numeric* m)
 {
 	deinitialize_digits_list(&(m->digits));
