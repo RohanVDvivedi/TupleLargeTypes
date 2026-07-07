@@ -50,6 +50,8 @@ enum numeric_sign_bits
 #define IS_ZERO_NUMERIC_SIGN_BIT(s)     (((s) == ZERO_NUMERIC))
 extern char const * numeric_sign_bits_str[5];
 
+numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s);
+
 // pass in/out parameter sign_bits and exponent based on what ever you need
 int extract_sign_bits_and_exponent_from_numeric(numeric_sign_bits* sign_bits, int16_t* exponent, const datum* uval, const data_type_info* dti);
 

@@ -50,6 +50,8 @@ uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int6
 
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
 
+void negate_materialized_numeric(materialized_numeric* m);
+
 void deinitialize_materialized_numeric(materialized_numeric* m);
 
 void print_materialized_numeric(const materialized_numeric* m);

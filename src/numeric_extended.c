@@ -12,6 +12,24 @@ char const * numeric_sign_bits_str[5] = {
 	"+inf",
 };
 
+numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s)
+{
+	switch(s)
+	{
+		case NEGATIVE_INFINITY_NUMERIC :
+			return POSITIVE_INFINITY_NUMERIC;
+		case NEGATIVE_NUMERIC :
+			return POSITIVE_NUMERIC;
+		case ZERO_NUMERIC :
+			return ZERO_NUMERIC;
+		case POSITIVE_NUMERIC :
+			return NEGATIVE_NUMERIC;
+		case POSITIVE_INFINITY_NUMERIC :
+			return NEGATIVE_INFINITY_NUMERIC;
+	}
+	return ZERO_NUMERIC;
+}
+
 int is_numeric_type_info(const data_type_info* dti_p)
 {
 	return is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX));

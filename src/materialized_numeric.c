@@ -195,6 +195,11 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 	return cmp * digits_requirement;
 }
 
+void negate_materialized_numeric(materialized_numeric* m)
+{
+	m->sign_bits = negate_numeric_sign_bits(m->sign_bits);
+}
+
 void deinitialize_materialized_numeric(materialized_numeric* m)
 {
 	deinitialize_digits_list(&(m->digits));
