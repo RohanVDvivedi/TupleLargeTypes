@@ -52,6 +52,18 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 
 void negate_materialized_numeric(materialized_numeric* m);
 
+// output_digits_count is the maximum number of digits that will be pushed to output to be returned
+
+materialized_numeric add_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+
+materialized_numeric sub_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+
+materialized_numeric mul_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+
+materialized_numeric div_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2, uint32_t output_digits_count);
+
+int can_div_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
+
 void deinitialize_materialized_numeric(materialized_numeric* m);
 
 void print_materialized_numeric(const materialized_numeric* m);
