@@ -43,11 +43,13 @@ enum numeric_sign_bits
 	ZERO_NUMERIC = 2,
 	POSITIVE_NUMERIC = 3,
 	POSITIVE_INFINITY_NUMERIC = 4,
+	NAN_NUMERIC = 5,
 };
 #define IS_INFINITY_NUMERIC_SIGN_BIT(s) (((s) == NEGATIVE_INFINITY_NUMERIC) || ((s) == POSITIVE_INFINITY_NUMERIC))
-#define IS_NEGATIVE_NUMERIC_SIGN_BIT(s) (((s) <= NEGATIVE_NUMERIC))
-#define IS_POSITIVE_NUMERIC_SIGN_BIT(s) (((s) >= POSITIVE_NUMERIC))
+#define IS_NEGATIVE_SIGN_BIT(s)         (((s) == NEGATIVE_NUMERIC) || ((s) == NEGATIVE_INFINITY_NUMERIC))
+#define IS_POSITIVE_SIGN_BIT(s)         (((s) == POSITIVE_NUMERIC) || ((s) == POSITIVE_INFINITY_NUMERIC))
 #define IS_ZERO_NUMERIC_SIGN_BIT(s)     (((s) == ZERO_NUMERIC))
+#define IS_NAN_NUMERIC_SIGN_BIT(s)      (((s) == NAN_NUMERIC))
 extern char const * numeric_sign_bits_str[5];
 
 numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s);
@@ -81,7 +83,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 	INLINE NUMERIC TYPE
 	numeric type here is represented as a base 10^12 number, with each digit being a 5 byte unsigned number between [0, 10^12) and in-memory representation of each digit will be a uint64_t
 	each inline numeric type is composed of
-		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are no +/- zeros, just one zero), 3 -> positive number and 4 -> +infinity
+		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are no +/- zeros, just one zero), 3 -> positive number and 4 -> +infinity, finally 6 -> NAN
 		* 2 byte signed exponent
 		* some N number of digits as an array of 5 byte unsigned integers
 

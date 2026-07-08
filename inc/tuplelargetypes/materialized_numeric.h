@@ -10,6 +10,8 @@ data_definitions_value_arraylist(digits_list, uint64_t)
 
 /*
 	materialized_numeric is a base 10^12 number
+	very similar to numeric on the disk, it is to be used as a holder for writing and comparing decimal/numerics
+	actual arithmetic computation must be done by putting them in acceptable structures for libmpdec
 */
 
 struct materialized_numeric
@@ -52,16 +54,11 @@ int compare_materialized_numeric(const materialized_numeric* m1, const materiali
 
 void negate_materialized_numeric(materialized_numeric* m);
 
-// output_digits_count is the maximum number of digits that will be pushed to output to be returned
-// when is_nan gets set, return value can be ignored
+void absolute_materialized_numeric(materialized_numeric* m);
 
-materialized_numeric add_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+mpd_t decimal_from_materialized_numeric(const materialized_numeric* m);
 
-materialized_numeric sub_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
-
-materialized_numeric mul_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
-
-materialized_numeric div_materialized_numeric(const materialized_numeric* a, const materialized_numeric* b, uint32_t output_digits_count, int* is_nan);
+materialized_numeric decimal_to_materialized_numeric(const mpd_t* d);
 
 void deinitialize_materialized_numeric(materialized_numeric* m);
 

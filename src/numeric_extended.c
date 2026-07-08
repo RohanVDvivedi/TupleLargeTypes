@@ -26,8 +26,10 @@ numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s)
 			return NEGATIVE_NUMERIC;
 		case POSITIVE_INFINITY_NUMERIC :
 			return NEGATIVE_INFINITY_NUMERIC;
+		case NAN_NUMERIC :
+		default :
+			return NAN_NUMERIC;
 	}
-	return ZERO_NUMERIC;
 }
 
 int is_numeric_type_info(const data_type_info* dti_p)
@@ -209,8 +211,9 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 	// start with comparing the sign bits
 	int compare = compare_numbers(s1, s2);
 
-	// if any of the number is a sign_bit only number, i.e +/-infinity or a zero, then comparison ends here
-	if(IS_INFINITY_NUMERIC_SIGN_BIT(s1) || IS_ZERO_NUMERIC_SIGN_BIT(s1) || IS_INFINITY_NUMERIC_SIGN_BIT(s2) || IS_ZERO_NUMERIC_SIGN_BIT(s2))
+	// if any of the number is a sign_bit only number, i.e +/-infinity or a zero or a nan, then comparison ends here
+	if( IS_INFINITY_NUMERIC_SIGN_BIT(s1) || IS_ZERO_NUMERIC_SIGN_BIT(s1) || IS_NAN_NUMERIC_SIGN_BIT(s1) ||
+		IS_INFINITY_NUMERIC_SIGN_BIT(s2) || IS_ZERO_NUMERIC_SIGN_BIT(s2) || IS_NAN_NUMERIC_SIGN_BIT(s2))
 	{
 		(*digits_requirement) = 0;
 		return compare;
