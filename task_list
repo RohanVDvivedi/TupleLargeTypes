@@ -4,10 +4,3 @@ PICKED TASKS
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
-
-materialized_numeric
-  * add
-  * sub
-  * multiplication
-  * division
-  * modulus (only if is_integral returns true on divisor and dividend)
