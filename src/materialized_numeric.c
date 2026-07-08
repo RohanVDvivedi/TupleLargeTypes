@@ -67,7 +67,7 @@ void get_sign_bits_and_exponent_for_materialized_numeric(const materialized_nume
 
 void set_sign_bits_and_exponent_for_materialized_numeric(materialized_numeric* m, numeric_sign_bits sign_bits, int16_t exponent)
 {
-	if(sign_bits == NEGATIVE_INFINITY_NUMERIC || sign_bits == ZERO_NUMERIC || sign_bits == POSITIVE_INFINITY_NUMERIC)
+	if(IS_INFINITY_NUMERIC_SIGN_BIT(sign_bits) || IS_ZERO_NUMERIC_SIGN_BIT(sign_bits) || IS_NAN_NUMERIC_SIGN_BIT(sign_bits))
 	{
 		exponent = 0;
 		remove_all_from_digits_list(&(m->digits));

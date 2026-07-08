@@ -177,7 +177,7 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 	{
 		{
 			// reset the internal inline numeric if the sign_bits were to be set to +inf, -inf or 0
-			if(IS_INFINITY_NUMERIC_SIGN_BIT(sign_bits) || IS_ZERO_NUMERIC_SIGN_BIT(sign_bits))
+			if(IS_INFINITY_NUMERIC_SIGN_BIT(sign_bits) || IS_ZERO_NUMERIC_SIGN_BIT(sign_bits) || IS_NAN_NUMERIC_SIGN_BIT(sign_bits))
 			{
 				if(is_extended)
 					relative_positonal_accessor_set_from_relative(&rpa, EXTENDED_PREFIX_POS_ACC);
