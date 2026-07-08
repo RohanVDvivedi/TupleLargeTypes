@@ -6,6 +6,7 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
 **Install dependencies :**
  * [TupleStore](https://github.com/RohanVDvivedi/TupleStore)
  * [TupleIndexer](https://github.com/RohanVDvivedi/TupleIndexer)
+ * [libmpdec](https://www.bytereef.org/mpdecimal/doc/libmpdec/index.html)      ($ sudo apt install libmpdec-dev)
 
 **Download source code :**
  * `git clone https://github.com/RohanVDvivedi/TupleLargeTypes.git`
@@ -31,3 +32,6 @@ A sibling project of TupleIndexer (for worm) and TupleStore, to build larger tha
 **Uninstall :**
  * `cd TupleLargeTypes`
  * `sudo make uninstall`
+
+## Third party acknowledgements
+ * *arithmetic over numerics, internally supported by [libmpdec](https://www.bytereef.org/mpdecimal/doc/libmpdec/index.html) checkout their documentation [here](https://www.bytereef.org/mpdecimal/doc/libmpdec/index.html).*
