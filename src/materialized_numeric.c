@@ -289,7 +289,36 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 	return res;
 }
 
-materialized_numeric decimal_to_materialized_numeric(const mpd_t* d);
+materialized_numeric decimal_to_materialized_numeric(const mpd_t* d)
+{
+	materialized_numeric res;
+	if(!initialize_materialized_numeric(&res, 0))
+		exit(-1);
+
+	if(mpd_isnan(d))
+	{
+		res.sign_bits = NAN_NUMERIC;
+		return res;
+	}
+
+	if(mpd_isinfinite(d))
+	{
+		res.sign_bits = mpd_isnegative(d) ? NEGATIVE_INFINITY_NUMERIC : POSITIVE_INFINITY_NUMERIC;
+		return res;
+	}
+
+	if(mpd_iszero(d))
+	{
+		return res;
+	}
+
+	mpd_context_t ctx;
+	mpd_maxcontext(&ctx);
+	ctx.emin = ((int64_t)(INT16_MAX)) * 12;
+	ctx.emax = ((int64_t)(INT16_MIN)) * 12;
+
+	// TODO
+}
 
 void deinitialize_materialized_numeric(materialized_numeric* m)
 {
