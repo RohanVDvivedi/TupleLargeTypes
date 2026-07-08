@@ -50,7 +50,7 @@ enum numeric_sign_bits
 #define IS_POSITIVE_SIGN_BIT(s)         (((s) == POSITIVE_NUMERIC) || ((s) == POSITIVE_INFINITY_NUMERIC))
 #define IS_ZERO_NUMERIC_SIGN_BIT(s)     (((s) == ZERO_NUMERIC))
 #define IS_NAN_NUMERIC_SIGN_BIT(s)      (((s) == NAN_NUMERIC))
-extern char const * numeric_sign_bits_str[5];
+extern char const * numeric_sign_bits_str[6];
 
 numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s);
 

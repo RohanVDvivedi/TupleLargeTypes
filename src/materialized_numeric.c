@@ -312,8 +312,15 @@ materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* expone
 
 	if(mpd_iszero(d))
 	{
+		res.sign_bits = ZERO_NUMERIC;
 		return res;
 	}
+
+	uint32_t digits_count = mpd_sizeinbase(d, 1000000ULL);
+	uint32_t final_digits_count = (digits_count + 1) / 2; // if digits_count is odd, we will need to add 1
+
+	int64_t exponent = d->exp;
+	res.exponent = exponent / 12 + final_digits_count; // what if this is not multiple of 12?
 
 	// TODO read in the digits and exponent
 	// if odd number of digits, then add 0 to the front or keep first 0 slot avilable and subtract 6 more from the exponent

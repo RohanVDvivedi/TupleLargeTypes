@@ -10,6 +10,7 @@ char const * numeric_sign_bits_str[5] = {
 	"0",
 	"+",
 	"+inf",
+	"nan",
 };
 
 numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s)
