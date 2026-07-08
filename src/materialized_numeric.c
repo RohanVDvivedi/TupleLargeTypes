@@ -278,7 +278,7 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 
 	{
 		uint32_t status = 0;
-		mpd_qimport_u32(&res, digits, get_digits_count_for_materialized_numeric(m) * 2, sign, 1000000, &ctx, &status);
+		mpd_qimport_u32(&res, digits, get_digits_count_for_materialized_numeric(m) * 2, sign, 1000000ULL, &ctx, &status);
 		if(status & MPD_Malloc_error)
 			exit(-1);
 		free(digits);
