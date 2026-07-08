@@ -6,6 +6,8 @@ typedef struct materialized_numeric materialized_numeric;
 #include<tuplelargetypes/numeric_extended.h>
 #include<cutlery/value_arraylist.h>
 
+#include<mpdecimal.h>
+
 data_definitions_value_arraylist(digits_list, uint64_t)
 
 /*

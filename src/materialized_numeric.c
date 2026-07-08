@@ -202,7 +202,7 @@ void negate_materialized_numeric(materialized_numeric* m)
 
 void absolute_materialized_numeric(materialized_numeric* m)
 {
-	if(IS_NEGATIVE_NUMERIC_SIGN_BIT(m->sign_bits))
+	if(IS_NEGATIVE_SIGN_BIT(m->sign_bits))
 		negate_materialized_numeric(m);
 }
 
@@ -242,6 +242,11 @@ void print_materialized_numeric(const materialized_numeric* m)
 		case POSITIVE_INFINITY_NUMERIC :
 		{
 			printf("+INF");
+			return;
+		}
+		case NAN_NUMERIC :
+		{
+			printf("NAN");
 			return;
 		}
 	}
