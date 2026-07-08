@@ -83,7 +83,7 @@ int compare_numeric_prefix_no_digits(numeric_sign_bits s1, int16_t e1, numeric_s
 	INLINE NUMERIC TYPE
 	numeric type here is represented as a base 10^12 number, with each digit being a 5 byte unsigned number between [0, 10^12) and in-memory representation of each digit will be a uint64_t
 	each inline numeric type is composed of
-		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are no +/- zeros, just one zero), 3 -> positive number and 4 -> +infinity, finally 6 -> NAN
+		* 3 sign bits ==> 0 -> -infinity, 1 -> negative number, 2 -> zero (there are no +/- zeros, just one zero), 3 -> positive number and 4 -> +infinity, finally 5 -> NAN
 		* 2 byte signed exponent
 		* some N number of digits as an array of 5 byte unsigned integers
 
