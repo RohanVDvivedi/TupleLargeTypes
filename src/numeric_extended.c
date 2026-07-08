@@ -4,7 +4,7 @@
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-char const * numeric_sign_bits_str[5] = {
+char const * numeric_sign_bits_str[6] = {
 	"-inf",
 	"-",
 	"0",

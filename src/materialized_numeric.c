@@ -208,14 +208,24 @@ void absolute_materialized_numeric(materialized_numeric* m)
 
 mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 {
-	int needs_digits = 0;
-	uint8_t sign = 0;
-
 	mpd_context_t ctx;
 	mpd_maxcontext(&ctx);
 
+	// res is returned by value : its struct is treated as static (it is copied out to the caller),
+	// while its coefficient buffer (res.data) is heap allocated.
+	// THE CALLER MUST RELEASE THE RETURNED VALUE WITH mpd_del() -> that frees res.data, not the struct.
 	mpd_t res;
-	mpd_zerocoeff(&res);
+	res.flags = MPD_STATIC; // static struct (copied out to the caller) with a heap allocated coefficient buffer
+	res.exp = 0;
+	res.digits = 0;
+	res.len = 0;
+	res.alloc = MPD_MINALLOC;
+	res.data = mpd_alloc(MPD_MINALLOC, sizeof(mpd_uint_t)); // allocate the coefficient buffer on the heap
+	if(res.data == NULL)
+		exit(-1);
+
+	uint8_t sign = 0;
+	int needs_digits = 0;
 
 	switch(m->sign_bits)
 	{
@@ -232,6 +242,8 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 		}
 		case ZERO_NUMERIC :
 		{
+			mpd_zerocoeff(&res);
+			mpd_set_flags(&res, MPD_POS);
 			break;
 		}
 		case POSITIVE_NUMERIC :
@@ -252,36 +264,37 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 		}
 	}
 
-	if(!needs_digits)
+	// a finite non zero number with actual digits : import its coefficient
+	if(needs_digits && get_digits_count_for_materialized_numeric(m) > 0)
 	{
+		uint32_t digits_count = get_digits_count_for_materialized_numeric(m);
+
+		// each base 10^12 digit becomes 2 base 10^6 words, in little endian order for mpd_qimport_u32
+		uint32_t* digits = malloc(sizeof(uint32_t) * digits_count * 2);
+		if(digits == NULL)
+			exit(-1);
+		for(uint32_t i = 0; i < digits_count; i++)
+		{
+			uint64_t d = *get_from_back_of_digits_list(&(m->digits), i); // i-th from the back == i-th least significant digit
+			digits[2*i] = d % 1000000ULL;
+			digits[2*i+1] = d / 1000000ULL;
+		}
+
 		uint32_t status = 0;
-		mpd_qfinalize(&res, &ctx, &status);
-		return res;
-	}
-
-	if(get_digits_count_for_materialized_numeric(m) == 0)
-	{
-		uint32_t status = 0;
-		mpd_qfinalize(&res, &ctx, &status);
-		return res;
-	}
-
-	res.exp = (((int64_t)(m->exponent)) - (get_digits_count_for_materialized_numeric(m) - 1)) * 12;
-
-	uint32_t* digits = malloc(sizeof(uint32_t) * get_digits_count_for_materialized_numeric(m) * 2);
-	for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(m); i++)
-	{
-		uint64_t d = *get_from_back_of_digits_list(&(m->digits), i);
-		digits[2*i] = d % 1000000ULL;
-		digits[2*i+1] = d / 1000000ULL;
-	}
-
-	{
-		uint32_t status = 0;
-		mpd_qimport_u32(&res, digits, get_digits_count_for_materialized_numeric(m) * 2, sign, 1000000ULL, &ctx, &status);
+		mpd_qimport_u32(&res, digits, digits_count * 2, sign, 1000000ULL, &ctx, &status);
+		free(digits);
 		if(status & MPD_Malloc_error)
 			exit(-1);
-		free(digits);
+
+		// mpd_qimport_u32 imports only the coefficient and resets the exponent to 0,
+		// so the real base 10 exponent must be set AFTER the import.
+		// the least significant digit sits at power (exponent - (digits_count - 1)) of 10^12, i.e. * 12 in base 10.
+		res.exp = (((int64_t)(m->exponent)) - ((int64_t)digits_count - 1)) * 12;
+	}
+	else if(needs_digits) // a positive/negative number carrying no digits is just a zero
+	{
+		mpd_zerocoeff(&res);
+		mpd_set_flags(&res, MPD_POS);
 	}
 
 	uint32_t status = 0;
@@ -316,14 +329,80 @@ materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* expone
 		return res;
 	}
 
-	uint32_t digits_count = mpd_sizeinbase(d, 1000000ULL);
-	uint32_t final_digits_count = (digits_count + 1) / 2; // if digits_count is odd, we will need to add 1
+	// finite non zero number
+	numeric_sign_bits sign_bits = mpd_isnegative(d) ? NEGATIVE_NUMERIC : POSITIVE_NUMERIC;
 
+	// value = coefficient * 10^exponent. base 10^12 digits must align to a 12 decimal boundary.
+	// instead of realigning the packed digits ourselves, let libmpdec shift the coefficient left by
+	// (exponent mod 12) decimal places -- a power of 10 smaller than 10^12 -- and subtract the same
+	// amount from the exponent. this keeps the value unchanged and makes the exponent a multiple of 12,
+	// so the exported coefficient packs straight into base 10^12 digits with no further arithmetic.
 	int64_t exponent = d->exp;
-	res.exponent = exponent / 12 + final_digits_count; // what if this is not multiple of 12?
+	int64_t shift = ((exponent % 12) + 12) % 12;   // 0 .. 11, so 10^shift < 10^12
+	int64_t lsd_power = (exponent - shift) / 12;   // exponent - shift is a multiple of 12 (explicit floor)
 
-	// TODO read in the digits and exponent
-	// if odd number of digits, then add 0 to the front or keep first 0 slot avilable and subtract 6 more from the exponent
+	uint32_t status = 0;
+	mpd_t* scaled = mpd_qnew();
+	if(scaled == NULL)
+		exit(-1);
+	if(!mpd_qshiftl(scaled, d, (mpd_ssize_t)shift, &status)) // coefficient *= 10^shift, heavy lifting by libmpdec
+		exit(-1);
+	scaled->exp = 0; // export only the (already scaled) coefficient, not the value
+
+	uint32_t* words = NULL;
+	size_t words_count = mpd_qexport_u32(&words, 0, 1000000ULL, scaled, &status);
+	mpd_del(scaled);
+	if(words_count == SIZE_MAX) // export failed
+		exit(-1);
+
+	// 2 base 10^6 words make 1 base 10^12 digit, little endian (a missing high word counts as 0).
+	uint32_t digits_count = (words_count + 1) / 2;
+
+	// skip least significant zero digits : they only raise the power and must not be stored (canonical form).
+	// the coefficient has no leading zeros, so the most significant digit is always non zero (no high skip needed).
+	uint32_t start = 0;
+	while(start < digits_count)
+	{
+		uint64_t lo = words[2*start];
+		uint64_t hi = (2*start + 1 < words_count) ? words[2*start + 1] : 0;
+		if(lo != 0 || hi != 0)
+			break;
+		start++;
+		lsd_power++;
+	}
+	uint32_t final_digits_count = digits_count - start; // significant digits (coefficient is non zero -> >= 1)
+
+	// this is the exact exponent that will be stored in the materialized_numeric (power of the most
+	// significant digit). the saturation is done on THIS final exponent, not on the raw base 10 mpd
+	// exponent, because this is the value that must fit the 2 byte (int16_t) exponent field.
+	int64_t final_exponent = lsd_power + ((int64_t)final_digits_count) - 1;
+	if(final_exponent > INT16_MAX) // magnitude too large for the 2 byte exponent -> saturate to +/- infinity
+	{
+		(*exponent_too_big) = 1;
+		res.sign_bits = (sign_bits == NEGATIVE_NUMERIC) ? NEGATIVE_INFINITY_NUMERIC : POSITIVE_INFINITY_NUMERIC;
+		mpd_free(words);
+		return res;
+	}
+	if(final_exponent < INT16_MIN) // magnitude too small for the 2 byte exponent -> underflows to zero
+	{
+		(*exponent_too_big) = 1;
+		res.sign_bits = ZERO_NUMERIC;
+		mpd_free(words);
+		return res;
+	}
+
+	// combine each word pair into a base 10^12 digit and push it straight in, least significant first :
+	// push_msd keeps prepending, so the digits end up most significant first as required.
+	set_sign_bits_and_exponent_for_materialized_numeric(&res, sign_bits, (int16_t)final_exponent);
+	for(uint32_t i = start; i < digits_count; i++)
+	{
+		uint64_t lo = words[2*i];
+		uint64_t hi = (2*i + 1 < words_count) ? words[2*i + 1] : 0;
+		push_msd_in_materialized_numeric(&res, lo + hi * 1000000ULL);
+	}
+
+	mpd_free(words);
+	return res;
 }
 
 void deinitialize_materialized_numeric(materialized_numeric* m)
