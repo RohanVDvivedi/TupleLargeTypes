@@ -289,8 +289,11 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 	return res;
 }
 
-materialized_numeric decimal_to_materialized_numeric(const mpd_t* d)
+materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* exponent_too_big)
 {
+	// default to no error
+	(*exponent_too_big) = 0;
+
 	materialized_numeric res;
 	if(!initialize_materialized_numeric(&res, 0))
 		exit(-1);
@@ -312,12 +315,8 @@ materialized_numeric decimal_to_materialized_numeric(const mpd_t* d)
 		return res;
 	}
 
-	mpd_context_t ctx;
-	mpd_maxcontext(&ctx);
-	ctx.emin = ((int64_t)(INT16_MAX)) * 12;
-	ctx.emax = ((int64_t)(INT16_MIN)) * 12;
-
-	// TODO
+	// TODO read in the digits and exponent
+	// if odd number of digits, then add 0 to the front or keep first 0 slot avilable and subtract 6 more from the exponent
 }
 
 void deinitialize_materialized_numeric(materialized_numeric* m)

@@ -60,7 +60,8 @@ void absolute_materialized_numeric(materialized_numeric* m);
 
 mpd_t decimal_from_materialized_numeric(const materialized_numeric* m);
 
-materialized_numeric decimal_to_materialized_numeric(const mpd_t* d);
+// exponent_too_big, will be set as an error if the final exponent can not fit 16 bits, so can not be represented by materialized_numeric or numeric on the disk
+materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* exponent_too_big);
 
 void deinitialize_materialized_numeric(materialized_numeric* m);
 
