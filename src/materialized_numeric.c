@@ -206,7 +206,88 @@ void absolute_materialized_numeric(materialized_numeric* m)
 		negate_materialized_numeric(m);
 }
 
-mpd_t decimal_from_materialized_numeric(const materialized_numeric* m);
+mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
+{
+	int needs_digits = 0;
+	uint8_t sign = 0;
+
+	mpd_context_t ctx;
+	mpd_maxcontext(&ctx);
+
+	mpd_t res;
+	mpd_zerocoeff(&res);
+
+	switch(m->sign_bits)
+	{
+		case NEGATIVE_INFINITY_NUMERIC :
+		{
+			mpd_setspecial(&res, MPD_NEG, MPD_INF);
+			break;
+		}
+		case NEGATIVE_NUMERIC :
+		{
+			sign = MPD_NEG;
+			needs_digits = 1;
+			break;
+		}
+		case ZERO_NUMERIC :
+		{
+			break;
+		}
+		case POSITIVE_NUMERIC :
+		{
+			sign = MPD_POS;
+			needs_digits = 1;
+			break;
+		}
+		case POSITIVE_INFINITY_NUMERIC :
+		{
+			mpd_setspecial(&res, MPD_POS, MPD_INF);
+			break;
+		}
+		case NAN_NUMERIC :
+		{
+			mpd_setspecial(&res, MPD_POS, MPD_NAN);
+			break;
+		}
+	}
+
+	if(!needs_digits)
+	{
+		uint32_t status = 0;
+		mpd_qfinalize(&res, &ctx, &status);
+		return res;
+	}
+
+	if(get_digits_count_for_materialized_numeric(m) == 0)
+	{
+		uint32_t status = 0;
+		mpd_qfinalize(&res, &ctx, &status);
+		return res;
+	}
+
+	res.exp = (((int64_t)(m->exponent)) - (get_digits_count_for_materialized_numeric(m) - 1)) * 12;
+
+	uint32_t* digits = malloc(sizeof(uint32_t) * get_digits_count_for_materialized_numeric(m) * 2);
+	for(uint32_t i = 0; i < get_digits_count_for_materialized_numeric(m); i++)
+	{
+		uint64_t d = *get_from_back_of_digits_list(&(m->digits), i);
+		digits[2*i] = d % 1000000ULL;
+		digits[2*i+1] = d / 1000000ULL;
+	}
+
+	{
+		uint32_t status = 0;
+		mpd_qimport_u32(&res, digits, get_digits_count_for_materialized_numeric(m) * 2, sign, 1000000, &ctx, &status);
+		if(status & MPD_Malloc_error)
+			exit(-1);
+		free(digits);
+	}
+
+	uint32_t status = 0;
+	mpd_qfinalize(&res, &ctx, &status);
+	return res;
+}
 
 materialized_numeric decimal_to_materialized_numeric(const mpd_t* d);
 
