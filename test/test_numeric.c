@@ -201,11 +201,11 @@ int main()
 {
 	// base cases for comparing numeric based on sign bits and exponent
 
-	for(int s1 = 0; s1 < 5; s1++)
+	for(int s1 = 0; s1 < 6; s1++)
 	{
 		for(int e1 = -3; e1 <= 3; e1 += 3)
 		{
-			for(int s2 = 0; s2 < 5; s2++)
+			for(int s2 = 0; s2 < 6; s2++)
 			{
 				for(int e2 = -3; e2 <= 3; e2 += 3)
 				{
