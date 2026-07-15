@@ -1,8 +1,9 @@
 PICKED TASKS
 
- * allow inserting char* extension_type, in all the type generation for the extended types
- * strcmp now becomes check prefix + check suffix
- * has extended type, now also takes in extension_type, to check with or without extension_type
+ * allow inserting char* extension_type at the end, in all the type generation for the extended types
+ * check prefix always for type comparison
+ * also make a function to get type_name by parts, if it has extended in it's name, break it into 3 parts and then do all the tests
+ * it is valid extended type only if it has 3 parts
 
 
 * JSONB
