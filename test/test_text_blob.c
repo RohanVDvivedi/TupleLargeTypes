@@ -109,8 +109,9 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	printf("\n");
 	printf("%d\n\n", has_extended_type_info(tpl_d.type_info, "my_type"));
 	uint32_t sub_type_len = 0;
-	const char* sub_type = get_extension_sub_type_for_extended_type(tpl_d.type_info, &sub_type_len);
-	printf("sub_type = %.*s\n\n", sub_type_len, sub_type);
+	const char* sub_type = get_extension_sub_type_for_extended_type(get_type_info_for_element_from_tuple_def(&tpl_d, ACCS), &sub_type_len);
+	if(sub_type != NULL)
+		printf("sub_type = <%.*s>\n\n", sub_type_len, sub_type);
 	return &tpl_d;
 }
 

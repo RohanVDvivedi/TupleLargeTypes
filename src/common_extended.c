@@ -23,23 +23,21 @@ const char* get_extension_sub_type_for_extended_type(const data_type_info* dti_p
 	}
 
 	const char* res = NULL;
-	(*length) = 0;
 
 	const char* temp = dti_p->type_name;
-	for(; (dti_p->type_name - temp) < 64 && (*temp) != '\0'; temp++)
+	for(; (temp - dti_p->type_name) < 64 && (*temp) != '\0'; temp++)
 		if((*temp) == '{')
 		{
 			res = (++temp);
 			break;
 		}
-	if(res == NULL)
-	{
-		(*length) = 0;
-		return NULL;
-	}
 
-	for(; (dti_p->type_name - temp) < 64 && (*temp) != '\0'; temp++, (*length)++)
-		if((*res) == '}')
+	(*length) = 0;
+	if(res == NULL)
+		return NULL;
+
+	for(; (temp - dti_p->type_name) < 64 && (*temp) != '\0'; temp++, (*length)++)
+		if((*temp) == '}')
 			return res;
 
 	(*length) = 0;
