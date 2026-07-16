@@ -169,7 +169,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, blob_s
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error));
+	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error, NULL));
 
 	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 
