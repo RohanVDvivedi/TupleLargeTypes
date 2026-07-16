@@ -20,7 +20,7 @@ data_type_info* get_tuple_list_extended_type_info(const char* extension_type, ui
 	// the binary_inline controls the total size so we allow the binary_extended to be atmost page_size bytes large
 	initialize_tuple_data_type_info(dti_p, TUPLE_LIST_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 	if(extension_type != NULL)
-		sprintf(dti_p->type_name, TUPLE_LIST_TYPE_PREFIX "_%s_" EXTENDED_TYPE_SUFFIX, extension_type);
+		sprintf(dti_p->type_name, TUPLE_LIST_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_type);
 
 	strcpy(dti_p->containees[0].field_name, "tuple_list_prefix");
 	{

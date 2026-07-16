@@ -93,7 +93,7 @@ data_type_info* get_numeric_extended_type_info(const char* extension_type, uint3
 
 	initialize_tuple_data_type_info(dti_p, NUMERIC_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 	if(extension_type != NULL)
-		sprintf(dti_p->type_name, NUMERIC_TYPE_PREFIX "_%s_" EXTENDED_TYPE_SUFFIX, extension_type);
+		sprintf(dti_p->type_name, NUMERIC_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_type);
 
 	strcpy(dti_p->containees[0].field_name, "numeric_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)numeric_inline_p;

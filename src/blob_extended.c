@@ -53,7 +53,7 @@ data_type_info* get_blob_extended_type_info(const char* extension_type, uint32_t
 
 	initialize_tuple_data_type_info(dti_p, BLOB_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 	if(extension_type != NULL)
-		sprintf(dti_p->type_name, BLOB_TYPE_PREFIX "_%s_" EXTENDED_TYPE_SUFFIX, extension_type);
+		sprintf(dti_p->type_name, BLOB_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_type);
 
 	strcpy(dti_p->containees[0].field_name, "blob_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)blob_inline_p;
