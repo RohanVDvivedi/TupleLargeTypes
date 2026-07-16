@@ -8,11 +8,15 @@
 
 #include<tuplelargetypes/numeric_extended.h>
 
-digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p)
+digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, extension_reader_iterator_callback* callback)
 {
 	digit_read_iterator* dri_p = malloc(sizeof(digit_read_iterator));
 	if(dri_p == NULL)
 		exit(-1);
+
+	// cache the input params
+	dri_p->uval = uval;
+	dri_p->dti = dti;
 
 	dri_p->is_extended = is_extended_type_info(dti);
 
@@ -43,13 +47,18 @@ digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_t
 		}
 	}
 
+	dri_p->callback = callback;
+
 	return dri_p;
 }
 
 void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error)
 {
 	if(dri_p->bsri_p != NULL)
+	{
 		delete_blob_store_read_iterator(dri_p->bsri_p, transaction_id, abort_error);
+		if(dri_p->callback) dri_p->callback->extension_blob_read_ended_event(dri_p->callback, dri_p->uval, dri_p->dti, dri_p->pam_p);
+	}
 	free(dri_p);
 }
 
@@ -63,9 +72,11 @@ digit_read_iterator* clone_digit_read_iterator(const digit_read_iterator* dri_p,
 
 	if(dri_p->bsri_p != NULL)
 	{
+		if(dri_p->callback) dri_p->callback->extension_blob_read_begin_event(dri_p->callback, dri_p->uval, dri_p->dti, dri_p->pam_p);
 		clone_p->bsri_p = clone_blob_store_read_iterator(dri_p->bsri_p, transaction_id, abort_error);
 		if(*abort_error)
 		{
+			if(dri_p->callback) dri_p->callback->extension_blob_read_ended_event(dri_p->callback, dri_p->uval, dri_p->dti, dri_p->pam_p);
 			free(clone_p);
 			return NULL;
 		}
@@ -100,9 +111,13 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 			// initialize blob store read iterator if not done already
 			if(dri_p->bsri_p == NULL)
 			{
+				if(dri_p->callback) dri_p->callback->extension_blob_read_begin_event(dri_p->callback, dri_p->uval, dri_p->dti, dri_p->pam_p);
 				dri_p->bsri_p = get_new_blob_store_read_iterator(dri_p->extension_head, 0, dri_p->bstd_p, dri_p->pam_p, transaction_id, abort_error);
 				if(*abort_error)
+				{
+					if(dri_p->callback) dri_p->callback->extension_blob_read_ended_event(dri_p->callback, dri_p->uval, dri_p->dti, dri_p->pam_p);
 					return 0;
+				}
 			}
 
 			// we will read data from blob directly into the digits buffer but at the end of this buffer

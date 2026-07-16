@@ -6,11 +6,15 @@
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p)
+binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, extension_reader_iterator_callback* callback)
 {
 	binary_read_iterator* bri_p = malloc(sizeof(binary_read_iterator));
 	if(bri_p == NULL)
 		exit(-1);
+
+	// cache the input params
+	bri_p->uval = uval;
+	bri_p->dti = dti;
 
 	bri_p->is_extended = (dti != NULL) && is_extended_type_info(dti);
 
@@ -42,13 +46,18 @@ binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data
 	bri_p->bstd_p = bstd_p;
 	bri_p->pam_p = pam_p;
 
+	bri_p->callback = callback;
+
 	return bri_p;
 }
 
 void delete_binary_read_iterator(binary_read_iterator* bri_p, const void* transaction_id, int* abort_error)
 {
 	if(bri_p->bsri_p != NULL)
+	{
 		delete_blob_store_read_iterator(bri_p->bsri_p, transaction_id, abort_error);
+		if(bri_p->callback) bri_p->callback->extension_blob_read_ended_event(bri_p->callback, bri_p->uval, bri_p->dti, bri_p->pam_p);
+	}
 	free(bri_p);
 }
 
@@ -62,20 +71,23 @@ binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri
 
 	if(bri_p->bsri_p != NULL)
 	{
+		if(bri_p->callback) clone_p->callback->extension_blob_read_begin_event(clone_p->callback, clone_p->uval, clone_p->dti, clone_p->pam_p);
 		clone_p->bsri_p = clone_blob_store_read_iterator(bri_p->bsri_p, transaction_id, abort_error);
 		if(*abort_error)
 		{
+			if(bri_p->callback) clone_p->callback->extension_blob_read_ended_event(clone_p->callback, clone_p->uval, clone_p->dti, clone_p->pam_p);
 			free(clone_p);
 			return NULL;
 		}
 
-		// this implies we are in the extended portion and we need to point into out own blob_store_read_iterator
+		// this implies we are in the extended portion and we need to point into our own blob_store_read_iterator
 		{
 			uint32_t data_size = 0;
 			const void* data = peek_in_blob(clone_p->bsri_p, &data_size, transaction_id, abort_error);
 			if(*abort_error)
 			{
 				delete_blob_store_read_iterator(clone_p->bsri_p, transaction_id, abort_error);
+				if(bri_p->callback) clone_p->callback->extension_blob_read_ended_event(clone_p->callback, clone_p->uval, clone_p->dti, clone_p->pam_p);
 				free(clone_p);
 				return NULL;
 			}
@@ -142,9 +154,13 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 	{
 		if(bri_p->bsri_p == NULL)
 		{
+			if(bri_p->callback) bri_p->callback->extension_blob_read_begin_event(bri_p->callback, bri_p->uval, bri_p->dti, bri_p->pam_p);
 			bri_p->bsri_p = get_new_blob_store_read_iterator(bri_p->extension_head, 0, bri_p->bstd_p, bri_p->pam_p, transaction_id, abort_error);
 			if(*abort_error)
+			{
+				if(bri_p->callback) bri_p->callback->extension_blob_read_ended_event(bri_p->callback, bri_p->uval, bri_p->dti, bri_p->pam_p);
 				return NULL;
+			}
 		}
 
 		uint32_t data_size = 0;

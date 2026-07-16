@@ -4,6 +4,7 @@
 #include<tuplestore/tuple.h>
 #include<tupleindexer/blob_store/blob_store.h>
 #include<tuplelargetypes/common_extended.h>
+#include<tuplelargetypes/extension_reader_iterator_callback.h>
 
 /*
 	To be used solely with data_type_info-s that are structurally similar to
@@ -16,6 +17,10 @@
 typedef struct digit_read_iterator digit_read_iterator;
 struct digit_read_iterator
 {
+	// input params
+	const datum* uval;
+	const data_type_info* dti;
+
 	unsigned int is_extended:1;
 
 	datum digits_inline; // read calls will succeed only if this datum is not null
@@ -30,9 +35,12 @@ struct digit_read_iterator
 	// below attributes only to be used to initialize the bsri, only upon requirement
 	const blob_store_tuple_defs* bstd_p;
 	const page_access_methods* pam_p;
+
+	// callback to be called when reading starts or ends
+	extension_reader_iterator_callback* callback;
 };
 
-digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p);
+digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_type_info* dti, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, extension_reader_iterator_callback* callback);
 
 void delete_digit_read_iterator(digit_read_iterator* dri_p, const void* transaction_id, int* abort_error);
 
