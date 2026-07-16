@@ -7,8 +7,8 @@
 #include<tupleindexer/common/page_access_specification.h>
 #include<tupleindexer/common/tuple_pointer.h>
 
-#define EXTENDED_TYPE_SUFFIX                 "_extended"
-#define INLINE_TYPE_SUFFIX                   "_inline"
+#define EXTENDED_TYPE_SUFFIX                 "extended"
+#define INLINE_TYPE_SUFFIX                   "inline"
 
 #define EXTENDED_PREFIX_POS_VAL               (0)
 #define EXTENDED_PREFIX_POS_ACC               STATIC_POSITION(EXTENDED_PREFIX_POS_VAL)

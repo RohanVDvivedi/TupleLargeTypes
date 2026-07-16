@@ -65,7 +65,7 @@ data_type_info* get_numeric_inline_type_info(uint32_t max_size)
 	if(dti_p == NULL)
 		exit(-1);
 
-	initialize_tuple_data_type_info(dti_p, NUMERIC_TYPE_PREFIX INLINE_TYPE_SUFFIX, 1, max_size, 3);
+	initialize_tuple_data_type_info(dti_p, NUMERIC_TYPE_PREFIX "_" INLINE_TYPE_SUFFIX, 1, max_size, 3);
 
 	strcpy(dti_p->containees[0].field_name, "sign_bits");
 	dti_p->containees[0].al.type_info = BIT_FIELD_NON_NULLABLE[3];
@@ -91,7 +91,7 @@ data_type_info* get_numeric_extended_type_info(uint32_t max_size, const data_typ
 	if(dti_p == NULL)
 		exit(-1);
 
-	initialize_tuple_data_type_info(dti_p, NUMERIC_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
+	initialize_tuple_data_type_info(dti_p, NUMERIC_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "numeric_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)numeric_inline_p;

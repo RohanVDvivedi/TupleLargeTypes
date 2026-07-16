@@ -18,7 +18,7 @@ data_type_info* get_jsonb_extended_type_info(uint32_t max_size, uint32_t inline_
 		exit(-1);
 
 	// the binary_inline controls the total size so we allow the binary_extended to be atmost page_size bytes large
-	initialize_tuple_data_type_info(dti_p, JSONB_TYPE_PREFIX EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
+	initialize_tuple_data_type_info(dti_p, JSONB_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
 
 	strcpy(dti_p->containees[0].field_name, "jsonb_prefix");
 	{
