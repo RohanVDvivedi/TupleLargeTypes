@@ -83,7 +83,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
 	uint32_t max_size = PREFIX_SIZE + 10;
 	short_dti = get_text_inline_type_info(max_size);
-	large_dti = get_text_extended_type_info(NULL, max_size, short_dti, pas_p);
+	large_dti = get_text_extended_type_info("my_type", max_size, short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");
@@ -107,7 +107,10 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 	initialize_tuple_def(&tpl_d, dti);
 	print_tuple_def(&tpl_d);
 	printf("\n");
-	printf("%d\n\n", has_extended_type_info(tpl_d.type_info, NULL));
+	printf("%d\n\n", has_extended_type_info(tpl_d.type_info, "my_type"));
+	uint32_t sub_type_len = 0;
+	const char* sub_type = get_extension_sub_type_for_extended_type(tpl_d.type_info, &sub_type_len);
+	printf("sub_type = %.*s\n\n", sub_type_len, sub_type);
 	return &tpl_d;
 }
 
