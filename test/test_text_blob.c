@@ -171,7 +171,7 @@ void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, blob_s
 	print_tuple(inline_tuple, tpl_d);
 	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error));
 
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 
 	const uint32_t TEST_DATA_SIZE = strlen(test_data);
 
@@ -277,8 +277,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
@@ -291,8 +291,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
@@ -312,8 +312,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
@@ -326,8 +326,8 @@ int main()
 			datum uval;
 			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
-			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
-			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p);
+			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
+			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
 			int prefix = 100;
 			cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
@@ -437,10 +437,10 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		const data_type_info* dti;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
 		delete_binary_read_iterator(bri1, transaction_id, &abort_error);
@@ -454,10 +454,10 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		const data_type_info* dti;
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
-		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
 		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
-		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);
 		delete_binary_read_iterator(bri1, transaction_id, &abort_error);

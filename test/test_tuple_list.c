@@ -167,7 +167,7 @@ void read_and_skip_test_tuples(tuple_def* tpl_d, char* inline_tuple, blob_store_
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 
-	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+	binary_read_iterator* tbri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 
 	while((*read_or_skip) != -1)
 	{

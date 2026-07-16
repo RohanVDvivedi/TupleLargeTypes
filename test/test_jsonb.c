@@ -195,7 +195,7 @@ jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, blob_s
 	print_tuple(inline_tuple, tpl_d);
 	printf("hash => %"PRIu64"\n\n", hash_blob(&uval, dti, FNV_64_TUPLE_HASHER, bstd_p, pam_p, transaction_id, &abort_error));
 
-	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p);
+	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 
 	stream strm;
 	initialize_stream_for_binary_read_iterator_static(&strm, bri_p, transaction_id, &abort_error);
@@ -397,7 +397,7 @@ int main()
 	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
 	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
 
-	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jsonb_read_iterator jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR());
@@ -411,7 +411,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR());
@@ -430,7 +430,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("aAa_revenues"), JSON_ARRAY_INDEX(1)));
@@ -439,7 +439,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("aAa_revenues"), JSON_OBJECT_KEY_literal("none")));
@@ -451,7 +451,7 @@ int main()
 	deinit_jsonb_read_iterator(&jri);
 	delete_binary_read_iterator(bri_p, transaction_id, &abort_error);
 
-	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p);
+	bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jri = init_jsonb_read_iterator(bri_p);
 
 	jsonb_read_iterator_parse_for_accessor(&jri, STATIC_JSON_ACCESSOR(JSON_OBJECT_KEY_literal("empty_array")));
