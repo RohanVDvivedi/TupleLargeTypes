@@ -4,7 +4,11 @@
 
 int is_tuple_list_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, TUPLE_LIST_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
+	if( is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(TUPLE_LIST_TYPE_PREFIX)) &&
+		is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX)) )
+		return 1;
+
+	return 0;
 }
 
 data_type_info* get_tuple_list_extended_type_info(uint32_t max_size, uint32_t inline_size, const page_access_specs* pas_p)

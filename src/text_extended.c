@@ -4,20 +4,34 @@
 
 int is_text_type_info(const data_type_info* dti_p)
 {
+	if(dti_p->type == STRING)
+		return 1;
+
 	if(is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(TEXT_TYPE_PREFIX)))
 		return 1;
 
-	return (dti_p->type == STRING);
+	return 0;
 }
 
 int is_text_inline_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, TEXT_TYPE_PREFIX INLINE_TYPE_SUFFIX) == 0;
+	if(dti_p->type == STRING)
+		return 1;
+
+	if( is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(TEXT_TYPE_PREFIX)) &&
+		is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(INLINE_TYPE_SUFFIX)) )
+		return 1;
+
+	return 0;
 }
 
 int is_text_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, TEXT_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
+	if( is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(TEXT_TYPE_PREFIX)) &&
+		is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX)) )
+		return 1;
+
+	return 0;
 }
 
 data_type_info* get_text_inline_type_info(uint32_t max_size)

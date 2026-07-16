@@ -6,7 +6,6 @@
 
 #define JSONB_TYPE_PREFIX "jsonb"
 
-// below one function only check the type_name of the dti passed
 int is_jsonb_extended_type_info(const data_type_info* dti_p);
 
 // returns a new type info pointing to a tuple, of 2 elements the binary inline, and a page_id type from pas_p

@@ -35,17 +35,28 @@ numeric_sign_bits negate_numeric_sign_bits(numeric_sign_bits s)
 
 int is_numeric_type_info(const data_type_info* dti_p)
 {
-	return is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX));
+	if(is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX)))
+		return 1;
+
+	return 0;
 }
 
 int is_numeric_inline_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, NUMERIC_TYPE_PREFIX INLINE_TYPE_SUFFIX) == 0;
+	if( is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX)) &&
+		is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(INLINE_TYPE_SUFFIX)) )
+		return 1;
+
+	return 0;
 }
 
 int is_numeric_extended_type_info(const data_type_info* dti_p)
 {
-	return strcmp(dti_p->type_name, NUMERIC_TYPE_PREFIX EXTENDED_TYPE_SUFFIX) == 0;
+	if( is_prefix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(NUMERIC_TYPE_PREFIX)) &&
+		is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX)) )
+		return 1;
+
+	return 0;
 }
 
 data_type_info* get_numeric_inline_type_info(uint32_t max_size)
