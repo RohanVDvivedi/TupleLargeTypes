@@ -3,7 +3,7 @@
 #include<tuplelargetypes/common_extended.h>
 #include<tuplelargetypes/relative_positional_accessor.h>
 
-uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error)
+uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th, const blob_store_tuple_defs* bstd_p, const page_access_methods* pam_p, const void* transaction_id, int* abort_error, extension_reader_iterator_callback* callback)
 {
 	// if inline handle it here
 	if(is_inline_type_info(dti))
@@ -27,9 +27,13 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 	const char* buffer = NULL;
 	uint32_t buffer_size = 0;
 
+	if(callback) callback->extension_blob_read_begin_event(callback, uval, dti, pam_p);
 	blob_store_read_iterator* bsri_p = get_new_blob_store_read_iterator(extension_head, 0, bstd_p, pam_p, transaction_id, abort_error);
 	if(*abort_error)
+	{
+		if(callback) callback->extension_blob_read_ended_event(callback, uval, dti, pam_p);
 		return 0;
+	}
 
 	while(1)
 	{
@@ -37,6 +41,7 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 		if(*abort_error)
 		{
 			delete_blob_store_read_iterator(bsri_p, transaction_id, abort_error);
+			if(callback) callback->extension_blob_read_ended_event(callback, uval, dti, pam_p);
 			return 0;
 		}
 		if(buffer_size == 0)
@@ -49,11 +54,13 @@ uint64_t hash_tbn(const datum* uval, const data_type_info* dti, tuple_hasher* th
 		if(*abort_error)
 		{
 			delete_blob_store_read_iterator(bsri_p, transaction_id, abort_error);
+			if(callback) callback->extension_blob_read_ended_event(callback, uval, dti, pam_p);
 			return 0;
 		}
 	}
 
 	delete_blob_store_read_iterator(bsri_p, transaction_id, abort_error);
+	if(callback) callback->extension_blob_read_ended_event(callback, uval, dti, pam_p);
 	if(*abort_error)
 		return 0;
 
