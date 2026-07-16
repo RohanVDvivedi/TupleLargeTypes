@@ -14,34 +14,90 @@ int is_extended_type_info(const data_type_info* dti_p)
 	return is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
 }
 
-int has_extended_type_info(const data_type_info* dti_p)
+const char* get_extension_sub_type_for_extended_type(const data_type_info* dti_p, uint32_t* length)
 {
-	if(is_extended_type_info(dti_p))
+	if(!is_extended_type_info(dti_p))
+	{
+		(*length) = 0;
+		return NULL;
+	}
+
+	const char* res = NULL;
+	(*length) = 0;
+
+	const char* temp = dti_p->type_name;
+	for(; (dti_p->type_name - temp) < 64 && (*temp) != '\0'; temp++)
+		if((*temp) == '{')
+		{
+			res = (++temp);
+			break;
+		}
+	if(res == NULL)
+	{
+		(*length) = 0;
+		return NULL;
+	}
+
+	for(; (dti_p->type_name - temp) < 64 && (*temp) != '\0'; temp++, (*length)++)
+		if((*res) == '}')
+			return res;
+
+	(*length) = 0;
+	return NULL;
+}
+
+static int does_any_have_suffix_in_type_name(const data_type_info* dti_p, const dstring* suffix)
+{
+	if(is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), suffix))
 		return 1;
 
 	if(dti_p->type == ARRAY)
-		return has_extended_type_info(dti_p->containee);
+		return does_any_have_suffix_in_type_name(dti_p->containee, suffix);
 	else if(dti_p->type == TUPLE)
 	{
 		int has_extended = 0;
 		for(uint32_t i = 0; i < dti_p->element_count && !has_extended; i++)
-			has_extended = has_extended_type_info(dti_p->containees[i].al.type_info);
+			has_extended = does_any_have_suffix_in_type_name(dti_p->containees[i].al.type_info, suffix);
 		return has_extended;
 	}
 	else
 		return 0;
 }
 
-int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos)
+int has_extended_type_info(const data_type_info* dti_p, const char* for_extension_sub_type)
 {
-	return has_extended_type_info(get_type_info_for_element_from_tuple_def(tpl_d, pos));
+	char temp[128] = "";
+	if(for_extension_sub_type != NULL)
+		sprintf(temp, "_{%s}_" EXTENDED_TYPE_SUFFIX, for_extension_sub_type);
+	else
+		sprintf(temp, "_" EXTENDED_TYPE_SUFFIX);
+
+	return does_any_have_suffix_in_type_name(dti_p, &get_dstring_pointing_to_cstring(temp));
 }
 
-int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids)
+int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos, const char* for_extension_sub_type)
 {
+	char temp[128] = "";
+	if(for_extension_sub_type != NULL)
+		sprintf(temp, "_{%s}_" EXTENDED_TYPE_SUFFIX, for_extension_sub_type);
+	else
+		sprintf(temp, "_" EXTENDED_TYPE_SUFFIX);
+
+	return does_any_have_suffix_in_type_name(get_type_info_for_element_from_tuple_def(tpl_d, pos), &get_dstring_pointing_to_cstring(temp));
+}
+
+int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids, const char* for_extension_sub_type)
+{
+	char temp[128] = "";
+	if(for_extension_sub_type != NULL)
+		sprintf(temp, "_{%s}_" EXTENDED_TYPE_SUFFIX, for_extension_sub_type);
+	else
+		sprintf(temp, "_" EXTENDED_TYPE_SUFFIX);
+
 	for(uint32_t i = 0; i < key_element_count; i++)
-		if(has_extended_type_info2(tpl_d, key_element_ids[i]))
+		if(does_any_have_suffix_in_type_name(get_type_info_for_element_from_tuple_def(tpl_d, key_element_ids[i]), &get_dstring_pointing_to_cstring(temp)))
 			return 1;
+
 	return 0;
 }
 

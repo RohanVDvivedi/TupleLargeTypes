@@ -20,14 +20,13 @@ int is_inline_type_info(const data_type_info* dti_p);
 
 int is_extended_type_info(const data_type_info* dti_p);
 
-int has_extended_type_info(const data_type_info* dti_p);
+const char* get_extension_sub_type_for_extended_type(const data_type_info* dti_p, uint32_t* length);
 
-int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos);
+int has_extended_type_info(const data_type_info* dti_p, const char* for_extension_type);
 
-int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids);
+int has_extended_type_info2(const tuple_def* tpl_d, positional_accessor pos, const char* for_extension_type);
 
-// returns true, if any of the constituent types of this type info is an extended type info
-int has_extended_type_info(const data_type_info* dti_p);
+int has_extended_type_info3(const tuple_def* tpl_d, uint32_t key_element_count, const positional_accessor* key_element_ids, const char* for_extension_type);
 
 // returns 1-th element from the large type info
 tuple_pointer get_extension_head_for_extended_type(const datum* uval, const data_type_info* dti, const page_access_specs* pas_p);

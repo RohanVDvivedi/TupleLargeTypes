@@ -45,7 +45,7 @@ data_type_info* get_text_inline_type_info(uint32_t max_size)
 	return dti_p;
 }
 
-data_type_info* get_text_extended_type_info(const char* extension_type, uint32_t max_size, const data_type_info* text_inline_p, const page_access_specs* pas_p)
+data_type_info* get_text_extended_type_info(const char* extension_sub_type, uint32_t max_size, const data_type_info* text_inline_p, const page_access_specs* pas_p)
 {
 	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
 	if(dti_p == NULL)
@@ -53,8 +53,8 @@ data_type_info* get_text_extended_type_info(const char* extension_type, uint32_t
 
 	// the text_inline controls the total size so we allow the text_extended to be atmost page_size bytes large
 	initialize_tuple_data_type_info(dti_p, TEXT_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
-	if(extension_type != NULL)
-		sprintf(dti_p->type_name, TEXT_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_type);
+	if(extension_sub_type != NULL)
+		sprintf(dti_p->type_name, TEXT_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_sub_type);
 
 	strcpy(dti_p->containees[0].field_name, "text_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)text_inline_p;

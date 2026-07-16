@@ -45,15 +45,15 @@ data_type_info* get_blob_inline_type_info(uint32_t max_size)
 	return dti_p;
 }
 
-data_type_info* get_blob_extended_type_info(const char* extension_type, uint32_t max_size, const data_type_info* blob_inline_p, const page_access_specs* pas_p)
+data_type_info* get_blob_extended_type_info(const char* extension_sub_type, uint32_t max_size, const data_type_info* blob_inline_p, const page_access_specs* pas_p)
 {
 	data_type_info* dti_p = malloc(sizeof_tuple_data_type_info(2));
 	if(dti_p == NULL)
 		exit(-1);
 
 	initialize_tuple_data_type_info(dti_p, BLOB_TYPE_PREFIX "_" EXTENDED_TYPE_SUFFIX, 1, max_size, 2);
-	if(extension_type != NULL)
-		sprintf(dti_p->type_name, BLOB_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_type);
+	if(extension_sub_type != NULL)
+		sprintf(dti_p->type_name, BLOB_TYPE_PREFIX "_{%s}_" EXTENDED_TYPE_SUFFIX, extension_sub_type);
 
 	strcpy(dti_p->containees[0].field_name, "blob_prefix");
 	dti_p->containees[0].al.type_info = (data_type_info*)blob_inline_p;
