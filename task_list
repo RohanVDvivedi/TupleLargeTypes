@@ -1,11 +1,5 @@
 PICKED TASKS
 
- * allow inserting char* extension_type at the end, in all the type generation for the extended types
- * check prefix always for type comparison
- * also make a function to get type_name by parts, if it has extended in it's name, break it into 3 parts and then do all the tests
- * it is valid extended type only if it has 3 parts
-
-
 * JSONB
   * build jsonb_node from json_node and viceversa
   * add hasher to hash some attribute nestedly
