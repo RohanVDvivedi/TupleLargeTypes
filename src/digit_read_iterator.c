@@ -14,19 +14,21 @@ digit_read_iterator* get_new_digit_read_iterator(const datum* uval, const data_t
 	if(dri_p == NULL)
 		exit(-1);
 
+	dri_p->is_extended = is_extended_type_info(dti);
+
 	dri_p->digits_inline = (*NULL_DATUM);
 	dri_p->digits_dti = NULL;
 
 	dri_p->digits_inline_count = 0;
 	dri_p->digits_inline_read = 0;
 
-	dri_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
+	dri_p->extension_head = dri_p->is_extended ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
 	dri_p->bsri_p = NULL;
 
 	dri_p->bstd_p = bstd_p;
 	dri_p->pam_p = pam_p;
 
-	if(is_extended_type_info(dti))
+	if(dri_p->is_extended)
 		dri_p->extension_head = get_extension_head_for_extended_type(uval, dti, &(pam_p->pas));
 
 	{
@@ -93,7 +95,7 @@ uint32_t read_from_digit_read_iterator(digit_read_iterator* dri_p, uint64_t* dig
 
 			digits_read_this_iteration++;
 		}
-		else if(!is_tuple_pointer_NULL(dri_p->extension_head, &(dri_p->pam_p->pas)))
+		else if(dri_p->is_extended && (!is_tuple_pointer_NULL(dri_p->extension_head, &(dri_p->pam_p->pas))))
 		{
 			// initialize blob store read iterator if not done already
 			if(dri_p->bsri_p == NULL)

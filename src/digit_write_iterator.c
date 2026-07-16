@@ -23,8 +23,8 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 
 	dwi_p->blob_store_root_page_id = blob_store_root_page_id;
 
-	dwi_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
-	dwi_p->extension_tail = get_NULL_tuple_pointer(&(pam_p->pas));
+	dwi_p->extension_head = (dwi_p->is_extended) ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
+	dwi_p->extension_tail = (dwi_p->is_extended) ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
 	dwi_p->was_inline_OR_extended_head_modified = 0;
 
 	dwi_p->bswi_p = NULL;

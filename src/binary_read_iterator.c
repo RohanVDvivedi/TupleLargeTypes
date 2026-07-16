@@ -12,14 +12,16 @@ binary_read_iterator* get_new_binary_read_iterator(const datum* uval, const data
 	if(bri_p == NULL)
 		exit(-1);
 
+	bri_p->is_extended = (dti != NULL) && is_extended_type_info(dti);
+
 	bri_p->is_null = is_datum_NULL(uval);
 
 	bri_p->curr_chunk = get_dstring_pointing_to(NULL, 0);
-	bri_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
+	bri_p->extension_head = bri_p->is_extended ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
 
 	if(!(bri_p->is_null))
 	{
-		if(dti != NULL && is_extended_type_info(dti))
+		if(bri_p->is_extended)
 		{
 			{
 				datum prefix;
@@ -58,7 +60,7 @@ binary_read_iterator* clone_binary_read_iterator(const binary_read_iterator* bri
 
 	(*clone_p) = (*bri_p);
 
-	if((bri_p->bsri_p != NULL))
+	if(bri_p->bsri_p != NULL)
 	{
 		clone_p->bsri_p = clone_blob_store_read_iterator(bri_p->bsri_p, transaction_id, abort_error);
 		if(*abort_error)
@@ -136,7 +138,7 @@ const char* peek_in_binary_read_iterator(binary_read_iterator* bri_p, uint32_t* 
 	}
 
 	// we may need to peek in the work, only if the current chunk is empty and the extension_head_page_id exists
-	if(is_empty_dstring(&(bri_p->curr_chunk)) && (!is_tuple_pointer_NULL(bri_p->extension_head, &(bri_p->pam_p->pas))))
+	if(bri_p->is_extended && is_empty_dstring(&(bri_p->curr_chunk)) && (!is_tuple_pointer_NULL(bri_p->extension_head, &(bri_p->pam_p->pas))))
 	{
 		if(bri_p->bsri_p == NULL)
 		{

@@ -21,8 +21,8 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 
 	bwi_p->blob_store_root_page_id = blob_store_root_page_id;
 
-	bwi_p->extension_head = get_NULL_tuple_pointer(&(pam_p->pas));
-	bwi_p->extension_tail = get_NULL_tuple_pointer(&(pam_p->pas));
+	bwi_p->extension_head = bwi_p->is_extended ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
+	bwi_p->extension_tail = bwi_p->is_extended ? get_NULL_tuple_pointer(&(pam_p->pas)) : (tuple_pointer){};
 	bwi_p->was_inline_OR_extended_head_modified = 0;
 
 	bwi_p->bswi_p = NULL;

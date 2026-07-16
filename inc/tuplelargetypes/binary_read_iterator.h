@@ -18,7 +18,9 @@
 typedef struct binary_read_iterator binary_read_iterator;
 struct binary_read_iterator
 {
-	int is_null;
+	unsigned int is_extended:1;
+
+	unsigned int is_null:1;
 
 	// current chunk is always a pointing-to dstring, removing it's prefix only advances it's pointer and size
 	dstring curr_chunk;

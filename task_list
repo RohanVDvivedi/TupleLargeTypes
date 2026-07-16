@@ -1,7 +1,5 @@
 PICKED TASKS
 
- * make provisions to use iterator api binary/digit_read/write_iterator without the use of bstd_p, pam_p and pmm_p, while we are working only with inline type
-
  * allow inserting char* extension_type at the end, in all the type generation for the extended types
  * check prefix always for type comparison
  * also make a function to get type_name by parts, if it has extended in it's name, break it into 3 parts and then do all the tests

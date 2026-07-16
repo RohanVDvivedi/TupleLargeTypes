@@ -16,6 +16,8 @@
 typedef struct digit_read_iterator digit_read_iterator;
 struct digit_read_iterator
 {
+	unsigned int is_extended:1;
+
 	datum digits_inline; // read calls will succeed only if this datum is not null
 	uint32_t digits_inline_count;
 	uint32_t digits_inline_read; // starts with 0 and increases until digits_inline_count
