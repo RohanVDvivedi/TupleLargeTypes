@@ -28,7 +28,7 @@ data_type_info* get_tuple_list_extended_type_info(const char* extension_type, ui
 		if(tuple_list_inline_p == NULL)
 			exit(-1);
 
-		(*tuple_list_inline_p) = get_variable_length_binary_type(TUPLE_LIST_TYPE_PREFIX INLINE_TYPE_SUFFIX, inline_size);
+		(*tuple_list_inline_p) = get_variable_length_binary_type(TUPLE_LIST_TYPE_PREFIX "_" INLINE_TYPE_SUFFIX, inline_size);
 
 		dti_p->containees[0].al.type_info = (data_type_info*)tuple_list_inline_p;
 	}

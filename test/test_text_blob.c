@@ -83,7 +83,7 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
 	uint32_t max_size = PREFIX_SIZE + 10;
 	short_dti = get_text_inline_type_info(max_size);
-	large_dti = get_text_extended_type_info(max_size, short_dti, pas_p);
+	large_dti = get_text_extended_type_info(NULL, max_size, short_dti, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");

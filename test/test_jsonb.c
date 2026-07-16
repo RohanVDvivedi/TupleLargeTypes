@@ -64,7 +64,7 @@ data_type_info* tuple_dti = (data_type_info*)tuple_type_info_memory;
 tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 {
 	uint32_t max_size = PREFIX_SIZE + 10;
-	large_dti = get_jsonb_extended_type_info(max_size, max_size, pas_p);
+	large_dti = get_jsonb_extended_type_info(NULL, max_size, max_size, pas_p);
 
 	initialize_tuple_data_type_info(tuple_dti, "container", 1, PAGE_SIZE, 1);
 	strcpy(tuple_dti->containees[0].field_name, "containee");

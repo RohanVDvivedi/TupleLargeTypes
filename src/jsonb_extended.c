@@ -28,7 +28,7 @@ data_type_info* get_jsonb_extended_type_info(const char* extension_type, uint32_
 		if(jsonb_inline_p == NULL)
 			exit(-1);
 
-		(*jsonb_inline_p) = get_variable_length_binary_type(JSONB_TYPE_PREFIX INLINE_TYPE_SUFFIX, inline_size);
+		(*jsonb_inline_p) = get_variable_length_binary_type(JSONB_TYPE_PREFIX "_" INLINE_TYPE_SUFFIX, inline_size);
 
 		dti_p->containees[0].al.type_info = (data_type_info*)jsonb_inline_p;
 	}
