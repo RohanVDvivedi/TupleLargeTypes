@@ -11,7 +11,7 @@ int is_inline_type_info(const data_type_info* dti_p)
 
 int is_extended_type_info(const data_type_info* dti_p)
 {
-	return is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
+	return (dti_p->type == TUPLE) && is_suffix_of_dstring(&get_dstring_pointing_to_cstring(dti_p->type_name), &get_dstring_pointing_to_literal_cstring(EXTENDED_TYPE_SUFFIX));
 }
 
 const char* get_extension_sub_type_for_extended_type(const data_type_info* dti_p, uint32_t* length)
