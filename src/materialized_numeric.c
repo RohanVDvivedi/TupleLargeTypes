@@ -206,10 +206,29 @@ void absolute_materialized_numeric(materialized_numeric* m)
 		negate_materialized_numeric(m);
 }
 
+void get_mpd_context_for_materialized_numeric(mpd_context_t* ctx)
+{
+	// start from the max context : half even rounding, all statuses recorded, no traps (except allocation failure)
+	mpd_maxcontext(ctx);
+
+	// then shrink it to be just right for a materialized_numeric
+	// these can not fail, since the values below are strictly within the mpd_maxcontext limits, but we still check
+	if(!mpd_qsetprec(ctx, MAX_MATERIALIZED_NUMERIC_MPD_PREC))
+		exit(-1);
+	if(!mpd_qsetemax(ctx, MAX_MATERIALIZED_NUMERIC_MPD_EMAX))
+		exit(-1);
+	if(!mpd_qsetemin(ctx, MAX_MATERIALIZED_NUMERIC_MPD_EMIN))
+		exit(-1);
+}
+
 mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 {
-	mpd_context_t ctx;
-	mpd_maxcontext(&ctx);
+	// the import below is done under the max context and NOT under get_mpd_context_for_materialized_numeric :
+	// mpd_qimport_u32 finalizes the coefficient at exponent 0, and for a large digit count that intermediate
+	// (not the final value) has an adjusted exponent way above the just-right emax, and would falsely overflow to infinity.
+	// the just-right context is applied only at the very end, once the real exponent has been set.
+	mpd_context_t maxctx;
+	mpd_maxcontext(&maxctx);
 
 	// res is returned by value : its struct is treated as static (it is copied out to the caller),
 	// while its coefficient buffer (res.data) is heap allocated.
@@ -269,26 +288,37 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 	{
 		uint32_t digits_count = get_digits_count_for_materialized_numeric(m);
 
+		// limit the outgoing digits : only the MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT most significant digits go out,
+		// the excess least significant ones are dropped (truncation toward zero), by skipping that many digits from the back
+		// and raising the power of the least significant exported digit by the same amount
+		uint32_t skipped_lsd_count = 0;
+		if(digits_count > MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT)
+		{
+			skipped_lsd_count = digits_count - MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT;
+			digits_count = MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT;
+		}
+
 		// each base 10^12 digit becomes 2 base 10^6 words, in little endian order for mpd_qimport_u32
 		uint32_t* digits = malloc(sizeof(uint32_t) * digits_count * 2);
 		if(digits == NULL)
 			exit(-1);
 		for(uint32_t i = 0; i < digits_count; i++)
 		{
-			uint64_t d = *get_from_back_of_digits_list(&(m->digits), i); // i-th from the back == i-th least significant digit
+			uint64_t d = *get_from_back_of_digits_list(&(m->digits), i + skipped_lsd_count); // i-th from the back == i-th least significant exported digit
 			digits[2*i] = d % 1000000ULL;
 			digits[2*i+1] = d / 1000000ULL;
 		}
 
 		uint32_t status = 0;
-		mpd_qimport_u32(&res, digits, digits_count * 2, sign, 1000000ULL, &ctx, &status);
+		mpd_qimport_u32(&res, digits, digits_count * 2, sign, 1000000ULL, &maxctx, &status);
 		free(digits);
 		if(status & MPD_Malloc_error)
 			exit(-1);
 
 		// mpd_qimport_u32 imports only the coefficient and resets the exponent to 0,
 		// so the real base 10 exponent must be set AFTER the import.
-		// the least significant digit sits at power (exponent - (digits_count - 1)) of 10^12, i.e. * 12 in base 10.
+		// the least significant exported digit sits at power (exponent - (digits_count - 1)) of 10^12, i.e. * 12 in base 10.
+		// (skipped_lsd_count is already accounted for : digits_count here counts only the exported digits.)
 		res.exp = (((int64_t)(m->exponent)) - ((int64_t)digits_count - 1)) * 12;
 	}
 	else if(needs_digits) // a positive/negative number carrying no digits is just a zero
@@ -297,6 +327,10 @@ mpd_t decimal_from_materialized_numeric(const materialized_numeric* m)
 		mpd_set_flags(&res, MPD_POS);
 	}
 
+	// only now, with the real exponent in place, finalize under the just-right context :
+	// any in-limit materialized_numeric fits its precision, emax and etiny exactly, so this is a pure validation and never rounds or clamps
+	mpd_context_t ctx;
+	get_mpd_context_for_materialized_numeric(&ctx);
 	uint32_t status = 0;
 	mpd_qfinalize(&res, &ctx, &status);
 	return res;
@@ -358,9 +392,21 @@ materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* expone
 	// 2 base 10^6 words make 1 base 10^12 digit, little endian (a missing high word counts as 0).
 	uint32_t digits_count = (words_count + 1) / 2;
 
+	// limit the incoming digits : d is expected to have been worked on under get_mpd_context_for_materialized_numeric,
+	// whose precision already bounds it to MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT base 10^12 digits, so this normally never triggers.
+	// if d was built under a larger context anyway, the excess least significant digits are dropped (truncation toward zero),
+	// raising the power of the new least significant digit accordingly.
+	// the zero skip below then runs after this truncation, so any newly exposed least significant zero digits are also dropped (canonical form).
+	uint32_t start = 0;
+	if(digits_count > MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT)
+	{
+		uint32_t excess_digits_count = digits_count - MAX_MATERIALIZED_NUMERIC_DIGIT_COUNT;
+		start += excess_digits_count;
+		lsd_power += excess_digits_count;
+	}
+
 	// skip least significant zero digits : they only raise the power and must not be stored (canonical form).
 	// the coefficient has no leading zeros, so the most significant digit is always non zero (no high skip needed).
-	uint32_t start = 0;
 	while(start < digits_count)
 	{
 		uint64_t lo = words[2*start];
@@ -370,7 +416,7 @@ materialized_numeric decimal_to_materialized_numeric(const mpd_t* d, int* expone
 		start++;
 		lsd_power++;
 	}
-	uint32_t final_digits_count = digits_count - start; // significant digits (coefficient is non zero -> >= 1)
+	uint32_t final_digits_count = digits_count - start; // significant digits after the limit truncation and the zero skip
 
 	// this is the exact exponent that will be stored in the materialized_numeric (power of the most
 	// significant digit). the saturation is done on THIS final exponent, not on the raw base 10 mpd
