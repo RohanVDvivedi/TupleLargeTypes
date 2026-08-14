@@ -156,6 +156,11 @@ uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int6
 	return get_nth_digit_from_materialized_numeric(m, m->exponent - power);
 }
 
+const uint64_t* peek_all_contiguous_digits_from_materialized_numeric(const materialized_numeric* m, uint32_t position, uint32_t* digits_count)
+{
+	return peek_all_contiguous_from_fornt_in_int_list(m, position, digits_count);
+}
+
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2)
 {
 	numeric_sign_bits sign_bits1; int16_t exponent1;

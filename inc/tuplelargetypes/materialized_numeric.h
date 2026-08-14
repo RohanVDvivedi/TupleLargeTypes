@@ -73,6 +73,11 @@ int64_t minimum_power_of_digit_for_materialized_numeric(const materialized_numer
 
 uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int64_t power);
 
+// started giving out contiguous read-only read only array of digits in decreasing power starting with digit at (10^12)^(exponent-position)
+// next call must be made after position += digits_count, for the next digits in sequence until it returns NULL
+// the pointer is internal to the structure and must never be freed
+const uint64_t* peek_all_contiguous_digits_from_materialized_numeric(const materialized_numeric* m, uint32_t position, uint32_t* digits_count);
+
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2);
 
 void negate_materialized_numeric(materialized_numeric* m);
