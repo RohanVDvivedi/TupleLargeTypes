@@ -9,6 +9,7 @@ typedef struct materialized_numeric materialized_numeric;
 #include<mpdecimal.h>
 
 data_definitions_value_arraylist(digits_list, uint64_t)
+declarations_value_arraylist(digits_list, uint64_t, )
 
 /*
 	materialized_numeric is a base 10^12 number

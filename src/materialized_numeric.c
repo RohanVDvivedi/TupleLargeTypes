@@ -1,8 +1,7 @@
 #include<tuplelargetypes/materialized_numeric.h>
 
-declarations_value_arraylist(digits_list, uint64_t, static inline)
 #define EXPANSION_FACTOR 1.5
-function_definitions_value_arraylist(digits_list, uint64_t, static inline)
+function_definitions_value_arraylist(digits_list, uint64_t, )
 
 #include<stdlib.h>
 
