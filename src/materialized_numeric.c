@@ -158,7 +158,10 @@ uint64_t get_digit_from_materialized_numeric(const materialized_numeric* m, int6
 
 const uint64_t* peek_all_contiguous_digits_from_materialized_numeric(const materialized_numeric* m, uint32_t position, uint32_t* digits_count)
 {
-	return peek_all_contiguous_from_fornt_in_int_list(m, position, digits_count);
+	cy_uint peeked_count = 0;
+	const uint64_t* next_digits = peek_all_contiguous_from_front_in_digits_list(&(m->digits), position, &peeked_count);
+	(*digits_count) = peeked_count;
+	return next_digits;
 }
 
 int compare_materialized_numeric(const materialized_numeric* m1, const materialized_numeric* m2)
