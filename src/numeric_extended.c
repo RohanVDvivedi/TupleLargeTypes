@@ -170,8 +170,9 @@ int set_sign_bits_and_exponent_for_numeric(numeric_sign_bits sign_bits, int16_t 
 	if(is_extended)
 	{
 		relative_positonal_accessor_set_from_relative(&rpa, EXTENDED_PREFIX_POS_ACC);
+		const data_type_info* dti_temp;
 		datum inline_component;
-		int valid = get_value_from_element_from_tuple(&inline_component, tpl_d, rpa.exact, tupl);
+		int valid = get_value_from_element_from_tuple(&inline_component, &dti_temp, tpl_d, rpa.exact, tupl);
 		if(!valid) // this should not happen, for most cases
 		{
 			deinitialize_relative_positional_accessor(&rpa);

@@ -37,8 +37,9 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	if(bwi_p->is_extended)
 	{
 		relative_positonal_accessor_set_from_relative(&child_relative_accessor, EXTENDED_PREFIX_POS_ACC);
+		const data_type_info* dti_temp;
 		datum prefix;
-		get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+		get_value_from_element_from_tuple(&prefix, &dti_temp, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
 
 		if(is_datum_NULL(&prefix))
 		{
@@ -56,8 +57,9 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 
 			// initialize extension pointers, only needed here
 			{
+				const data_type_info* dti_temp;
 				datum uval;
-				get_value_from_element_from_tuple(&uval, tpl_d, pos, tupl);
+				get_value_from_element_from_tuple(&uval, &dti_temp, tpl_d, pos, tupl);
 				bwi_p->extension_head = get_extension_head_for_extended_type(&uval, dti_p, &(pam_p->pas));
 				bwi_p->extension_tail = extension_tail;
 			}
@@ -74,8 +76,9 @@ binary_write_iterator* get_new_binary_write_iterator(void* tupl, const tuple_def
 	else
 	{
 		relative_positonal_accessor_set_from_relative(&child_relative_accessor, SELF);
+		const data_type_info* dti_temp;
 		datum prefix;
-		get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+		get_value_from_element_from_tuple(&prefix, &dti_temp, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
 
 		bwi_p->bytes_written_to_prefix = prefix.string_or_binary_size;
 		bwi_p->bytes_to_be_written_to_prefix = bytes_to_be_written_to_prefix;
@@ -134,8 +137,9 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 			// doing the same above thing but in more optimized way, this is illegal but fast
 			if(expanded)
 			{
+				const data_type_info* dti_temp;
 				datum prefix;
-				get_value_from_element_from_tuple(&prefix, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
+				get_value_from_element_from_tuple(&prefix, &dti_temp, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
 				memory_move((void*)(prefix.string_or_binary_value + old_element_count), data, bytes_written_this_iteration);
 			}
 

@@ -39,8 +39,9 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	if(dwi_p->is_extended)
 	{
 		relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
+		const data_type_info* dti_temp;
 		datum prefix;
-		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+		get_value_from_element_from_tuple(&prefix, &dti_temp, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 
 		if(is_datum_NULL(&prefix))
 		{
@@ -58,8 +59,9 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 
 			// initialize extension pointers, only needed here
 			{
+				const data_type_info* dti_temp;
 				datum uval;
-				get_value_from_element_from_tuple(&uval, tpl_d, pos, tupl);
+				get_value_from_element_from_tuple(&uval, &dti_temp, tpl_d, pos, tupl);
 				dwi_p->extension_head = get_extension_head_for_extended_type(&uval, dti_p, &(pam_p->pas));
 				dwi_p->extension_tail = extension_tail;
 			}
@@ -76,13 +78,14 @@ digit_write_iterator* get_new_digit_write_iterator(void* tupl, const tuple_def* 
 	else
 	{
 		relative_positonal_accessor_set_from_relative(&child_relative_accessor, GET_NUMERIC_DIGITS_POS_ACC(dwi_p->is_extended));
+		const data_type_info* dti_temp;
 		datum prefix;
-		get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+		get_value_from_element_from_tuple(&prefix, &dti_temp, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 
 		if(is_datum_NULL(&prefix))
 		{
 			set_element_in_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl, EMPTY_DATUM, UINT32_MAX);
-			get_value_from_element_from_tuple(&prefix, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
+			get_value_from_element_from_tuple(&prefix, &dti_temp, dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
 		}
 
 		dwi_p->digits_written_to_prefix = get_element_count_for_element_from_tuple(dwi_p->tpl_d, child_relative_accessor.exact, dwi_p->tupl);
