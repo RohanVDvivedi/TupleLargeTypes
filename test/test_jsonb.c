@@ -137,16 +137,15 @@ jsonb_node* generate_test_data()
 void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const jsonb_node* node_p, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
 
 	binary_write_iterator* bwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -188,8 +187,8 @@ void serialize_in_to_tuple_column(tuple_def* tpl_d, char* inline_tuple, const js
 jsonb_node* parse_from_tuple_column(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -394,8 +393,8 @@ int main()
 	/* TEST JSONB READ ITERATOR */
 
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	binary_read_iterator* bri_p = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 	jsonb_read_iterator jri = init_jsonb_read_iterator(bri_p);

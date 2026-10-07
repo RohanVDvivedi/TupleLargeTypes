@@ -118,16 +118,15 @@ tuple_def* get_tuple_definition(const page_access_specs* pas_p)
 void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, const blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
 
 	binary_write_iterator* tbwi_p = get_new_binary_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -164,8 +163,8 @@ void insert_all_test_data(tuple_def* tpl_d, char* inline_tuple, const blob_store
 void read_and_compare_all_test_data(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -275,8 +274,8 @@ int main()
 	{
 		{
 			datum uval;
-			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			const data_type_info* dti;
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
@@ -289,8 +288,8 @@ int main()
 
 		{
 			datum uval;
-			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			const data_type_info* dti;
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
@@ -310,8 +309,8 @@ int main()
 	{
 		{
 			datum uval;
-			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			const data_type_info* dti;
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
@@ -324,8 +323,8 @@ int main()
 
 		{
 			datum uval;
-			const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			const data_type_info* dti;
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, &bstd, pam_p, NULL);
 			binary_read_iterator* bri2 = get_new_binary_read_iterator((compare_with[i] == NULL) ? (NULL_DATUM) : &((datum){.string_or_binary_value = compare_with[i], .string_or_binary_size = strlen(compare_with[i])}), NULL, &bstd, pam_p, NULL);
 			int cmp = 100;
@@ -435,11 +434,9 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		int prefix = 100;
 		datum uval;
 		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(0), tuple);
 		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(1), tuple);
 		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		cmp = compare_tb(bri1, bri2, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s1, s2, cmp, prefix);
@@ -452,11 +449,9 @@ void set_and_compare(const char* s1, const char* s2, char* tuple, const tuple_de
 		int prefix = 100;
 		datum uval;
 		const data_type_info* dti;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(0), tuple);
 		binary_read_iterator* bri1 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(1), tuple);
 		binary_read_iterator* bri2 = get_new_binary_read_iterator(&uval, dti, bstd_p, pam_p, NULL);
 		cmp = compare_tb(bri2, bri1, &prefix, transaction_id, &abort_error);
 		printf("%s, %s => cmp(%d), prefix(%d)\n", s2, s1, cmp, prefix);

@@ -112,16 +112,15 @@ void populate_digits_buffer(uint64_t* digits, uint32_t index, uint32_t count)
 void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p, page_modification_methods* pmm_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (before init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
 
 	digit_write_iterator* dwi_p = get_new_digit_write_iterator(inline_tuple, tpl_d, ACCS, blob_store_root_page_id, extension_tail, PREFIX_SIZE, bstd_p, pam_p, pmm_p);
 
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE (after init-ing write_iterator) : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -156,8 +155,8 @@ void insert_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tup
 void read_and_compare_all_test_digits(tuple_def* tpl_d, char* inline_tuple, blob_store_tuple_defs* bstd_p, page_access_methods* pam_p)
 {
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
@@ -261,8 +260,8 @@ int main()
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
 	datum uval;
-	const data_type_info* dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	const data_type_info* dti;
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 	printf("\n");
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
 
@@ -320,8 +319,7 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 	printf("\n");
 
 	s = NEGATIVE_NUMERIC;
@@ -336,8 +334,7 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 	printf("\n");
 
 	s = POSITIVE_NUMERIC;
@@ -345,8 +342,7 @@ int main()
 	set_sign_bits_and_exponent_for_numeric(s, e, inline_tuple, tpl_d, ACCS);
 	printf("INLINE TUPLE : ");
 	print_tuple(inline_tuple, tpl_d);
-	dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-	get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+	get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 	printf("\n");
 
 	read_and_compare_all_test_digits(tpl_d, inline_tuple, &bstd, pam_p);
@@ -397,8 +393,7 @@ int main()
 		int error = 0;
 
 		{
-			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, NULL, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
@@ -415,8 +410,7 @@ int main()
 		}
 
 		{
-			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, NULL, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
@@ -441,8 +435,7 @@ int main()
 		int error = 0;
 
 		{
-			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, NULL, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
@@ -459,8 +452,7 @@ int main()
 		}
 
 		{
-			dti = get_type_info_for_element_from_tuple_def(tpl_d, ACCS);
-			get_value_from_element_from_tuple(&uval, tpl_d, ACCS, inline_tuple);
+			get_value_from_element_from_tuple(&uval, &dti, tpl_d, ACCS, inline_tuple);
 			numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, &bstd, pam_p, NULL, transaction_id, &abort_error);
 			numeric_reader_interface nri2 = init_materialized_numeric_reader_interface(compare_with[i]);
 			int cmp = 100;
@@ -618,11 +610,9 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 	{
 		int cmp = 100;
 		int prefix = 100;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(0), tuple);
 		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, NULL, transaction_id, &abort_error);
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(1), tuple);
 		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, NULL, transaction_id, &abort_error);
 		cmp = compare_numeric(&nri1, &nri2, &prefix, &error);
 		nri1.close_digits_stream(&nri1);
@@ -636,11 +626,10 @@ void set_and_compare(const num* n1, const num* n2, char* tuple, const tuple_def*
 	{
 		int cmp = 100;
 		int prefix = 100;
-		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(0));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(0), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(0), tuple);
 		numeric_reader_interface nri1 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, NULL, transaction_id, &abort_error);
 		dti = get_type_info_for_element_from_tuple_def(tpl_d, STATIC_POSITION(1));
-		get_value_from_element_from_tuple(&uval, tpl_d, STATIC_POSITION(1), tuple);
+		get_value_from_element_from_tuple(&uval, &dti, tpl_d, STATIC_POSITION(1), tuple);
 		numeric_reader_interface nri2 = init_intuple_numeric_reader_interface(uval, dti, bstd_p, pam_p, NULL, transaction_id, &abort_error);
 		cmp = compare_numeric(&nri2, &nri1, &prefix, &error);
 		nri1.close_digits_stream(&nri1);
