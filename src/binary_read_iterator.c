@@ -3,6 +3,7 @@
 #include<tupleindexer/interface/page_access_methods.h>
 
 #include<stdlib.h>
+#include<string.h>
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
@@ -124,7 +125,7 @@ uint32_t read_from_binary_read_iterator(binary_read_iterator* bri_p, char* data,
 
 		// copy from current chunk, only if data is not empty
 		if(data)
-			memory_move(data + bytes_read, get_byte_array_dstring(&(bri_p->curr_chunk)), bytes_read_this_iteration);
+			memmove(data + bytes_read, get_byte_array_dstring(&(bri_p->curr_chunk)), bytes_read_this_iteration);
 
 		// consume bytes from both the current chunk and the bsri_p, if it is not null
 		discard_chars_from_front_dstring(&(bri_p->curr_chunk), bytes_read_this_iteration);

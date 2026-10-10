@@ -3,6 +3,7 @@
 #include<tupleindexer/interface/page_access_methods.h>
 
 #include<stdlib.h>
+#include<string.h>
 
 #include<tuplelargetypes/relative_positional_accessor.h>
 
@@ -140,7 +141,7 @@ uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const cha
 				const data_type_info* dti_temp;
 				datum prefix;
 				get_value_from_element_from_tuple(&prefix, &dti_temp, bwi_p->tpl_d, child_relative_accessor.exact, bwi_p->tupl);
-				memory_move((void*)(prefix.string_or_binary_value + old_element_count), data, bytes_written_this_iteration);
+				memmove((void*)(prefix.string_or_binary_value + old_element_count), data, bytes_written_this_iteration);
 			}
 
 			bwi_p->bytes_written_to_prefix += bytes_written_this_iteration;

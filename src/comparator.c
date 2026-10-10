@@ -1,5 +1,7 @@
 #include<tuplelargetypes/comparator.h>
 
+#include<string.h>
+
 int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* is_prefix, const void* transaction_id, int* abort_error)
 {
 	(*is_prefix) = 0;
@@ -48,7 +50,9 @@ int compare_tb(binary_read_iterator* bri1_p, binary_read_iterator* bri2_p, int* 
 		else // process same number of bytes from both of them, if both of them have some number of bytes
 		{
 			const uint32_t bytes_processed = min(data_size1, data_size2);
-			cmp = memory_compare(data1, data2, bytes_processed);
+			cmp = memcmp(data1, data2, bytes_processed);
+			if(cmp != 0)
+				cmp = (cmp > 0) ? 1 : -1;
 
 			// consume bytes processed from both of the iterators
 

@@ -1,6 +1,7 @@
 #include<tuplelargetypes/tuple_list_helper.h>
 
 #include<stdlib.h>
+#include<string.h>
 
 typedef struct get_size_context get_size_context;
 struct get_size_context
@@ -24,7 +25,7 @@ static uint32_t read_tuple_prefix_from_iterator(void* context_p, void* data, uin
 			return 0;
 		if(bytes_peeked >= data_size)
 		{
-			memory_move(data, tuple_prefix, data_size);
+			memmove(data, tuple_prefix, data_size);
 			return data_size;
 		}
 		if(bytes_peeked == 0)

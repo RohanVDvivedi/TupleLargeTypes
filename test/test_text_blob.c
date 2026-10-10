@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 #include<tuplestore/tuple.h>
 #include<tuplestore/tuple_def.h>
@@ -255,9 +256,9 @@ int main()
 	read_and_compare_all_test_data(tpl_d, inline_tuple, &bstd, pam_p);
 
 	char* test5 = alloca((strlen(test_data) * 3) + 1);
-	memory_move(test5, test_data, strlen(test_data));
-	memory_move(test5 + strlen(test_data), test_data, strlen(test_data));
-	memory_move(test5 + 2 * strlen(test_data), test_data, strlen(test_data));
+	memmove(test5, test_data, strlen(test_data));
+	memmove(test5 + strlen(test_data), test_data, strlen(test_data));
+	memmove(test5 + 2 * strlen(test_data), test_data, strlen(test_data));
 	test5[3 * strlen(test_data)] = '\0';
 
 	char* compare_with[] = {
