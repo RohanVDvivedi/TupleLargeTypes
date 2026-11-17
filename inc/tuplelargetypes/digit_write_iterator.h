@@ -51,4 +51,6 @@ void delete_digit_write_iterator(digit_write_iterator* dwi_p, const void* transa
 
 uint32_t append_to_digit_write_iterator(digit_write_iterator* dwi_p, const uint64_t* digits, uint32_t digits_size, const heap_table_notifier* notify_wrong_entry, const void* transaction_id, int* abort_error);
 
+// ideally you should make a very large append call and fix all entries returned in the heap_table_notifier
+
 #endif

@@ -53,4 +53,6 @@ void delete_binary_write_iterator(binary_write_iterator* bwi_p, const void* tran
 
 uint32_t append_to_binary_write_iterator(binary_write_iterator* bwi_p, const char* data, uint32_t data_size, const heap_table_notifier* notify_wrong_entry, const void* transaction_id, int* abort_error);
 
+// ideally you should make a very large append call and fix all entries returned in the heap_table_notifier
+
 #endif
